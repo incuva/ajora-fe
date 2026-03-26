@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Àjọrà — Coming Soon
 
-## Getting Started
+A premium, community-driven collective buying platform — where pooled demand meets structured commerce. Experience transparent, trust-first cooperative growth.
 
-First, run the development server:
+## 🚀 Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** [Next.js (App Router)](https://nextjs.org/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Fonts:** [Playfair Display](https://fonts.google.com/specimen/Playfair+Display) & [Montserrat](https://fonts.google.com/specimen/Montserrat) via `next/font`
+
+## 🛠️ Project Structure
+
+```text
+src/
+├── app/
+│   ├── layout.tsx     # Root layout & font configuration
+│   ├── page.tsx       # Main landing page
+│   └── globals.css    # Global styles & Tailwind v4 theme
+└── components/
+    └── home/          # Modularized landing page components
+        ├── footer.tsx
+        ├── header.tsx
+        ├── icons.tsx
+        ├── logo-mark.tsx
+        └── pillar.tsx
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎨 Design System
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The project uses a custom design system defined in `src/app/globals.css` using Tailwind v4's `@theme` directive.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Primary Green:** `#114B3A` (`--color-green`)
+- **Accent Gold:** `#C89B3C` (`--color-gold`)
+- **Background:** `#F7F7F5` (`--color-bg`)
+- **Text:** `#1C1C1C` / `#6A6A6A`
 
-## Learn More
+## 🏁 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js 18.17 or later
+- npm, yarn, pnpm, or bun
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd ajora-fe
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 🤝 Collaborative Guidelines
+
+- **Styling:** Use Tailwind CSS utility classes. Avoid arbitrary values where possible by leveraging the theme tokens in `globals.css`.
+- **Components:** Keep components modular and placed in `src/components`.
+- **Animations:** Use `framer-motion` for all interactive and entrance animations.
+- **Commits:** Follow conventional commit messages (e.g., `feat:`, `fix:`, `refactor:`, `docs:`).
+
+## 📄 License
+
+© 2026 Àjọrà by Basorun (Ibadan) Forerunner Interest-Free Cooperative Investment and Credit Society Limited. All rights reserved.
