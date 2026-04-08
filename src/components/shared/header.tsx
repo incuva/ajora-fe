@@ -5,7 +5,7 @@ import { ChevronsUpDown } from "lucide-react";
 
 const UIHeader = () => {
   return (
-    <main className="w-3xs flex flex-col justify-between border-r border-slate-200">
+    <main className="w-3xs flex-col justify-between border-r border-slate-200">
       <section className="w-full flex flex-col">
         <section className="w-full h-18 p-2">
           <Image
