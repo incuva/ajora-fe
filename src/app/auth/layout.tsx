@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <main className="flex h-screen w-full bg-bg">
+    <main className="flex h-screen w-full">
       <UIHeader />
       <section className="w-full flex flex-col">
         <UITopbar />

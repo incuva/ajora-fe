@@ -10,7 +10,7 @@ interface OverviewStatCardProps {
 
 const OverviewStatCard = ({ title, value, change, icon }: OverviewStatCardProps) => {
   return (
-    <Card className="col-span-1 bg-white py-3 px-1 rounded-md shadow-none">
+    <Card className="col-span-1 bg-white py-3 px-4 rounded-md shadow-none ring-0">
       <CardHeader>
         <CardTitle className="text-sm font-medium text-gray-900">{title}</CardTitle>
         <CardAction className="p-1 rounded-full bg-gold-light">

@@ -23,10 +23,6 @@
   --background: var(--color-bg);
   --foreground: var(--color-text);
 
-  --border: var(--color-grey);
-  --input: var(--color-grey);
-  --ring: var(--color-gold);
-
   /*
    * Fonts — using static strings so next/font's self-hosted @font-face
    * declarations in <head> are picked up correctly via font-family name matching.
@@ -71,7 +67,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bg text-foreground;
   }
   html {
     @apply font-sans;
