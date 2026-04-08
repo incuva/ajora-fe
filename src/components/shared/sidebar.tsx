@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { ReactElement } from "react";
 import { CiBoxList, CiUser } from "react-icons/ci";
 import { GiWallet } from "react-icons/gi";
@@ -52,8 +55,10 @@ const navLinks = [
 ];
 
 const UISidebar = () => {
+  const pathname = usePathname();
+
   return (
-    <main className="px-4 w-full flex flex-col gap-1">
+    <main className="pl-3 pr-2 w-full flex flex-col gap-1">
       {navLinks.map((link) => {
         return (
           <NavLink
@@ -61,6 +66,7 @@ const UISidebar = () => {
             href={link.href}
             icon={link.icon}
             key={link.name}
+            active={link.href === pathname}
           />
         );
       })}
@@ -74,15 +80,17 @@ const NavLink = ({
   name,
   href,
   icon,
+  active
 }: {
   name: string;
   href: string;
   icon: ReactElement;
+  active: boolean;
 }) => {
   return (
-    <Link href={href} className="w-full flex items-center gap-3 p-2 font-inter">
+    <Link href={href} className={`w-full flex items-center gap-3 p-2 rounded-sm font-inter ${active ? "bg-gold-light text-primary" : ""}`}>
       {icon}
-      <p className="font-normal">{name}</p>
+      <p className={`text-sm font-normal ${active ? "text-primary" : ""}`}>{name}</p>
     </Link>
   );
 };
