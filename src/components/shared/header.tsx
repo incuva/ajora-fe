@@ -7,7 +7,21 @@ const UIHeader = () => {
   return (
     <main className="w-3xs flex-col justify-between border-r border-slate-200">
       <section className="w-full flex flex-col">
-        <section className="w-full h-18 p-2">
+        {/* Table Icon View */}
+        <section className="lg:hidden w-full h-18 p-2">
+          <Image
+            src="/logo-icon.png"
+            alt="Àjọrà"
+            width={160}
+            height={32}
+            priority
+            className="object-contain"
+            style={{ height: "100%", width: "100%" }}
+          />
+        </section>
+
+        {/* Desktop View */}
+        <section className="hidden lg:block w-full h-18 p-2">
           <Image
             src="/logo.png"
             alt="Àjọrà"
@@ -22,7 +36,7 @@ const UIHeader = () => {
       </section>
 
       {/* User Badge  */}
-      <section className="w-52 self-end flex justify-between items-center gap-2 p-4 rounded-md">
+      <section className="hidden lg:flex w-52 self-end justify-between items-center gap-2 p-4 rounded-md">
         <section className="flex gap-2 items-center">
           <Avatar className="w-9 h-9">
             <AvatarImage
