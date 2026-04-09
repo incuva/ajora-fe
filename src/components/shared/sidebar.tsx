@@ -1,56 +1,50 @@
 "use client";
 
+import { Apps16Regular, AppsListRegular, ChartMultiple16Regular, Grid16Regular, Person16Regular, Settings16Regular, Shapes16Regular, WalletCreditCard16Regular } from "@fluentui/react-icons";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { ReactElement } from "react";
-import { CiBoxList, CiUser } from "react-icons/ci";
-import { GiWallet } from "react-icons/gi";
-import { GrAnalytics } from "react-icons/gr";
-import { HiOutlineViewGrid } from "react-icons/hi";
-import { LuSettings } from "react-icons/lu";
-import { PiStackThin } from "react-icons/pi";
-import { TbApps } from "react-icons/tb";
+import { ReactElement } from "react";
 
 const navLinks = [
   {
     name: "Overview",
     href: "/auth/admin/overview",
-    icon: <HiOutlineViewGrid />,
+    icon: <Grid16Regular />,
   },
   {
     name: "Pools",
     href: "/auth/admin/pools",
-    icon: <TbApps />,
+    icon: <Apps16Regular />,
   },
   {
     name: "Items",
     href: "/auth/admin/items",
-    icon: <PiStackThin />,
+    icon: <Shapes16Regular />,
   },
   {
     name: "Users",
     href: "/auth/admin/users",
-    icon: <CiUser />,
+    icon: <Person16Regular />,
   },
   {
     name: "Orders",
     href: "/auth/admin/orders",
-    icon: <CiBoxList />,
+    icon: <AppsListRegular />,
   },
   {
     name: "Reports",
     href: "/auth/admin/reports",
-    icon: <GrAnalytics />,
+    icon: <ChartMultiple16Regular />,
   },
   {
     name: "Payments",
     href: "/auth/admin/payments",
-    icon: <GiWallet />,
+    icon: <WalletCreditCard16Regular />,
   },
   {
     name: "Settings",
     href: "/auth/admin/settings",
-    icon: <LuSettings />,
+    icon: <Settings16Regular />,
   },
 ];
 

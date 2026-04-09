@@ -1,7 +1,7 @@
-import { GoBell } from "react-icons/go";
 import UserBadge from "./userbadge";
 import { Field } from "../ui/field";
 import { Input } from "../ui/input";
+import { Alert24Regular } from "@fluentui/react-icons";
 
 const UITopbar = () => {
   return (
@@ -10,7 +10,7 @@ const UITopbar = () => {
         <Input className="bg-white" type="search" placeholder="Type a command or search..." />
       </Field>
       <section className="flex items-center gap-10">
-        <GoBell className="w-6 h-6 text-green" />
+        <Alert24Regular className="text-green" />
         <UserBadge />
       </section>
     </main>

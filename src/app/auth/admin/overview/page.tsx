@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   Card,
@@ -9,8 +11,8 @@ import {
 import { GoArrowUpRight } from "react-icons/go";
 import OverviewStatCard from "@/components/overview/overview-stat-card";
 import { Button } from "@/components/ui/button";
-import { TbApps } from "react-icons/tb";
 import { Plus } from "lucide-react";
+import { AppsListRegular } from "@fluentui/react-icons";
 
 const OverviewPage = () => {
   return (
@@ -65,7 +67,7 @@ const OverviewPage = () => {
             <div className="bg-white h-80 rounded-2xl flex justify-center items-center font-inter">
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="border border-gray-200 p-2 rounded-md">
-                  <TbApps className="w-5 h-5 text-gray-400" />
+                  <AppsListRegular className="w-5 h-5 text-gray-400" />
                 </div>
                 <p className="text-lg font-bold text-green">
                   No Activities Yet
