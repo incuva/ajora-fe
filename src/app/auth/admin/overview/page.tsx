@@ -17,14 +17,14 @@ import StatsCard from "@/components/shared/stats-card";
 const OverviewPage = () => {
   return (
     <UIContentLayout>
-      <div className="w-full flex flex-col gap-4 p-2">
+      <div className="w-full flex flex-col gap-4">
         <Card className="bg-transparent ring-0 pt-0">
-          <CardHeader>
+          <CardHeader className="px-0">
             <CardTitle className="font-playfair text-xl font-medium">
               Overview
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0">
             <StatsCard
               title="Total Active Pools"
               value="--"
@@ -53,7 +53,7 @@ const OverviewPage = () => {
         </Card>
 
         <Card className="bg-transparent ring-0">
-          <CardHeader>
+          <CardHeader className="px-0">
             <CardTitle className="font-playfair text-lg font-medium">
               Recent Activities
             </CardTitle>
@@ -63,7 +63,7 @@ const OverviewPage = () => {
               </Button>
             </CardAction>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             <div className="bg-white h-80 rounded-2xl flex justify-center items-center font-inter">
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="border border-gray-200 p-2 rounded-md">

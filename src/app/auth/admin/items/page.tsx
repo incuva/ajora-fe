@@ -20,7 +20,7 @@ const ItemsPage = () => {
   return (
     <UIContentLayout>
       <Card className="bg-transparent ring-0">
-        <CardHeader>
+        <CardHeader className="px-0">
           <CardTitle className="font-playfair text-xl font-medium">
             Items
           </CardTitle>
@@ -69,7 +69,7 @@ const ItemsPage = () => {
             </div>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-0">
           <section>
             <EmptyItems />
           </section>

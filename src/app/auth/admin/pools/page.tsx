@@ -1,9 +1,7 @@
 "use client";
 
-import EmptyPool from "@/components/pools/empty-pool";
+import { useEffect } from "react";
 import UIContentLayout from "@/components/shared/content-layout";
-import ListFilterBadge from "@/components/shared/list-filter-badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -12,57 +10,65 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import DataTable from "@/components/shared/data-table/index";
+import EmptyPool from "@/components/pools/empty-pool";
+import { usePoolsTableStore, type Pool } from "@/stores/pools-table.store";
+import { buildColumns, POOL_FILTERS } from "@/constants/pool";
 
 const PoolsPage = () => {
-  const [activeTab, setActiveTab] = useState("all");
+  const {
+    pools,
+    isLoading,
+    page,
+    pageSize,
+    total,
+    activeFilter,
+    setPage,
+    setPageSize,
+    setFilter,
+    fetchPools,
+  } = usePoolsTableStore();
+
+  useEffect(() => {
+    fetchPools();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const columns = buildColumns();
+
   return (
     <UIContentLayout>
       <Card className="bg-transparent ring-0">
-        <CardHeader>
+        <CardHeader className="px-0">
           <CardTitle className="font-playfair text-xl font-medium">
             Pools
           </CardTitle>
           <CardAction>
-            <Button className="bg-green text-white">
+            <Button className="bg-green text-white" size="lg">
               <Plus className="w-4 h-4" /> Create New Pool
             </Button>
           </CardAction>
-          <CardDescription className="mt-2">
-            <div className="flex items-center gap-4">
-              <ListFilterBadge
-                active={activeTab === "all"}
-                onClick={() => setActiveTab("all")}
-                label="All Pools"
-              />
-              <ListFilterBadge
-                active={activeTab === "active"}
-                onClick={() => setActiveTab("active")}
-                label="Active"
-              />
-              <ListFilterBadge
-                active={activeTab === "closed"}
-                onClick={() => setActiveTab("closed")}
-                label="Closed"
-              />
-              <ListFilterBadge
-                active={activeTab === "filled"}
-                onClick={() => setActiveTab("filled")}
-                label="Filled"
-              />
-              <ListFilterBadge
-                active={activeTab === "distributed"}
-                onClick={() => setActiveTab("distributed")}
-                label="Distributed"
-              />
-            </div>
-          </CardDescription>
+          <CardDescription className="mt-2" />
         </CardHeader>
-        <CardContent>
-          <section>
-            <EmptyPool />
-          </section>
+
+        <CardContent className="px-0">
+          <DataTable<Pool>
+            columns={columns}
+            data={pools}
+            isLoading={isLoading}
+            keyField="id"
+            emptyState={<EmptyPool />}
+            filters={POOL_FILTERS}
+            activeFilter={activeFilter}
+            onFilterChange={setFilter}
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
         </CardContent>
       </Card>
     </UIContentLayout>

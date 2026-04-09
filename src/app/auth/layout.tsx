@@ -18,7 +18,7 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
   if (isAdminRoute) {
     return (
       <DeviceRestriction>
-        <main className="flex h-screen w-full bg-bg">
+        <main className="flex h-screen w-full bg-bg overflow-y-hidden">
           <UIHeader />
           <section className="w-full flex flex-col">
             <UITopbar />
