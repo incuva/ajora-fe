@@ -2,6 +2,7 @@
 
 import EmptyPool from "@/components/pools/empty-pool";
 import UIContentLayout from "@/components/shared/content-layout";
+import ListFilterBadge from "@/components/shared/list-filter-badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,36 +31,31 @@ const PoolsPage = () => {
           </CardAction>
           <CardDescription className="mt-2">
             <div className="flex items-center gap-4">
-              <div
-                className={`flex justify-center items-center border rounded-full px-2 py-1 cursor-pointer ${activeTab === "all" ? "bg-gold-400 text-green" : "text-gray-900"}`}
+              <ListFilterBadge
+                active={activeTab === "all"}
                 onClick={() => setActiveTab("all")}
-              >
-                <p>All Pools</p>
-              </div>
-              <div
-                className={`flex justify-center items-center border rounded-full px-2 py-1 cursor-pointer ${activeTab === "active" ? "bg-gold-400 text-green" : "text-gray-900"}`}
+                label="All Pools"
+              />
+              <ListFilterBadge
+                active={activeTab === "active"}
                 onClick={() => setActiveTab("active")}
-              >
-                <p>Active</p>
-              </div>
-              <div
-                className={`flex justify-center items-center border rounded-full px-2 py-1 cursor-pointer ${activeTab === "closed" ? "bg-gold-400 text-green" : "text-gray-900"}`}
+                label="Active"
+              />
+              <ListFilterBadge
+                active={activeTab === "closed"}
                 onClick={() => setActiveTab("closed")}
-              >
-                <p>Closed</p>
-              </div>
-              <div
-                className={`flex justify-center items-center border rounded-full px-2 py-1 cursor-pointer ${activeTab === "filled" ? "bg-gold-400 text-green" : "text-gray-900"}`}
+                label="Closed"
+              />
+              <ListFilterBadge
+                active={activeTab === "filled"}
                 onClick={() => setActiveTab("filled")}
-              >
-                <p>Filled</p>
-              </div>
-              <div
-                className={`flex justify-center items-center border rounded-full px-2 py-1 cursor-pointer ${activeTab === "distributed" ? "bg-gold-400 text-green" : "text-gray-900"}`}
+                label="Filled"
+              />
+              <ListFilterBadge
+                active={activeTab === "distributed"}
                 onClick={() => setActiveTab("distributed")}
-              >
-                <p>Distributed</p>
-              </div>
+                label="Distributed"
+              />
             </div>
           </CardDescription>
         </CardHeader>
