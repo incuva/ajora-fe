@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Card,
   CardAction,
@@ -13,10 +12,11 @@ import OverviewStatCard from "@/components/overview/overview-stat-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { AppsListRegular } from "@fluentui/react-icons";
+import UIContentLayout from "@/components/shared/content-layout";
 
 const OverviewPage = () => {
   return (
-    <main className="w-full h-full px-3 py-1">
+    <UIContentLayout>
       <div className="w-full flex flex-col gap-4 p-2">
         <Card className="bg-transparent ring-0 pt-0">
           <CardHeader>
@@ -67,7 +67,7 @@ const OverviewPage = () => {
             <div className="bg-white h-80 rounded-2xl flex justify-center items-center font-inter">
               <div className="flex flex-col items-center justify-center gap-3">
                 <div className="border border-gray-200 p-2 rounded-md">
-                  <AppsListRegular className="w-5 h-5 text-gray-400" />
+                  <AppsListRegular className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-lg font-bold text-green">
                   No Activities Yet
@@ -84,7 +84,7 @@ const OverviewPage = () => {
           </CardContent>
         </Card>
       </div>
-    </main>
+    </UIContentLayout>
   );
 };
 
