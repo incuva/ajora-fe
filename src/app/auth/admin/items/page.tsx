@@ -1,6 +1,5 @@
 "use client";
 
-import EmptyPool from "@/components/pools/empty-pool";
 import UIContentLayout from "@/components/shared/content-layout";
 import ListFilterBadge from "@/components/shared/list-filter-badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import React, { useState } from "react";
+import { useState } from "react";
+import EmptyItems from "@/components/items/empty-item";
 
 const ItemsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -71,7 +71,7 @@ const ItemsPage = () => {
         </CardHeader>
         <CardContent>
           <section>
-            <EmptyPool />
+            <EmptyItems />
           </section>
         </CardContent>
       </Card>
