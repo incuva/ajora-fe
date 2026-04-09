@@ -8,11 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { GoArrowUpRight } from "react-icons/go";
-import OverviewStatCard from "@/components/overview/overview-stat-card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { AppsListRegular } from "@fluentui/react-icons";
 import UIContentLayout from "@/components/shared/content-layout";
+import StatsCard from "@/components/shared/stats-card";
 
 const OverviewPage = () => {
   return (
@@ -25,25 +25,25 @@ const OverviewPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            <OverviewStatCard
+            <StatsCard
               title="Total Active Pools"
               value="--"
               change="- -"
               icon={<GoArrowUpRight className="w-5 h-5 text-green" />}
             />
-            <OverviewStatCard
+            <StatsCard
               title="Total Revenue"
               value="--"
               change="- -"
               icon={<GoArrowUpRight className="w-5 h-5 text-green" />}
             />
-            <OverviewStatCard
+            <StatsCard
               title="New Users"
               value="--"
               change="- -"
               icon={<GoArrowUpRight className="w-5 h-5 text-green" />}
             />
-            <OverviewStatCard
+            <StatsCard
               title="Pending Orders"
               value="--"
               change="- -"

@@ -1,14 +1,14 @@
 import React from 'react'
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '../ui/card'
 
-interface OverviewStatCardProps {
+interface StatsCardProps {
   title: string;
   value: string;
   change: string;
   icon: React.ReactNode;
 }
 
-const OverviewStatCard = ({ title, value, change, icon }: OverviewStatCardProps) => {
+const StatsCard = ({ title, value, change, icon }: StatsCardProps) => {
   return (
     <Card className="min-w-3xs col-span-1 bg-white py-3 px-4 rounded-md shadow-none ring-0">
       <CardHeader>
@@ -25,4 +25,4 @@ const OverviewStatCard = ({ title, value, change, icon }: OverviewStatCardProps)
   )
 }
 
-export default OverviewStatCard
+export default StatsCard
