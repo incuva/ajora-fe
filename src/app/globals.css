@@ -12,10 +12,13 @@
   --color-bg: #F7F7F5;
   --color-grey: #EFEFEA;
   --color-grey-100: #EFEFEC;
+  --color-grey-500: #8E8E88;
+  --color-grey-800: #3A3A36;
   --color-text: #1C1C1C;
   --color-text-sec: #6A6A6A;
   --color-gold-100: #F8E8C0;
   --color-gold-400: #DEAF4A;
+  --color-gold-800: #876020;
 
   --primary: var(--color-green);
   --primary-foreground: var(--color-gold-light);
