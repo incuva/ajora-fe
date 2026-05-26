@@ -62,7 +62,7 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.25, ease: "easeOut" }}
               className="font-playfair text-tagline font-semibold text-green"
             >
-              01 June 2026
+              01 September 2026
             </motion.h2>
 
             <motion.div
