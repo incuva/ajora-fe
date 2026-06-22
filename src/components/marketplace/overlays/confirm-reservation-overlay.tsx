@@ -52,7 +52,7 @@ const ConfirmReservationOverlay = ({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto rounded-t-2xl bg-white p-4 pb-safe flex flex-col gap-6"
+            className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto rounded-t-2xl bg-white p-4 flex flex-col gap-6"
           >
             {/* Drag handle */}
             <div className="w-10 h-1 rounded-full mx-auto bg-soft-green" />

@@ -12,7 +12,13 @@ import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callou
 import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-overlay";
 
 const BackArrow = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+  >
     <path
       d="M10 13L5 8L10 3"
       stroke="#114B3A"
@@ -24,11 +30,21 @@ const BackArrow = () => (
 );
 
 const ShareIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+  >
     <circle cx="12" cy="4" r="1.5" stroke="#fff" strokeWidth="1.2" />
     <circle cx="12" cy="12" r="1.5" stroke="#fff" strokeWidth="1.2" />
     <circle cx="4" cy="8" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <path d="M10.5 4.75L5.5 7.25M10.5 11.25L5.5 8.75" stroke="#fff" strokeWidth="1.2" />
+    <path
+      d="M10.5 4.75L5.5 7.25M10.5 11.25L5.5 8.75"
+      stroke="#fff"
+      strokeWidth="1.2"
+    />
   </svg>
 );
 
@@ -71,7 +87,11 @@ export default function ItemPage() {
     if (!pool) return;
     setMakePaymentLoading(true);
     try {
-      const result = await makePayment({ poolId: pool.id, fullName, whatsappNumber });
+      const result = await makePayment({
+        poolId: pool.id,
+        fullName,
+        whatsappNumber,
+      });
       if (result.reserved && result.callbackUrl) {
         window.location.href = result.callbackUrl;
       } else {
@@ -92,9 +112,9 @@ export default function ItemPage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-white overflow-x-hidden">
+      <div className="flex flex-col bg-white overflow-x-hidden">
         {/* Top Bar */}
-        <header className="flex items-center justify-between px-4 h-14 bg-white sticky top-0 z-10 border-b border-border-light">
+        <header className="flex items-center justify-between px-4 h-12 bg-white border-b border-border-light">
           <button
             onClick={() => router.back()}
             aria-label="Go back"
@@ -120,7 +140,7 @@ export default function ItemPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="relative w-full h-60 flex items-center justify-center bg-soft-green"
+          className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green"
         >
           <CowIllustration />
         </motion.div>
@@ -147,7 +167,10 @@ export default function ItemPage() {
 
           {/* Info rows */}
           <div className="flex flex-col gap-3">
-            <PoolInfoRow label="Number of Slots" value={String(pool.totalSlots)} />
+            <PoolInfoRow
+              label="Number of Slots"
+              value={String(pool.totalSlots)}
+            />
             <PoolInfoRow
               label="Price per slot"
               value={`₦${pool.pricePerSlot.toLocaleString()}`}
@@ -168,7 +191,7 @@ export default function ItemPage() {
         </motion.div>
 
         {/* Sticky CTA bar */}
-        <div className="fixed bottom-0 left-0 right-0 z-20 bg-white flex gap-3 px-4 pt-3 pb-safe border-t border-border-light max-w-screen">
+        <div className="fixed bottom-0 left-0 right-0 z-20 bg-white flex gap-3 px-4 pt-3 pb-4 border-t border-border-light max-w-screen">
           <div className="flex gap-3 w-full md:max-w-xl md:mx-auto">
             {/* Reserve Slot — primary */}
             <motion.button

@@ -55,7 +55,7 @@ const MakePaymentOverlay = ({
                 Make Payment
               </h2>
               <p className="text-[10px] font-inter text-gold-muted">
-                Enter your details to locate your reservation
+                Enter your details to verify your reservation
               </p>
             </div>
 

@@ -41,9 +41,9 @@ function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="flex flex-col bg-white">
       {/* Top Bar */}
-      <header className="flex items-center gap-2 px-4 h-14 bg-white sticky top-0 z-10 border-b border-border-light">
+      <header className="flex items-center gap-2 px-4 h-12 bg-white sticky top-14 z-10 border-b border-border-light">
         <button
           onClick={() => router.push(`/marketplace/${id}`)}
           aria-label="Go back"

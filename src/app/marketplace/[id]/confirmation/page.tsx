@@ -18,11 +18,7 @@ function ConfirmationContent() {
   const isSuccess = status === "success";
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <header className="flex items-center justify-between px-4 h-14 bg-white border-b border-border-light">
-        <div />
-        <div />
-      </header>
+    <div className="flex flex-col flex-1 bg-white">
 
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -33,7 +29,7 @@ function ConfirmationContent() {
         <ConfirmationCard status={status} />
       </motion.div>
 
-      <div className="px-4 pb-safe-lg md:max-w-xl md:mx-auto md:w-full">
+      <div className="p-4 md:max-w-xl md:mx-auto md:w-full">
         <motion.button
           whileTap={{ scale: 0.97 }}
           onClick={() => router.push(`/marketplace/${id}`)}

@@ -15,7 +15,13 @@ import ReservationSummary from "@/components/marketplace/reservation/reservation
 import ConfirmReservationOverlay from "@/components/marketplace/overlays/confirm-reservation-overlay";
 
 const BackArrow = () => (
-  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
+    fill="none"
+    aria-hidden="true"
+  >
     <path
       d="M10 13L5 8L10 3"
       stroke="#114B3A"
@@ -53,12 +59,9 @@ export default function ReservePage() {
 
   const availableSlots = pool ? pool.totalSlots - pool.filledSlots : 0;
 
-  const handleOffalQtyChange = useCallback(
-    (offalId: string, qty: number) => {
-      setOffalSelection((prev) => ({ ...prev, [offalId]: qty }));
-    },
-    [],
-  );
+  const handleOffalQtyChange = useCallback((offalId: string, qty: number) => {
+    setOffalSelection((prev) => ({ ...prev, [offalId]: qty }));
+  }, []);
 
   const offalsTotalQty = Object.values(offalSelection).reduce(
     (sum, qty) => sum + qty,
@@ -92,7 +95,7 @@ export default function ReservePage() {
           amount: String(slotCount * pool.pricePerSlot),
           callbackUrl: result.callbackUrl ?? "",
         });
-        router.push(`/marketplace/${id}/checkout?${params.toString()}`);
+       router.push(`/marketplace/${id}/confirmation?status=success`);
       } else {
         router.push(`/marketplace/${id}/confirmation?status=fail`);
       }
@@ -111,9 +114,9 @@ export default function ReservePage() {
 
   return (
     <>
-      <div className="min-h-screen flex flex-col bg-white">
+      <div className="flex flex-col bg-white">
         {/* Top Bar */}
-        <header className="flex items-center gap-2 px-4 h-14 bg-white sticky top-0 z-10 border-b border-border-light">
+        <header className="flex items-center gap-2 px-4 h-12 bg-white sticky top-14 z-10 border-b border-border-light">
           <button
             onClick={() => router.back()}
             aria-label="Go back"
@@ -164,7 +167,7 @@ export default function ReservePage() {
         </motion.div>
 
         {/* Sticky CTA */}
-        <div className="fixed bottom-0 left-0 right-0 z-20 bg-white px-4 pt-3 pb-safe border-t border-border-light">
+        <div className="fixed bottom-0 left-0 right-0 z-20 bg-white px-4 py-3 border-t border-border-light">
           <div className="md:max-w-xl md:mx-auto">
             <motion.button
               whileTap={{ scale: 0.97 }}

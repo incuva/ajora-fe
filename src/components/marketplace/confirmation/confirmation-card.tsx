@@ -33,21 +33,30 @@ const ConfirmationCard = ({ status }: ConfirmationCardProps) => {
 // Inline Illustrations
 
 const SuccessIllustration = () => (
-  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" aria-hidden="true">
-    <circle cx="50" cy="50" r="45" fill="#114B3A" opacity="0.12" />
-    <circle cx="50" cy="50" r="32" fill="#114B3A" opacity="0.2" />
-    <path
-      d="M32 50L44 62L68 38"
-      stroke="#114B3A"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="112"
+    height="112"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#16A34A"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+    <path d="m9 11 3 3L22 4" />
   </svg>
 );
 
 const FailureIllustration = () => (
-  <svg width="100" height="100" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+  <svg
+    width="100"
+    height="100"
+    viewBox="0 0 100 100"
+    fill="none"
+    aria-hidden="true"
+  >
     <circle cx="50" cy="50" r="45" fill="#E74C3C" opacity="0.12" />
     <circle cx="50" cy="50" r="32" fill="#E74C3C" opacity="0.2" />
     <path
