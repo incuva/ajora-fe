@@ -15,6 +15,7 @@ import ReservationSummary from "@/components/marketplace/reservation/reservation
 import ConfirmReservationOverlay from "@/components/marketplace/overlays/confirm-reservation-overlay";
 import Button from "@/components/marketplace/common/button";
 import Spinner from "@/components/shared/spinner";
+import { useToastStore } from "@/stores/toast-store";
 
 const BackArrow = () => (
   <svg
@@ -47,6 +48,7 @@ export default function ReservePage() {
   const [offalSelection, setOffalSelection] = useState<OffalsSelection>({});
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayLoading, setOverlayLoading] = useState(false);
+  const { toastError} = useToastStore();
 
   useEffect(() => {
     getPoolById(id).then((data) => {
@@ -55,7 +57,7 @@ export default function ReservePage() {
     });
   }, [id]);
 
-  const availableSlots = pool ? pool.totalSlots - pool.filledSlots : 0;
+  const availableSlots = pool ? pool.available_slots : 0;
 
   const handleOffalQtyChange = useCallback((offalId: string, qty: number) => {
     setOffalSelection((prev) => ({ ...prev, [offalId]: qty }));
@@ -76,27 +78,28 @@ export default function ReservePage() {
     setOverlayLoading(true);
     try {
       const result = await confirmReservation({
-        poolId: pool.id,
-        slotCount,
-        offalsSelection: offalEnabled ? offalSelection : {},
-        ...formData,
+        pool_id: pool.id,
+        no_of_reservation: slotCount,
+        offals: offalEnabled ? offalSelection : {},
+        phone: formData.whatsappNumber,
+        fullname: formData.fullName,
+        delivery: formData.deliveryMode,
+        location: formData.location,
       });
 
       setOverlayOpen(false);
 
-      if (result.success) {
-        const params = new URLSearchParams({
-          orderId: result.orderId ?? "",
-          description: `${pool.name} — Share`,
-          slotCount: String(slotCount),
-          offals: offalEnabled ? String(offalsTotalQty) : "--",
-          amount: String(slotCount * pool.pricePerSlot),
-          callbackUrl: result.callbackUrl ?? "",
-        });
+      if (result.data) {
         router.push(`/marketplace/${id}/confirmation?status=success`);
       } else {
         router.push(`/marketplace/${id}/confirmation?status=fail`);
+        toastError(
+          "Reservation Failed",
+          result.message ?? "An error occurred while reserving a slot for the pool."
+        )
       }
+    } catch(error) {
+      console.error(error)
     } finally {
       setOverlayLoading(false);
     }
@@ -137,19 +140,19 @@ export default function ReservePage() {
         >
           <SlotStepper
             value={slotCount}
-            max={Math.min(availableSlots, 7)}
-            pricePerSlot={pool.pricePerSlot}
+            max={Math.min(availableSlots, pool.total_slots)}
+            pricePerSlot={pool.slot_price}
             onChange={setSlotCount}
           />
 
           <div className="h-px w-full bg-soft-green" />
 
           <OffalsSection
-            hasOffals={pool.hasOffals}
+            hasOffals={pool.offals.length > 0}
             offals={pool.offals}
             offalEnabled={offalEnabled}
             selection={offalSelection}
-            pricePerOffalSlot={pool.offals[0]?.pricePerUnit ?? 10000}
+            pricePerOffalSlot={pool.offals[0]?.price ?? 10000}
             onToggle={setOffalEnabled}
             onQtyChange={handleOffalQtyChange}
           />
@@ -157,10 +160,11 @@ export default function ReservePage() {
           <div className="h-px w-full bg-soft-green" />
 
           <ReservationSummary
+            orderId={pool.id}
             slotCount={slotCount}
             offalsTotalQty={offalEnabled ? offalsTotalQty : 0}
-            amountPerSlot={pool.pricePerSlot}
-            offalPricePerSlot={pool.offals[0]?.pricePerUnit ?? 10000}
+            amountPerSlot={pool.slot_price}
+            offalPricePerSlot={pool.offals[0]?.price ?? 10000}
           />
         </motion.div>
 

@@ -1,10 +1,10 @@
 "use client";
 
-import type { OffalType, OffalsSelection } from "@/lib/types/marketplace.types";
+import type { OffalSlot, OffalsSelection } from "@/lib/types/marketplace.types";
 
 interface OffalsSectionProps {
   hasOffals: boolean;
-  offals: OffalType[];
+  offals: OffalSlot[];
   offalEnabled: boolean;
   selection: OffalsSelection;
   pricePerOffalSlot: number;
@@ -82,8 +82,8 @@ const OffalsSection = ({
                     </span>
 
                     <button
-                      onClick={() => onQtyChange(offal.id, Math.min(offal.maxQty, qty + 1))}
-                      disabled={qty >= offal.maxQty}
+                      onClick={() => onQtyChange(offal.id, Math.min(offal.total_slots, qty + 1))}
+                      disabled={qty >= offal.total_slots}
                       aria-label={`Increase ${offal.name}`}
                       className="w-4 h-4 rounded-full flex items-center justify-center bg-soft-green disabled:opacity-30"
                     >
@@ -98,7 +98,7 @@ const OffalsSection = ({
                       {offal.name}
                     </span>
                     <span className="text-[10px] font-inter text-offal-green">
-                      ({offal.maxQty})
+                      ({offal.total_slots})
                     </span>
                   </div>
                 </div>

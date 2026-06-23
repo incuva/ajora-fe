@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Montserrat, Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import Toast from "@/components/marketplace/common/toast";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -41,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body className={`${montserrat.variable} ${playfair.variable} ${inter.variable} antialiased`}>
+        <Toast />
         {children}
       </body>
     </html>

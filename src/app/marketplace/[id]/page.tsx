@@ -7,11 +7,11 @@ import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
 import SlotFillBar from "@/components/marketplace/item-page/slot-fill-bar";
 import PoolInfoRow from "@/components/marketplace/item-page/pool-info-row";
-import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
+// import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
 import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-overlay";
 import Button from "@/components/marketplace/common/button";
-import Toast from "@/components/marketplace/common/toast";
 import Spinner from "@/components/shared/spinner";
+import { useToastStore } from "@/stores/toast-store";
 
 const ShareIcon = () => (
   <svg
@@ -40,7 +40,6 @@ const CowIllustration = () => (
   </div>
 );
 
-
 function ItemPageContent() {
   const params = useParams();
   const router = useRouter();
@@ -53,10 +52,7 @@ function ItemPageContent() {
   const [makePaymentLoading, setMakePaymentLoading] = useState(false);
 
   // Toast State
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastTitle, setToastTitle] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
+  const { toastSuccess, toastError } = useToastStore();
 
   useEffect(() => {
     getPoolById(id).then((data) => {
@@ -71,10 +67,10 @@ function ItemPageContent() {
     const payment = searchParams.get("payment");
 
     if (status === "success" || payment === "success") {
-      setToastType("success");
-      setToastTitle("Payment Successful");
-      setToastMessage("Your payment was successful, you’d be contacted for delivery of your share.");
-      setToastOpen(true);
+      toastSuccess(
+        "Payment Successful",
+        "Your payment was successful, you&apos;d be contacted for delivery of your share.",
+      );
 
       // Clean the query parameters from browser history
       const newUrl = window.location.pathname;
@@ -106,25 +102,25 @@ function ItemPageContent() {
           description: `${pool.name} — Share`,
           slotCount: "1",
           offals: "--",
-          amount: String(pool.pricePerSlot),
+          amount: String(pool.slot_price),
           callbackUrl: result.callbackUrl ?? "",
         });
         router.push(`/marketplace/${id}/checkout?${checkoutParams.toString()}`);
       } else {
         // Failed verification -> show reservation not found toast
         setMakePaymentOpen(false);
-        setToastType("error");
-        setToastTitle("Reservation not found");
-        setToastMessage("Couldn't find a reservation matching the name and phone number provided.");
-        setToastOpen(true);
+        toastError(
+          "Reservation not found",
+          "Couldn't find a reservation matching the name and phone number provided.",
+        );
       }
     } catch (error) {
       console.error(error);
       setMakePaymentOpen(false);
-      setToastType("error");
-      setToastTitle("Verification Error");
-      setToastMessage("An unexpected error occurred. Please try again.");
-      setToastOpen(true);
+      toastError(
+        "Verification Error",
+        "An unexpected error occurred. Please try again.",
+      );
     } finally {
       setMakePaymentLoading(false);
     }
@@ -133,11 +129,9 @@ function ItemPageContent() {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setToastType("success");
-      setToastTitle("Copied to clipboard");
-      setToastMessage("The item link has been copied successfully.");
-      setToastOpen(true);
+      toastSuccess("Copied to clipboard", "The item link has been copied successfully.");
     } catch (err) {
+      toastError("Error", "Could not copy URL");
       console.error("Could not copy URL: ", err);
     }
   };
@@ -150,18 +144,13 @@ function ItemPageContent() {
     );
   }
 
+  const canPay = pool
+    ? pool.available_slots < 1 && pool.status === "open"
+    : false;
+
   return (
     <>
       <div className="flex flex-col bg-white overflow-x-hidden relative">
-        {/* Toast Container */}
-        <Toast
-          isOpen={toastOpen}
-          type={toastType}
-          title={toastTitle}
-          message={toastMessage}
-          onClose={() => setToastOpen(false)}
-        />
-
         {/* Hero image with floating action buttons */}
         <div className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green">
           {/* Floating Back/Close (x) Button */}
@@ -218,25 +207,28 @@ function ItemPageContent() {
           <div className="flex flex-col gap-3">
             <PoolInfoRow
               label="Number of Slots"
-              value={String(pool.totalSlots)}
+              value={String(pool.total_slots)}
             />
             <PoolInfoRow
               label="Price per slot"
-              value={`₦${pool.pricePerSlot.toLocaleString()}`}
+              value={`₦${pool.slot_price.toLocaleString()}`}
             />
           </div>
 
           {/* Slot fill bar */}
-          <SlotFillBar filled={pool.filledSlots} total={pool.totalSlots} />
+          <SlotFillBar
+            filled={pool.total_slots - pool.available_slots}
+            total={pool.total_slots}
+          />
 
           {/* Total value */}
           <PoolInfoRow
             label="Total value"
-            value={`₦${pool.totalValue.toLocaleString()}`}
+            value={`₦${(pool.total_slots - pool.available_slots) * pool.slot_price}`}
           />
 
           {/* Info callout */}
-          <PoolInfoCallout note={pool.infoNote} />
+          {/* <PoolInfoCallout note={pool.info_note} /> */}
         </div>
 
         {/* Sticky CTA bar */}
@@ -251,7 +243,11 @@ function ItemPageContent() {
             </Button>
 
             {/* Make Payment — secondary (outlined) */}
-            <Button variant="secondary" onClick={() => setMakePaymentOpen(true)}>
+            <Button
+              variant="secondary"
+              onClick={() => setMakePaymentOpen(true)}
+              disabled={!canPay}
+            >
               Make Payment
             </Button>
           </div>

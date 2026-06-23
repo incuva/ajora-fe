@@ -1,27 +1,29 @@
-export interface OffalType {
+export interface ApiResponse<T> {
+  message: string;
+  data: T;
+}
+
+export interface OffalSlot {
   id: string;
-  name: string;
-  /** Max quantity available for this offal on this pool */
-  maxQty: number;
-  /** Price per unit of this offal */
-  pricePerUnit: number;
+  pool_id: string;
+  name: string | null;
+  price: number;
+  status: 'open' | 'closed' | string; // Strongly typed status with string fallback if dynamic
+  total_slots: number;
+  available_slots: number;
 }
 
 export interface Pool {
   id: string;
   name: string;
   description: string;
-  /** e.g. "Pool open" | "Pool closed" | "Pool full" */
-  status: string;
-  totalSlots: number;
-  filledSlots: number;
-  pricePerSlot: number;
-  totalValue: number;
-  infoNote: string;
-  hasOffals: boolean;
-  offals: OffalType[];
-  /** Optional image/illustration key */
-  imageKey?: string;
+  total_slots: number;
+  available_slots: number;
+  imageUrl: string;
+  slot_price: number;
+  total_value: number;
+  status: 'open' | 'closed' | string; 
+  offals: OffalSlot[];
 }
 
 export type DeliveryMode = "pickup" | "delivery";
@@ -32,22 +34,33 @@ export interface OffalsSelection {
 }
 
 export interface ReservationPayload {
-  poolId: string;
-  fullName: string;
-  whatsappNumber: string;
-  deliveryMode: DeliveryMode;
+  pool_id: string;
+  fullname: string;
+  phone: string;
+  delivery: DeliveryMode;
   /** Required when deliveryMode === "delivery" */
   location?: string;
-  slotCount: number;
-  offalsSelection: OffalsSelection;
+  no_of_reservation: number;
+  offals: OffalsSelection;
 }
 
-export interface ReservationResult {
-  success: boolean;
-  orderId?: string;
-  /** If present, navigate to this URL for checkout */
-  callbackUrl?: string;
-  message?: string;
+export interface OffalReservationItem {
+  price: number;
+  offal_id: string;
+  quantity: number;
+}
+
+export interface PoolReservation {
+  id: string;
+  user_id: string;
+  pool_id: string;
+  status: 'pending' | 'confirmed' | 'cancelled' | string;
+  delivery: DeliveryMode;
+  location: string | null;
+  no_of_reservation: number;
+  offals: OffalReservationItem[];
+  created_at: string; // or Date if transformed
+  updated_at: string; // or Date if transformed
 }
 
 export interface CheckoutSummary {
