@@ -2,8 +2,10 @@
 
 import { Bell, MessageCircleQuestionMark } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+    const router = useRouter();
   return (
     <section className="w-full min-h-screen flex flex-col bg-white">
       {/* Shared logo header */}
@@ -15,6 +17,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           height={200}
           priority
           className="object-contain h-20 md:h-24 w-auto"
+          onClick={() => router.push('/')}
         />
 
         <section className="flex gap-3.5">
