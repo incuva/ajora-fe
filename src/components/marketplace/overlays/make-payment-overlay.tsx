@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Button from "@/components/marketplace/common/button";
 
 interface MakePaymentOverlayProps {
   isOpen: boolean;
@@ -19,7 +20,9 @@ const MakePaymentOverlay = ({
   const [fullName, setFullName] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
 
-  const handleContinue = () => {
+  const handleContinue = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fullName.trim() || !whatsappNumber.trim()) return;
     onContinue({ fullName, whatsappNumber });
   };
 
@@ -44,15 +47,18 @@ const MakePaymentOverlay = ({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto rounded-t-2xl bg-white p-4 pb-safe flex flex-col gap-6"
+            className="fixed inset-0 z-50 flex items-end justify-center md:items-center w-full"
           >
+            {/* Wrapper  */}
+            <div className="w-full max-w-md mx-auto rounded-t-2xl md:rounded-2xl bg-white p-4 flex flex-col gap-6">
+
             {/* Drag handle */}
             <div className="w-10 h-1 rounded-full mx-auto bg-soft-green" />
 
             {/* Header */}
             <div className="flex flex-col gap-1">
               <h2 className="font-playfair text-lg font-medium text-green">
-                Make Payment
+                Verify Reservation
               </h2>
               <p className="text-[10px] font-inter text-gold-muted">
                 Enter your details to verify your reservation
@@ -60,60 +66,67 @@ const MakePaymentOverlay = ({
             </div>
 
             {/* Form */}
-            <div className="flex flex-col gap-4">
-              {/* Full Name */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="mp-full-name"
-                  className="text-[13px] font-medium font-inter text-label"
-                >
-                  Full name
-                </label>
-                <input
-                  id="mp-full-name"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="w-full border border-input-border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder"
-                />
+            <form onSubmit={handleContinue} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
+                {/* Full Name */}
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="mp-full-name"
+                    className="text-[13px] font-medium font-inter text-label"
+                  >
+                    Full name
+                  </label>
+                  <input
+                    id="mp-full-name"
+                    type="text"
+                    required
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="w-full border border-input-border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder focus:border-green"
+                  />
+                </div>
+
+                {/* WhatsApp Number */}
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="mp-whatsapp"
+                    className="text-[13px] font-medium font-inter text-label"
+                  >
+                    Whatsapp number
+                  </label>
+                  <input
+                    id="mp-whatsapp"
+                    type="tel"
+                    required
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    placeholder="Enter your whatsapp number"
+                    className="w-full border border-input-border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder focus:border-green"
+                  />
+                </div>
               </div>
 
-              {/* WhatsApp Number */}
-              <div className="flex flex-col gap-1.5">
-                <label
-                  htmlFor="mp-whatsapp"
-                  className="text-[13px] font-medium font-inter text-label"
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button
+                  variant="secondary"
+                  onClick={onClose}
+                  disabled={isLoading}
                 >
-                  Whatsapp number
-                </label>
-                <input
-                  id="mp-whatsapp"
-                  type="tel"
-                  value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
-                  placeholder="Enter your whatsapp number"
-                  className="w-full border border-input-border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder"
-                />
+                  Back
+                </Button>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  isLoading={isLoading}
+                  disabled={!fullName.trim() || !whatsappNumber.trim()}
+                >
+                  Verify
+                </Button>
               </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={onClose}
-                className="flex-1 h-10 rounded-md border border-green bg-bg flex items-center justify-center text-sm font-semibold font-inter text-green"
-              >
-                Back
-              </button>
-
-              <button
-                onClick={handleContinue}
-                disabled={isLoading || !fullName.trim() || !whatsappNumber.trim()}
-                className="flex-1 h-10 rounded-md bg-green flex items-center justify-center text-sm font-semibold font-inter text-soft-green transition-opacity disabled:opacity-50"
-              >
-                {isLoading ? "Checking…" : "Continue"}
-              </button>
+            </form>
             </div>
           </motion.div>
         </>

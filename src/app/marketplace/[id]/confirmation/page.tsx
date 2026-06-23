@@ -4,10 +4,9 @@ import { Suspense } from "react";
 import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import ConfirmationCard from "@/components/marketplace/confirmation/confirmation-card";
+import Button from "@/components/marketplace/common/button";
+import Spinner from "@/components/shared/spinner";
 
-const Spinner = () => (
-  <div className="w-6 h-6 rounded-full border-2 border-green border-t-transparent animate-spin" />
-);
 
 function ConfirmationContent() {
   const searchParams = useSearchParams();
@@ -30,17 +29,13 @@ function ConfirmationContent() {
       </motion.div>
 
       <div className="p-4 md:max-w-xl md:mx-auto md:w-full">
-        <motion.button
-          whileTap={{ scale: 0.97 }}
+        <Button
+          variant={isSuccess ? "primary" : "secondary"}
+          fullWidth
           onClick={() => router.push(`/marketplace/${id}`)}
-          className={`w-full h-10 rounded-md flex items-center justify-center text-sm font-semibold font-inter ${
-            isSuccess
-              ? "bg-green text-soft-green"
-              : "border border-green text-green bg-transparent"
-          }`}
         >
           {isSuccess ? "Done" : "Return to Item"}
-        </motion.button>
+        </Button>
       </div>
     </div>
   );

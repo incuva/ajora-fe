@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { useEffect, useState, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { getPoolById, makePayment } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
@@ -10,24 +9,9 @@ import SlotFillBar from "@/components/marketplace/item-page/slot-fill-bar";
 import PoolInfoRow from "@/components/marketplace/item-page/pool-info-row";
 import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
 import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-overlay";
-
-const BackArrow = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M10 13L5 8L10 3"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+import Button from "@/components/marketplace/common/button";
+import Toast from "@/components/marketplace/common/toast";
+import Spinner from "@/components/shared/spinner";
 
 const ShareIcon = () => (
   <svg
@@ -56,13 +40,11 @@ const CowIllustration = () => (
   </div>
 );
 
-const Spinner = () => (
-  <div className="w-6 h-6 rounded-full border-2 border-green border-t-transparent animate-spin" />
-);
 
-export default function ItemPage() {
+function ItemPageContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id ?? "");
 
   const [pool, setPool] = useState<Pool | null>(null);
@@ -70,12 +52,35 @@ export default function ItemPage() {
   const [makePaymentOpen, setMakePaymentOpen] = useState(false);
   const [makePaymentLoading, setMakePaymentLoading] = useState(false);
 
+  // Toast State
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
+  const [toastTitle, setToastTitle] = useState("");
+  const [toastMessage, setToastMessage] = useState("");
+
   useEffect(() => {
     getPoolById(id).then((data) => {
       setPool(data);
       setLoading(false);
     });
   }, [id]);
+
+  // Check URL query parameters for completion redirects
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const payment = searchParams.get("payment");
+
+    if (status === "success" || payment === "success") {
+      setToastType("success");
+      setToastTitle("Payment Successful");
+      setToastMessage("Your payment was successful, you’d be contacted for delivery of your share.");
+      setToastOpen(true);
+
+      // Clean the query parameters from browser history
+      const newUrl = window.location.pathname;
+      window.history.replaceState({ path: newUrl }, "", newUrl);
+    }
+  }, [searchParams]);
 
   const handleMakePaymentContinue = async ({
     fullName,
@@ -92,13 +97,48 @@ export default function ItemPage() {
         fullName,
         whatsappNumber,
       });
-      if (result.reserved && result.callbackUrl) {
-        window.location.href = result.callbackUrl;
-      } else {
+
+      if (result.reserved) {
         setMakePaymentOpen(false);
+        // Successful verification -> redirect to local Checkout Page
+        const checkoutParams = new URLSearchParams({
+          orderId: "#2345678",
+          description: `${pool.name} — Share`,
+          slotCount: "1",
+          offals: "--",
+          amount: String(pool.pricePerSlot),
+          callbackUrl: result.callbackUrl ?? "",
+        });
+        router.push(`/marketplace/${id}/checkout?${checkoutParams.toString()}`);
+      } else {
+        // Failed verification -> show reservation not found toast
+        setMakePaymentOpen(false);
+        setToastType("error");
+        setToastTitle("Reservation not found");
+        setToastMessage("Couldn't find a reservation matching the name and phone number provided.");
+        setToastOpen(true);
       }
+    } catch (error) {
+      console.error(error);
+      setMakePaymentOpen(false);
+      setToastType("error");
+      setToastTitle("Verification Error");
+      setToastMessage("An unexpected error occurred. Please try again.");
+      setToastOpen(true);
     } finally {
       setMakePaymentLoading(false);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setToastType("success");
+      setToastTitle("Copied to clipboard");
+      setToastMessage("The item link has been copied successfully.");
+      setToastOpen(true);
+    } catch (err) {
+      console.error("Could not copy URL: ", err);
     }
   };
 
@@ -112,46 +152,55 @@ export default function ItemPage() {
 
   return (
     <>
-      <div className="flex flex-col bg-white overflow-x-hidden">
-        {/* Top Bar */}
-        <header className="flex items-center justify-between px-4 h-12 bg-white border-b border-border-light">
+      <div className="flex flex-col bg-white overflow-x-hidden relative">
+        {/* Toast Container */}
+        <Toast
+          isOpen={toastOpen}
+          type={toastType}
+          title={toastTitle}
+          message={toastMessage}
+          onClose={() => setToastOpen(false)}
+        />
+
+        {/* Hero image with floating action buttons */}
+        <div className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green">
+          {/* Floating Back/Close (x) Button */}
           <button
             onClick={() => router.back()}
             aria-label="Go back"
-            className="flex items-center gap-1.5"
+            className="absolute left-2 top-4 w-8 h-8 rounded-full flex items-center justify-center bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)] z-10 cursor-pointer hover:bg-neutral-50 transition-colors border border-border-light/10"
           >
-            <BackArrow />
-            <span className="text-xs font-inter text-green">Back</span>
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M1 1L9 9M9 1L1 9"
+                stroke="#114B3A"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
 
-          <div />
-
-          {/* Share button */}
+          {/* Floating Share Button */}
           <button
-            aria-label="Share"
-            className="w-8 h-8 rounded-full flex items-center justify-center bg-active-green"
+            onClick={handleShare}
+            aria-label="Share page"
+            className="absolute right-4 top-4 w-8 h-8 rounded-full flex items-center justify-center bg-active-green shadow-[0_2px_8px_rgba(0,0,0,0.12)] z-10 cursor-pointer hover:opacity-90 transition-opacity"
           >
             <ShareIcon />
           </button>
-        </header>
 
-        {/* Hero image */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green"
-        >
           <CowIllustration />
-        </motion.div>
+        </div>
 
         {/* Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.15 }}
-          className="flex flex-col gap-4 px-4 pt-5 pb-32 flex-1 md:max-w-xl md:mx-auto md:w-full"
-        >
+        <div className="flex flex-col gap-4 px-4 pt-5 pb-32 flex-1 md:max-w-xl md:mx-auto md:w-full">
           {/* Name + badge */}
           <div className="flex items-center gap-3 flex-wrap">
             <h1 className="font-playfair text-2xl font-bold text-near-black">
@@ -188,33 +237,28 @@ export default function ItemPage() {
 
           {/* Info callout */}
           <PoolInfoCallout note={pool.infoNote} />
-        </motion.div>
+        </div>
 
         {/* Sticky CTA bar */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white flex gap-3 px-4 pt-3 pb-4 border-t border-border-light max-w-screen">
           <div className="flex gap-3 w-full md:max-w-xl md:mx-auto">
             {/* Reserve Slot — primary */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            <Button
+              variant="primary"
               onClick={() => router.push(`/marketplace/${id}/reserve`)}
-              className="flex-1 h-10 rounded-md flex items-center justify-center text-sm font-semibold font-inter text-soft-green bg-green"
             >
               Reserve Slot
-            </motion.button>
+            </Button>
 
             {/* Make Payment — secondary (outlined) */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setMakePaymentOpen(true)}
-              className="flex-1 h-10 rounded-md border border-green flex items-center justify-center text-sm font-semibold font-inter text-green bg-bg"
-            >
+            <Button variant="secondary" onClick={() => setMakePaymentOpen(true)}>
               Make Payment
-            </motion.button>
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Make Payment Overlay */}
+      {/* Verify Reservation Overlay */}
       <MakePaymentOverlay
         isOpen={makePaymentOpen}
         isLoading={makePaymentLoading}
@@ -222,5 +266,19 @@ export default function ItemPage() {
         onContinue={handleMakePaymentContinue}
       />
     </>
+  );
+}
+
+export default function ItemPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <Spinner />
+        </div>
+      }
+    >
+      <ItemPageContent />
+    </Suspense>
   );
 }

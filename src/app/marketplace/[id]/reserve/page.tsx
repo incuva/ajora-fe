@@ -13,6 +13,8 @@ import SlotStepper from "@/components/marketplace/reservation/slot-stepper";
 import OffalsSection from "@/components/marketplace/reservation/offals-section";
 import ReservationSummary from "@/components/marketplace/reservation/reservation-summary";
 import ConfirmReservationOverlay from "@/components/marketplace/overlays/confirm-reservation-overlay";
+import Button from "@/components/marketplace/common/button";
+import Spinner from "@/components/shared/spinner";
 
 const BackArrow = () => (
   <svg
@@ -30,10 +32,6 @@ const BackArrow = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
-
-const Spinner = () => (
-  <div className="w-6 h-6 rounded-full border-2 border-green border-t-transparent animate-spin" />
 );
 
 export default function ReservePage() {
@@ -95,7 +93,7 @@ export default function ReservePage() {
           amount: String(slotCount * pool.pricePerSlot),
           callbackUrl: result.callbackUrl ?? "",
         });
-       router.push(`/marketplace/${id}/confirmation?status=success`);
+        router.push(`/marketplace/${id}/confirmation?status=success`);
       } else {
         router.push(`/marketplace/${id}/confirmation?status=fail`);
       }
@@ -169,13 +167,13 @@ export default function ReservePage() {
         {/* Sticky CTA */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white px-4 py-3 border-t border-border-light">
           <div className="md:max-w-xl md:mx-auto">
-            <motion.button
-              whileTap={{ scale: 0.97 }}
+            <Button
+              variant="primary"
+              fullWidth
               onClick={() => setOverlayOpen(true)}
-              className="w-full h-10 rounded-md flex items-center justify-center text-sm font-semibold font-inter text-soft-green bg-green"
             >
               Confirm Reservation
-            </motion.button>
+            </Button>
           </div>
         </div>
       </div>

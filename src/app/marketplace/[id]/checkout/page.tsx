@@ -4,6 +4,8 @@ import { useSearchParams, useParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
 import CheckoutSummaryRow from "@/components/marketplace/checkout/checkout-summary-row";
+import Button from "@/components/marketplace/common/button";
+import Spinner from "@/components/shared/spinner";
 
 const BackArrow = () => (
   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -15,10 +17,6 @@ const BackArrow = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
-
-const Spinner = () => (
-  <div className="w-6 h-6 rounded-full border-2 border-green border-t-transparent animate-spin" />
 );
 
 function CheckoutContent() {
@@ -85,16 +83,16 @@ function CheckoutContent() {
       {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white px-4 pt-3 pb-safe border-t border-border-light">
         <div className="md:max-w-xl md:mx-auto">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
+          <Button
+            variant="primary"
+            fullWidth
             onClick={handleProceed}
             disabled={!callbackUrl}
-            className="w-full h-10 rounded-md flex items-center justify-center text-sm font-semibold font-inter text-soft-green bg-green disabled:opacity-50"
           >
             {amount > 0
               ? `Proceed to Checkout (₦${amount.toLocaleString()})`
               : "Proceed to Checkout"}
-          </motion.button>
+          </Button>
         </div>
       </div>
     </div>

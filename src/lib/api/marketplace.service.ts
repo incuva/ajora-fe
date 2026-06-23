@@ -82,11 +82,18 @@ export async function makePayment(
   // const { data } = await apiClient.post<MakePaymentResult>("/reservations/payment", payload);
   // return data;
 
-  void payload;
   await simulateDelay(800);
+
+  if (payload.fullName.toLowerCase().trim().startsWith("fail")) {
+    return {
+      reserved: false,
+      message: "Reservation not found. Please verify details.",
+    };
+  }
+
   return {
     reserved: true,
-    callbackUrl: "https://checkout.ajora.ng/pay/mock-session-002",
+    callbackUrl: `/marketplace/${payload.poolId}?status=success`,
     message: "Reservation found. Redirecting to payment.",
   };
 }
