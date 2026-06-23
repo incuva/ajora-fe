@@ -20,9 +20,8 @@ const playfair = Playfair_Display({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap"
-})
-
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Àjọrà — Coming Soon",

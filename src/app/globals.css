@@ -29,6 +29,24 @@
   --background: var(--color-bg);
   --foreground: var(--color-text);
 
+  /* Marketplace / Reservation Colors */
+  --color-soft-green: #E8F2EE;
+  --color-active-green: #2D7A5E;
+  --color-pool-green: #4A9478;
+  --color-offal-green: #72AE97;
+  --color-badge-green: #6FCF97;
+  --color-success: #0A6B3A;
+  --color-gold-muted: #A87D2E;
+  --color-slot-fill: #F8E8C0;
+  --color-input-border: #CBD5E1;
+  --color-placeholder: #94A3B8;
+  --color-label: #555550;
+  --color-muted: #8E8E88;
+  --color-near-black: #111110;
+  --color-border-light: #F0F0EA;
+  --color-fail-bg: #FEF2F2;
+  --color-fail: #E74C3C;
+
   /*
    * Fonts — using static strings so next/font's self-hosted @font-face
    * declarations in <head> are picked up correctly via font-family name matching.
@@ -116,6 +134,16 @@
   animation: lineGrow 1s 0.8s ease both;
   transform-origin: left;
 }
+
+/* Safe-area utilities for iOS home indicator */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+}
+
+.pb-safe-lg {
+  padding-bottom: env(safe-area-inset-bottom, 32px);
+}
+
 
 @theme inline {
   --font-heading: var(--font-sans);
