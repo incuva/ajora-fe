@@ -16,24 +16,8 @@ import ConfirmReservationOverlay from "@/components/marketplace/overlays/confirm
 import Button from "@/components/marketplace/common/button";
 import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
+import BackArrow from "@/components/shared/back-arrow";
 
-const BackArrow = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M10 13L5 8L10 3"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 export default function ReservePage() {
   const params = useParams();
@@ -50,12 +34,22 @@ export default function ReservePage() {
   const [overlayLoading, setOverlayLoading] = useState(false);
   const { toastError} = useToastStore();
 
+
   useEffect(() => {
-    getPoolById(id).then((data) => {
-      setPool(data);
-      setLoading(false);
-    });
-  }, [id]);
+    getPoolById(id)
+      .then((data) => {
+        setPool(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching pool:", err);
+        setLoading(false);
+        toastError(
+          "Error Loading Pool",
+          err?.response?.data?.message || err?.message || "Unable to retrieve pool details. Please reload the page."
+        );
+      });
+  }, [id, toastError]);
 
   const availableSlots = pool ? pool.available_slots : 0;
 
@@ -98,8 +92,13 @@ export default function ReservePage() {
           result.message ?? "An error occurred while reserving a slot for the pool."
         )
       }
-    } catch(error) {
-      console.error(error)
+    } catch(error: any) {
+      console.error("Reservation error:", error);
+      setOverlayOpen(false);
+      toastError(
+        "Reservation Failed",
+        error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setOverlayLoading(false);
     }

@@ -55,11 +55,20 @@ function ItemPageContent() {
   const { toastSuccess, toastError } = useToastStore();
 
   useEffect(() => {
-    getPoolById(id).then((data) => {
-      setPool(data);
-      setLoading(false);
-    });
-  }, [id]);
+    getPoolById(id)
+      .then((data) => {
+        setPool(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching pool:", err);
+        setLoading(false);
+        toastError(
+          "Error Loading Pool",
+          err?.response?.data?.message || err?.message || "Unable to retrieve pool details. Please reload the page."
+        );
+      });
+  }, [id, toastError]);
 
   // Check URL query parameters for completion redirects
   useEffect(() => {
@@ -114,12 +123,12 @@ function ItemPageContent() {
           "Couldn't find a reservation matching the name and phone number provided.",
         );
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Verification error:", error);
       setMakePaymentOpen(false);
       toastError(
         "Verification Error",
-        "An unexpected error occurred. Please try again.",
+        error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
       );
     } finally {
       setMakePaymentLoading(false);
