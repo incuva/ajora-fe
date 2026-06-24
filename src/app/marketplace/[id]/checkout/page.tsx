@@ -81,7 +81,7 @@ function CheckoutContent() {
       </motion.div>
 
       {/* Sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white px-4 pt-3 pb-safe border-t border-border-light">
+      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white p-4 border-t border-border-light">
         <div className="md:max-w-xl md:mx-auto">
           <Button
             variant="primary"

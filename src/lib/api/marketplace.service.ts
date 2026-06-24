@@ -7,6 +7,7 @@ import type {
   MakePaymentResult,
   ApiResponse,
   PoolReservation,
+  ConfirmPaymentResult,
 } from "@/lib/types/marketplace.types";
 
 // Service Functions
@@ -44,33 +45,27 @@ export async function confirmReservation(
 
 /**
  * Trigger the "Make Payment" flow for an existing reservation.
- * Dummy: always returns reserved=true with a mock callbackUrl.
  */
 export async function makePayment(
   payload: MakePaymentPayload,
-): Promise<MakePaymentResult> {
-  // Real API call (uncomment when ready)
-  // const { data } = await apiClient.post<MakePaymentResult>("/reservations/payment", payload);
-  // return data;
-
-  await simulateDelay(800);
-
-  if (payload.fullName.toLowerCase().trim().startsWith("fail")) {
-    return {
-      reserved: false,
-      message: "Reservation not found. Please verify details.",
-    };
-  }
-
-  return {
-    reserved: true,
-    callbackUrl: `/marketplace/${payload.poolId}?status=success`,
-    message: "Reservation found. Redirecting to payment.",
-  };
+): Promise<ApiResponse<MakePaymentResult>> {
+  const { data } = await apiClient.post<ApiResponse<MakePaymentResult>>(
+    "/user/reservation/payments/initiate",
+    payload,
+  );
+  return data;
 }
 
-// Utilities
-
-function simulateDelay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+/**
+ * Confirm payment for an existing reservation.
+ * @param reference 
+ * @returns 
+ */
+export async function confirmPayment(
+  reference: string,
+): Promise<ConfirmPaymentResult> {
+  const { data } = await apiClient.get<ApiResponse<ConfirmPaymentResult>>(
+    `/user/reservation/payments/verify/${reference}`,
+  );
+  return data.data;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { getPoolById, makePayment } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
@@ -21,13 +21,33 @@ const ShareIcon = () => (
     fill="none"
     aria-hidden="true"
   >
-    <circle cx="12" cy="4" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <circle cx="12" cy="12" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <circle cx="4" cy="8" r="1.5" stroke="#fff" strokeWidth="1.2" />
     <path
-      d="M10.5 4.75L5.5 7.25M10.5 11.25L5.5 8.75"
-      stroke="#fff"
-      strokeWidth="1.2"
+      d="M11 5.33333C12.1046 5.33333 13 4.4379 13 3.33333C13 2.22876 12.1046 1.33333 11 1.33333C9.89543 1.33333 9 2.22876 9 3.33333C9 4.4379 9.89543 5.33333 11 5.33333Z"
+      stroke="#114B3A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M5 11.3333C6.10457 11.3333 7 10.4379 7 9.33333C7 8.22876 6.10457 7.33333 5 7.33333C3.89543 7.33333 3 8.22876 3 9.33333C3 10.4379 3.89543 11.3333 5 11.3333Z"
+      stroke="#114B3A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M11 14.6667C12.1046 14.6667 13 13.7712 13 12.6667C13 11.5621 12.1046 10.6667 11 10.6667C9.89543 10.6667 9 11.5621 9 12.6667C9 13.7712 9.89543 14.6667 11 14.6667Z"
+      stroke="#114B3A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M6.70001 8.5L9.30001 7.20001M9.30001 8.80002L6.70001 7.5"
+      stroke="#114B3A"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -43,13 +63,13 @@ const CowIllustration = () => (
 function ItemPageContent() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id ?? "");
 
   const [pool, setPool] = useState<Pool | null>(null);
   const [loading, setLoading] = useState(true);
   const [makePaymentOpen, setMakePaymentOpen] = useState(false);
   const [makePaymentLoading, setMakePaymentLoading] = useState(false);
+  const url = typeof window !== "undefined" ? window.location.origin : "";
 
   // Toast State
   const { toastSuccess, toastError } = useToastStore();
@@ -70,23 +90,6 @@ function ItemPageContent() {
       });
   }, [id, toastError]);
 
-  // Check URL query parameters for completion redirects
-  useEffect(() => {
-    const status = searchParams.get("status");
-    const payment = searchParams.get("payment");
-
-    if (status === "success" || payment === "success") {
-      toastSuccess(
-        "Payment Successful",
-        "Your payment was successful, you&apos;d be contacted for delivery of your share.",
-      );
-
-      // Clean the query parameters from browser history
-      const newUrl = window.location.pathname;
-      window.history.replaceState({ path: newUrl }, "", newUrl);
-    }
-  }, [searchParams]);
-
   const handleMakePaymentContinue = async ({
     fullName,
     whatsappNumber,
@@ -98,25 +101,20 @@ function ItemPageContent() {
     setMakePaymentLoading(true);
     try {
       const result = await makePayment({
-        poolId: pool.id,
-        fullName,
-        whatsappNumber,
+        pool_id: pool.id,
+        fullname: fullName,
+        phone: whatsappNumber,
+        callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`
       });
 
-      if (result.reserved) {
+      if (result.data) {
+        toastSuccess(
+          "Reservation Found",
+          "Redirecting to payment gateway..."
+        );
         setMakePaymentOpen(false);
-        // Successful verification -> redirect to local Checkout Page
-        const checkoutParams = new URLSearchParams({
-          orderId: "#2345678",
-          description: `${pool.name} — Share`,
-          slotCount: "1",
-          offals: "--",
-          amount: String(pool.slot_price),
-          callbackUrl: result.callbackUrl ?? "",
-        });
-        router.push(`/marketplace/${id}/checkout?${checkoutParams.toString()}`);
+        window.location.replace(result.data.payment_link)
       } else {
-        // Failed verification -> show reservation not found toast
         setMakePaymentOpen(false);
         toastError(
           "Reservation not found",

@@ -82,14 +82,28 @@ export interface CheckoutSummary {
 }
 
 export interface MakePaymentPayload {
-  poolId: string;
-  fullName: string;
-  whatsappNumber: string;
+  pool_id: string;
+  fullname: string;
+  phone: string;
+  callbackUrl: string;
 }
 
 export interface MakePaymentResult {
-  reserved: boolean;
-  /** Navigate to this URL if reserved === true */
-  callbackUrl?: string;
-  message?: string;
+  payment_id: string;
+  reservation_id: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  payment_link: string;
+  status: PaymentStatus;
+}
+export type PaymentStatus = "paid" | "initialized" | "failed" | "pending" | "overpaid";
+
+export interface ConfirmPaymentResult {
+  payment_id: string;
+  reservation_id: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
 }
