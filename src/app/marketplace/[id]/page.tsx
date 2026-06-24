@@ -59,6 +59,7 @@ function ItemPageContent() {
         pool_id: pool.id,
         fullname: fullName,
         phone: whatsappNumber,
+        email:  "incuvaltd@gmail.com",
         callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`
       });
 

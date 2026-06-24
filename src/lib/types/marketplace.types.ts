@@ -85,6 +85,7 @@ export interface MakePaymentPayload {
   pool_id: string;
   fullname: string;
   phone: string;
+  email: string;
   callbackUrl: string;
 }
 
