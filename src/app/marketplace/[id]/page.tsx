@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { getPoolById, makePayment } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
@@ -12,53 +13,7 @@ import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-o
 import Button from "@/components/marketplace/common/button";
 import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
-
-const ShareIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <path
-      d="M11 5.33333C12.1046 5.33333 13 4.4379 13 3.33333C13 2.22876 12.1046 1.33333 11 1.33333C9.89543 1.33333 9 2.22876 9 3.33333C9 4.4379 9.89543 5.33333 11 5.33333Z"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M5 11.3333C6.10457 11.3333 7 10.4379 7 9.33333C7 8.22876 6.10457 7.33333 5 7.33333C3.89543 7.33333 3 8.22876 3 9.33333C3 10.4379 3.89543 11.3333 5 11.3333Z"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M11 14.6667C12.1046 14.6667 13 13.7712 13 12.6667C13 11.5621 12.1046 10.6667 11 10.6667C9.89543 10.6667 9 11.5621 9 12.6667C9 13.7712 9.89543 14.6667 11 14.6667Z"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M6.70001 8.5L9.30001 7.20001M9.30001 8.80002L6.70001 7.5"
-      stroke="#114B3A"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const CowIllustration = () => (
-  <div className="flex items-center justify-center w-full h-full">
-    <span className="text-[96px] leading-none" role="img" aria-label="cow">
-      🐄
-    </span>
-  </div>
-);
+import { CowIllustration, ShareIcon } from "@/components/shared/icons";
 
 function ItemPageContent() {
   const params = useParams();
@@ -192,7 +147,20 @@ function ItemPageContent() {
             <ShareIcon />
           </button>
 
-          <CowIllustration />
+          {/* {pool.imageUrl ? (
+            <Image
+              src={pool.imageUrl}
+              alt={pool.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+          ) : (
+            <CowIllustration />
+            )} */}
+            <CowIllustration />
+
         </div>
 
         {/* Content */}
