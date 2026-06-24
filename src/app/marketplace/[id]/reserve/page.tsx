@@ -53,12 +53,12 @@ export default function ReservePage() {
 
   const availableSlots = pool ? pool.available_slots : 0;
 
-  const handleOffalQtyChange = useCallback((offalId: string, qty: number) => {
-    setOffalSelection((prev) => ({ ...prev, [offalId]: qty }));
+  const handleOffalQtyChange = useCallback((offalId: string, name: string | null, qty: number) => {
+    setOffalSelection((prev) => ({ ...prev, [offalId]: { name, qty }}));
   }, []);
 
   const offalsTotalQty = Object.values(offalSelection).reduce(
-    (sum, qty) => sum + qty,
+    (sum, qty) => sum + qty.qty,
     0,
   );
 
@@ -71,10 +71,20 @@ export default function ReservePage() {
     if (!pool) return;
     setOverlayLoading(true);
     try {
+      const offalsPayload = offalEnabled
+        ? Object.entries(offalSelection)
+            .filter(([_, item]) => item && item.qty > 0)
+            .map(([id, item]) => ({
+              id,
+              name: item.name,
+              quantity: item.qty,
+            }))
+        : [];
+
       const result = await confirmReservation({
         pool_id: pool.id,
         no_of_reservation: slotCount,
-        offals: offalEnabled ? offalSelection : {},
+        offals: offalsPayload,
         phone: formData.whatsappNumber,
         fullname: formData.fullName,
         delivery: formData.deliveryMode,

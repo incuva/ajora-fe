@@ -30,7 +30,16 @@ export type DeliveryMode = "pickup" | "delivery";
 
 export interface OffalsSelection {
   /** Map of offal id → quantity selected */
-  [offalId: string]: number;
+  [offalId: string]: {
+    name: string | null;
+    qty: number;
+  };
+}
+
+export interface OffalsItem {
+  id: string;
+  name: string | null;
+  quantity: number;
 }
 
 export interface ReservationPayload {
@@ -41,7 +50,7 @@ export interface ReservationPayload {
   /** Required when deliveryMode === "delivery" */
   location?: string;
   no_of_reservation: number;
-  offals: OffalsSelection;
+  offals: OffalsItem[];
 }
 
 export interface OffalReservationItem {

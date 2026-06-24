@@ -9,7 +9,7 @@ interface OffalsSectionProps {
   selection: OffalsSelection;
   pricePerOffalSlot: number;
   onToggle: (enabled: boolean) => void;
-  onQtyChange: (offalId: string, qty: number) => void;
+  onQtyChange: (offalId: string, name: string | null, qty: number) => void;
 }
 
 const OffalsSection = ({
@@ -56,12 +56,12 @@ const OffalsSection = ({
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
             {offals.map((offal) => {
-              const qty = selection[offal.id] ?? 0;
+              const qty = selection[offal.id]?.qty ?? 0;
               return (
                 <div key={offal.id} className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => onQtyChange(offal.id, Math.max(0, qty - 1))}
+                      onClick={() => onQtyChange(offal.id, offal.name, Math.max(0, qty - 1))}
                       disabled={qty === 0}
                       aria-label={`Decrease ${offal.name}`}
                       className={`w-4 h-4 rounded-full flex items-center justify-center disabled:opacity-30 ${
@@ -82,7 +82,7 @@ const OffalsSection = ({
                     </span>
 
                     <button
-                      onClick={() => onQtyChange(offal.id, Math.min(offal.total_slots, qty + 1))}
+                      onClick={() => onQtyChange(offal.id, offal.name, Math.min(offal.total_slots, qty + 1))}
                       disabled={qty >= offal.total_slots}
                       aria-label={`Increase ${offal.name}`}
                       className="w-4 h-4 rounded-full flex items-center justify-center bg-soft-green disabled:opacity-30"
