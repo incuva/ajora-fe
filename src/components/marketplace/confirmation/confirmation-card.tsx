@@ -40,9 +40,9 @@ const SuccessIllustration = () => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="#16A34A"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   >
     <path d="M21.801 10A10 10 0 1 1 17 3.335" />
     <path d="m9 11 3 3L22 4" />

@@ -39,7 +39,7 @@ const Button = ({
       whileTap={disabled || isLoading ? undefined : { scale: 0.97 }}
       onClick={disabled || isLoading ? undefined : onClick}
       disabled={disabled || isLoading}
-      className={`${baseStyles} ${variants[variant]} ${widthStyles} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${widthStyles} ${className} ${disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
     >
       {isLoading ? (
         <span className="flex items-center gap-2">

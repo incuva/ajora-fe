@@ -1,86 +1,49 @@
 "use client";
 
 import { useEffect, useState, Suspense } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { getPoolById, makePayment } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
 import SlotFillBar from "@/components/marketplace/item-page/slot-fill-bar";
 import PoolInfoRow from "@/components/marketplace/item-page/pool-info-row";
-import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
+// import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
 import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-overlay";
 import Button from "@/components/marketplace/common/button";
-import Toast from "@/components/marketplace/common/toast";
 import Spinner from "@/components/shared/spinner";
-
-const ShareIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="4" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <circle cx="12" cy="12" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <circle cx="4" cy="8" r="1.5" stroke="#fff" strokeWidth="1.2" />
-    <path
-      d="M10.5 4.75L5.5 7.25M10.5 11.25L5.5 8.75"
-      stroke="#fff"
-      strokeWidth="1.2"
-    />
-  </svg>
-);
-
-const CowIllustration = () => (
-  <div className="flex items-center justify-center w-full h-full">
-    <span className="text-[96px] leading-none" role="img" aria-label="cow">
-      🐄
-    </span>
-  </div>
-);
-
+import { useToastStore } from "@/stores/toast-store";
+import { CowIllustration, ShareIcon } from "@/components/shared/icons";
 
 function ItemPageContent() {
   const params = useParams();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id ?? "");
 
   const [pool, setPool] = useState<Pool | null>(null);
   const [loading, setLoading] = useState(true);
   const [makePaymentOpen, setMakePaymentOpen] = useState(false);
   const [makePaymentLoading, setMakePaymentLoading] = useState(false);
+  const url = typeof window !== "undefined" ? window.location.origin : "";
 
   // Toast State
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastType, setToastType] = useState<"success" | "error">("success");
-  const [toastTitle, setToastTitle] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
+  const { toastSuccess, toastError } = useToastStore();
 
   useEffect(() => {
-    getPoolById(id).then((data) => {
-      setPool(data);
-      setLoading(false);
-    });
-  }, [id]);
-
-  // Check URL query parameters for completion redirects
-  useEffect(() => {
-    const status = searchParams.get("status");
-    const payment = searchParams.get("payment");
-
-    if (status === "success" || payment === "success") {
-      setToastType("success");
-      setToastTitle("Payment Successful");
-      setToastMessage("Your payment was successful, you’d be contacted for delivery of your share.");
-      setToastOpen(true);
-
-      // Clean the query parameters from browser history
-      const newUrl = window.location.pathname;
-      window.history.replaceState({ path: newUrl }, "", newUrl);
-    }
-  }, [searchParams]);
+    getPoolById(id)
+      .then((data) => {
+        setPool(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching pool:", err);
+        setLoading(false);
+        toastError(
+          "Error Loading Pool",
+          err?.response?.data?.message || err?.message || "Unable to retrieve pool details. Please reload the page."
+        );
+      });
+  }, [id, toastError]);
 
   const handleMakePaymentContinue = async ({
     fullName,
@@ -93,38 +56,34 @@ function ItemPageContent() {
     setMakePaymentLoading(true);
     try {
       const result = await makePayment({
-        poolId: pool.id,
-        fullName,
-        whatsappNumber,
+        pool_id: pool.id,
+        fullname: fullName,
+        phone: whatsappNumber,
+        email:  "incuvaltd@gmail.com",
+        callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`
       });
 
-      if (result.reserved) {
+      if (result.data) {
+        toastSuccess(
+          "Reservation Found",
+          "Redirecting to payment gateway..."
+        );
         setMakePaymentOpen(false);
-        // Successful verification -> redirect to local Checkout Page
-        const checkoutParams = new URLSearchParams({
-          orderId: "#2345678",
-          description: `${pool.name} — Share`,
-          slotCount: "1",
-          offals: "--",
-          amount: String(pool.pricePerSlot),
-          callbackUrl: result.callbackUrl ?? "",
-        });
-        router.push(`/marketplace/${id}/checkout?${checkoutParams.toString()}`);
+        window.location.replace(result.data.payment_link)
       } else {
-        // Failed verification -> show reservation not found toast
         setMakePaymentOpen(false);
-        setToastType("error");
-        setToastTitle("Reservation not found");
-        setToastMessage("Couldn't find a reservation matching the name and phone number provided.");
-        setToastOpen(true);
+        toastError(
+          "Reservation not found",
+          "Couldn't find a reservation matching the name and phone number provided.",
+        );
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Verification error:", error);
       setMakePaymentOpen(false);
-      setToastType("error");
-      setToastTitle("Verification Error");
-      setToastMessage("An unexpected error occurred. Please try again.");
-      setToastOpen(true);
+      toastError(
+        "Verification Error",
+        error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
+      );
     } finally {
       setMakePaymentLoading(false);
     }
@@ -133,11 +92,9 @@ function ItemPageContent() {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      setToastType("success");
-      setToastTitle("Copied to clipboard");
-      setToastMessage("The item link has been copied successfully.");
-      setToastOpen(true);
+      toastSuccess("Copied to clipboard", "The item link has been copied successfully.");
     } catch (err) {
+      toastError("Error", "Could not copy URL");
       console.error("Could not copy URL: ", err);
     }
   };
@@ -150,18 +107,13 @@ function ItemPageContent() {
     );
   }
 
+  const canPay = pool
+    ? pool.available_slots < 1 && pool.status === "open"
+    : false;
+
   return (
     <>
       <div className="flex flex-col bg-white overflow-x-hidden relative">
-        {/* Toast Container */}
-        <Toast
-          isOpen={toastOpen}
-          type={toastType}
-          title={toastTitle}
-          message={toastMessage}
-          onClose={() => setToastOpen(false)}
-        />
-
         {/* Hero image with floating action buttons */}
         <div className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green">
           {/* Floating Back/Close (x) Button */}
@@ -196,7 +148,20 @@ function ItemPageContent() {
             <ShareIcon />
           </button>
 
-          <CowIllustration />
+          {/* {pool.imageUrl ? (
+            <Image
+              src={pool.imageUrl}
+              alt={pool.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              priority
+            />
+          ) : (
+            <CowIllustration />
+            )} */}
+            <CowIllustration />
+
         </div>
 
         {/* Content */}
@@ -218,25 +183,28 @@ function ItemPageContent() {
           <div className="flex flex-col gap-3">
             <PoolInfoRow
               label="Number of Slots"
-              value={String(pool.totalSlots)}
+              value={String(pool.total_slots)}
             />
             <PoolInfoRow
               label="Price per slot"
-              value={`₦${pool.pricePerSlot.toLocaleString()}`}
+              value={`₦${pool.slot_price.toLocaleString()}`}
             />
           </div>
 
           {/* Slot fill bar */}
-          <SlotFillBar filled={pool.filledSlots} total={pool.totalSlots} />
+          <SlotFillBar
+            filled={pool.total_slots - pool.available_slots}
+            total={pool.total_slots}
+          />
 
           {/* Total value */}
           <PoolInfoRow
             label="Total value"
-            value={`₦${pool.totalValue.toLocaleString()}`}
+            value={`₦${(pool.total_slots - pool.available_slots) * pool.slot_price}`}
           />
 
           {/* Info callout */}
-          <PoolInfoCallout note={pool.infoNote} />
+          {/* <PoolInfoCallout note={pool.info_note} /> */}
         </div>
 
         {/* Sticky CTA bar */}
@@ -251,7 +219,11 @@ function ItemPageContent() {
             </Button>
 
             {/* Make Payment — secondary (outlined) */}
-            <Button variant="secondary" onClick={() => setMakePaymentOpen(true)}>
+            <Button
+              variant="secondary"
+              onClick={() => setMakePaymentOpen(true)}
+              disabled={!canPay}
+            >
               Make Payment
             </Button>
           </div>

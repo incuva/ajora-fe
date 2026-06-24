@@ -2,36 +2,26 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToastStore } from "@/stores/toast-store";
 
-interface ToastProps {
-  isOpen: boolean;
-  type: "success" | "error";
-  title: string;
-  message: string;
-  onClose: () => void;
-  autoCloseDuration?: number;
-}
 
-const Toast = ({
-  isOpen,
-  type,
-  title,
-  message,
-  onClose,
-  autoCloseDuration = 5000,
-}: ToastProps) => {
+
+const Toast = () => {
+  const { toastOpen, toastType, toastTitle, toastMessage } = useToastStore()
+  const toastClose = useToastStore((state) => state.toastClose);
+  const autoCloseDuration = 5000;
   useEffect(() => {
-    if (isOpen && autoCloseDuration > 0) {
-      const timer = setTimeout(onClose, autoCloseDuration);
+    if (toastOpen && autoCloseDuration > 0) {
+      const timer = setTimeout(toastClose, autoCloseDuration);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, autoCloseDuration, onClose]);
+  }, [toastOpen, autoCloseDuration, toastClose]);
 
-  const isSuccess = type === "success";
+  const isSuccess = toastType === "success";
 
   return (
     <AnimatePresence>
-      {isOpen && (
+      {toastOpen && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -89,17 +79,17 @@ const Toast = ({
             {/* Title & Body */}
             <div className="flex flex-col">
               <span className="text-sm font-semibold leading-relaxed font-inter">
-                {title}
+                {toastTitle}
               </span>
               <span className="text-[10px] leading-snug font-inter opacity-90">
-                {message}
+                {toastMessage}
               </span>
             </div>
           </div>
 
           {/* Dismiss Button */}
           <button
-            onClick={onClose}
+            onClick={toastClose}
             aria-label="Dismiss toast"
             className="p-1 cursor-pointer shrink-0"
           >
