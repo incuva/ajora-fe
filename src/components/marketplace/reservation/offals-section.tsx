@@ -82,8 +82,8 @@ const OffalsSection = ({
                     </span>
 
                     <button
-                      onClick={() => onQtyChange(offal.id, offal.name, Math.min(offal.total_slots, qty + 1))}
-                      disabled={qty >= offal.total_slots}
+                      onClick={() => onQtyChange(offal.id, offal.name, Math.min(offal.available_slots, qty + 1))}
+                      disabled={qty >= offal.available_slots}
                       aria-label={`Increase ${offal.name}`}
                       className="w-4 h-4 rounded-full flex items-center justify-center bg-soft-green disabled:opacity-30"
                     >
@@ -98,7 +98,7 @@ const OffalsSection = ({
                       {offal.name}
                     </span>
                     <span className="text-[10px] font-inter text-offal-green">
-                      ({offal.total_slots})
+                      ({offal.available_slots})
                     </span>
                   </div>
                 </div>
