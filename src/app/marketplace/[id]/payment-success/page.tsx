@@ -115,7 +115,7 @@ function PaymentSuccessContent() {
           {reference && (
             <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3.5">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-muted font-inter">Transaction Reference</span>
+                <span className="text-gold-800 font-inter">Transaction Reference</span>
                 <span className="font-mono text-near-black font-medium select-all">
                   {reference}
                 </span>
@@ -183,7 +183,7 @@ function PaymentSuccessContent() {
             </h3>
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-muted font-inter">Amount Paid</span>
+              <span className="text-gold-800 font-inter">Amount Paid</span>
               <span className="text-green font-bold font-inter text-sm">
                 ₦{paymentData.amount.toLocaleString()}
               </span>
@@ -192,7 +192,7 @@ function PaymentSuccessContent() {
             <div className="h-px bg-soft-green/75" />
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-muted font-inter">Transaction Reference</span>
+              <span className="text-gold-800 font-inter">Transaction Reference</span>
               <span className="font-mono text-near-black font-medium">
                 {paymentData.reference}
               </span>
@@ -201,8 +201,8 @@ function PaymentSuccessContent() {
             <div className="h-px bg-soft-green/75" />
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-muted font-inter">Reservation ID</span>
-              <span className="font-mono text-near-black font-medium">
+              <span className="text-gold-800 font-inter w-2/5">Reservation ID</span>
+              <span className="font-mono text-near-black font-medium w-3/5 text-right">
                 {paymentData.reservation_id}
               </span>
             </div>
@@ -210,7 +210,7 @@ function PaymentSuccessContent() {
             <div className="h-px bg-soft-green/75" />
 
             <div className="flex justify-between items-center text-xs">
-              <span className="text-muted font-inter">Status</span>
+              <span className="text-gold-800 font-inter w-2/5">Status</span>
               <span className="bg-emerald-100 text-emerald-800 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wide">
                 {paymentData.status}
               </span>
