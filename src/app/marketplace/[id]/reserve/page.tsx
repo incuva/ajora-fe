@@ -75,7 +75,7 @@ export default function ReservePage() {
         ? Object.entries(offalSelection)
             .filter(([_, item]) => item && item.qty > 0)
             .map(([id, item]) => ({
-              id,
+              food_item_part_id: id,
               name: item.name,
               quantity: item.qty,
             }))

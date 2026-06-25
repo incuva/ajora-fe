@@ -37,7 +37,7 @@ export interface OffalsSelection {
 }
 
 export interface OffalsItem {
-  id: string;
+  food_item_part_id: string;
   name: string | null;
   quantity: number;
 }
