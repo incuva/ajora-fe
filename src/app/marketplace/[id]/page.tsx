@@ -40,7 +40,9 @@ function ItemPageContent() {
         setLoading(false);
         toastError(
           "Error Loading Pool",
-          err?.response?.data?.message || err?.message || "Unable to retrieve pool details. Please reload the page."
+          err?.response?.data?.message ||
+            err?.message ||
+            "Unable to retrieve pool details. Please reload the page.",
         );
       });
   }, [id, toastError]);
@@ -59,17 +61,14 @@ function ItemPageContent() {
         pool_id: pool.id,
         fullname: fullName,
         phone: whatsappNumber,
-        email:  "incuvaltd@gmail.com",
-        callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`
+        email: "incuvaltd@gmail.com",
+        callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`,
       });
 
       if (result.data) {
-        toastSuccess(
-          "Reservation Found",
-          "Redirecting to payment gateway..."
-        );
+        toastSuccess("Reservation Found", "Redirecting to payment gateway...");
         setMakePaymentOpen(false);
-        window.location.replace(result.data.payment_link)
+        window.location.replace(result.data.payment_link);
       } else {
         setMakePaymentOpen(false);
         toastError(
@@ -82,7 +81,9 @@ function ItemPageContent() {
       setMakePaymentOpen(false);
       toastError(
         "Verification Error",
-        error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
+        error?.response?.data?.message ||
+          error?.message ||
+          "An unexpected error occurred. Please try again.",
       );
     } finally {
       setMakePaymentLoading(false);
@@ -92,7 +93,10 @@ function ItemPageContent() {
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      toastSuccess("Copied to clipboard", "The item link has been copied successfully.");
+      toastSuccess(
+        "Copied to clipboard",
+        "The item link has been copied successfully.",
+      );
     } catch (err) {
       toastError("Error", "Could not copy URL");
       console.error("Could not copy URL: ", err);
@@ -115,7 +119,7 @@ function ItemPageContent() {
     <>
       <div className="flex flex-col bg-white overflow-x-hidden relative">
         {/* Hero image with floating action buttons */}
-        <div className="relative w-full h-32 md:h-60 flex items-center justify-center bg-soft-green">
+        <div className="relative w-full h-72 md:h-120 flex items-center justify-center bg-soft-green">
           {/* Floating Back/Close (x) Button */}
           <button
             onClick={() => router.back()}
@@ -148,20 +152,18 @@ function ItemPageContent() {
             <ShareIcon />
           </button>
 
-          {/* {pool.imageUrl ? (
+          {pool.imageUrl ? (
             <Image
               src={pool.imageUrl}
               alt={pool.name}
-              fill
+              fill 
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
             />
           ) : (
             <CowIllustration />
-            )} */}
-            <CowIllustration />
-
+          )}
         </div>
 
         {/* Content */}
