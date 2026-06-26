@@ -252,6 +252,7 @@ function ItemPageContent() {
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
+              fetchPriority="high"
             />
           ) : (
             <CowIllustration />
