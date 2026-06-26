@@ -156,7 +156,7 @@ function ItemPageContent() {
             <Image
               src={pool.imageUrl}
               alt={pool.name}
-              fill 
+              fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
               priority
@@ -212,14 +212,6 @@ function ItemPageContent() {
         {/* Sticky CTA bar */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white flex gap-3 px-4 pt-3 pb-4 border-t border-border-light max-w-screen">
           <div className="flex gap-3 w-full md:max-w-xl md:mx-auto">
-            {/* Reserve Slot — primary */}
-            <Button
-              variant="primary"
-              onClick={() => router.push(`/marketplace/${id}/reserve`)}
-            >
-              Reserve Slot
-            </Button>
-
             {/* Make Payment — secondary (outlined) */}
             <Button
               variant="secondary"
@@ -227,6 +219,15 @@ function ItemPageContent() {
               disabled={!canPay}
             >
               Make Payment
+            </Button>
+
+            {/* Reserve Slot — primary */}
+            <Button
+              variant="primary"
+              onClick={() => router.push(`/marketplace/${id}/reserve`)}
+              disabled={pool.available_slots < 1}
+            >
+              Book Now
             </Button>
           </div>
         </div>
