@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { apiGet, type PaginatedResponse } from "@/lib/api";
+import { apiGet } from "@/lib/api";
 
 // Types
 

@@ -23,8 +23,8 @@ const ConfirmationCard = ({ status }: ConfirmationCardProps) => {
         }`}
       >
         {isSuccess
-          ? "Reservation Confirmation successful"
-          : "Reservation Confirmation Unsuccessful"}
+          ? "Booking Confirmation successful"
+          : "Booking Confirmation Unsuccessful"}
       </p>
     </div>
   );

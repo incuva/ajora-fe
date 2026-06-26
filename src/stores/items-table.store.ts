@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { apiGet, type PaginatedResponse } from "@/lib/api";
+import { apiGet } from "@/lib/api";
 
 // Types
 
@@ -63,7 +63,6 @@ const ITEM_NAMES = [
 function generateMockitems(count: number, page: number): Items[] {
   return Array.from({ length: count }, (_, i) => {
     const idx = (page - 1) * count + i;
-    const num = String(idx + 1).padStart(4, "0");
     return {
       id: `item-${idx}`,
       name: ITEM_NAMES[idx % ITEM_NAMES.length].name,

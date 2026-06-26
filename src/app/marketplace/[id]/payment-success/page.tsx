@@ -18,18 +18,19 @@ function PaymentSuccessContent() {
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id ?? "");
   const reference = searchParams.get("reference");
 
-  const [status, setStatus] = useState<"verifying" | "success" | "failed">("verifying");
+  const [status, setStatus] = useState<"verifying" | "success" | "failed">(() =>
+    reference ? "verifying" : "failed"
+  );
   const [paymentData, setPaymentData] = useState<ConfirmPaymentResult | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(() =>
+    reference ? null : "No payment reference found in the URL."
+  );
 
   useEffect(() => {
     if (!reference) {
-      setStatus("failed");
-      setErrorMsg("No payment reference found in the URL.");
       return;
     }
 
-    setStatus("verifying");
     confirmPayment(reference)
       .then((res) => {
         if (res.status === "paid") {

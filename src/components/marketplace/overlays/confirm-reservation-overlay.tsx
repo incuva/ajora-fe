@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import type { DeliveryMode } from "@/lib/types/marketplace.types";
@@ -33,7 +33,7 @@ const ConfirmReservationOverlay = ({
     register,
     handleSubmit,
     setValue,
-    watch,
+    control,
     formState: { errors, isValid },
   } = useForm<ConfirmReservationFormValues>({
     resolver: zodResolver(confirmReservationSchema),
@@ -46,7 +46,10 @@ const ConfirmReservationOverlay = ({
     mode: "onChange",
   });
 
-  const watchDelivery = watch("delivery");
+  const watchDelivery = useWatch({
+    control,
+    name: "delivery",
+  });
 
   useEffect(() => {
     if (isOpen) {

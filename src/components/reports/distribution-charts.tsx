@@ -68,10 +68,10 @@ export const PoolStatusChart = () => (
               fontSize: "13px",
               color: "#374151"
             }}
-            formatter={(value, entry: any) => (
+            formatter={(value, entry: { payload?: { value?: number } }) => (
               <span className="flex items-center justify-between w-24 gap-4">
                 <span className="text-gray-500">{value}</span>
-                <span className="font-medium text-gray-900">%{entry.payload.value}</span>
+                <span className="font-medium text-gray-900">%{entry.payload?.value}</span>
               </span>
             )}
           />

@@ -102,12 +102,17 @@ export default function ReservePage() {
           result.message ?? "An error occurred while reserving a slot for the pool."
         )
       }
-    } catch(error: any) {
+    } catch (error: unknown) {
       console.error("Reservation error:", error);
       setOverlayOpen(false);
+      let errorMsg = "An unexpected error occurred. Please try again.";
+      if (error && typeof error === "object") {
+        const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+        errorMsg = errObj.response?.data?.message || errObj.message || errorMsg;
+      }
       toastError(
         "Reservation Failed",
-        error?.response?.data?.message || error?.message || "An unexpected error occurred. Please try again."
+        errorMsg,
       );
     } finally {
       setOverlayLoading(false);
@@ -136,7 +141,7 @@ export default function ReservePage() {
             <span className="text-xs font-inter text-green">Back</span>
           </button>
           <span className="ml-2 font-playfair text-base font-bold text-near-black">
-            {pool.name} — Share
+            {pool.name}
           </span>
         </header>
 
@@ -185,7 +190,7 @@ export default function ReservePage() {
               fullWidth
               onClick={() => setOverlayOpen(true)}
             >
-              Confirm Reservation
+              Confirm Booking
             </Button>
           </div>
         </div>

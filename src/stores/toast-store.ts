@@ -13,7 +13,7 @@ interface ToastStoreState {
   toastClose: () => void;
 }
 
-export const useToastStore = create<ToastStoreState>((set, get) => ({
+export const useToastStore = create<ToastStoreState>((set, _) => ({
   toastOpen: false,
   toastType: "success",
   toastTitle: "",

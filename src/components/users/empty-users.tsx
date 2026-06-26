@@ -1,4 +1,4 @@
-import { AppsListRegular, Person16Regular } from "@fluentui/react-icons";
+import { Person16Regular } from "@fluentui/react-icons";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 
