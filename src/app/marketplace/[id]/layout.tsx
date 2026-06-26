@@ -13,8 +13,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <Image
           src="/logo.png"
           alt="Àjọrà"
-          width={400}
-          height={200}
+          width={160}
+          height={80}
           priority
           className="object-contain h-20 md:h-24 w-auto"
           onClick={() => router.push('/')}

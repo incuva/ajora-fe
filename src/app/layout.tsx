@@ -46,6 +46,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <head>
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_BASE_URL} />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_BASE_URL} />
         <script
           dangerouslySetInnerHTML={{
             __html: `
