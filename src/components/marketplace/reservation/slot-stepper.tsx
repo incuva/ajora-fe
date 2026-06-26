@@ -68,7 +68,7 @@ const SlotStepper = ({ value, max, pricePerSlot, onChange }: SlotStepperProps) =
       </div>
 
       {/* Quick-pick pills */}
-      <div className="flex gap-2 flex-wrap">
+      {/* <div className="flex gap-2 flex-wrap">
         {Array.from({ length: Math.min(max, 3) }, (_, i) => i + 1).map((n) => (
           <button
             key={n}
@@ -82,7 +82,7 @@ const SlotStepper = ({ value, max, pricePerSlot, onChange }: SlotStepperProps) =
             {SLOT_LABELS[n] ?? `${n} slots`}
           </button>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
