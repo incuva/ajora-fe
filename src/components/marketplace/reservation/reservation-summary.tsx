@@ -1,5 +1,5 @@
 interface ReservationSummaryProps {
-  orderId?: string;
+  weightPerSlot?: number;
   slotCount: number;
   offalsTotalQty: number;
   amountPerSlot: number;
@@ -35,7 +35,7 @@ const SummaryRow = ({ label, value, bold }: SummaryRowProps) => (
 );
 
 const ReservationSummary = ({
-  orderId,
+  weightPerSlot,
   slotCount,
   offalsTotalQty,
   amountPerSlot,
@@ -53,7 +53,10 @@ const ReservationSummary = ({
         </p>
 
         <div className="flex flex-col gap-2.5">
-          <SummaryRow label="Order ID" value={orderId ?? "--"} />
+          <SummaryRow
+            label="Weight per Slot"
+            value={`${weightPerSlot} kg`}
+          />
           <SummaryRow
             label="Number of Slots"
             value={slotCount > 0 ? String(slotCount) : "--"}

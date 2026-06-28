@@ -4,6 +4,7 @@ interface SlotStepperProps {
   value: number;
   max: number;
   pricePerSlot: number;
+  weightPerSlot: number;
   onChange: (value: number) => void;
 }
 
@@ -17,14 +18,14 @@ const SLOT_LABELS: Record<number, string> = {
   7: "7 slots",
 };
 
-const SlotStepper = ({ value, max, pricePerSlot, onChange }: SlotStepperProps) => {
+const SlotStepper = ({ value, max, pricePerSlot, weightPerSlot, onChange }: SlotStepperProps) => {
   const decrement = () => onChange(Math.max(1, value - 1));
   const increment = () => onChange(Math.min(max, value + 1));
 
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm font-medium font-inter text-black">
-        How many slots do you want?
+        How many {`${weightPerSlot}kg Slots`} do you want?
       </p>
 
       {/* Price + stepper row */}

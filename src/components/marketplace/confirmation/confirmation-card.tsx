@@ -1,9 +1,23 @@
+import { useToastStore } from "@/stores/toast-store";
+import { Copy } from "lucide-react";
+
 interface ConfirmationCardProps {
   status: "success" | "fail";
+  orderId: string | null;
 }
 
-const ConfirmationCard = ({ status }: ConfirmationCardProps) => {
+const ConfirmationCard = ({ status, orderId }: ConfirmationCardProps) => {
   const isSuccess = status === "success";
+  const { toastSuccess, toastError } = useToastStore();
+
+  const handleOrderIdCopy = () => {
+    try {
+      navigator.clipboard.writeText(orderId!);
+      toastSuccess("Copied to clipboard", "The order ID has been copied successfully.");
+    } catch (error) {
+      toastError("Error", "Could not copy Order ID");
+    }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 flex-1 px-6">
@@ -26,6 +40,18 @@ const ConfirmationCard = ({ status }: ConfirmationCardProps) => {
           ? "Booking Confirmation successful"
           : "Booking Confirmation Unsuccessful"}
       </p>
+
+      {
+        isSuccess && orderId && 
+        <div className="flex justify-between items-center gap-3">
+          <span className="text-gold-800 font-inter font-semibold text-sm">Order ID</span>
+          <span className="text-gold-800 font-inter font-semibold text-sm">-</span>
+          <span className="text-success font-bold font-inter text-sm">
+            {orderId}
+          </span>
+          <Copy className="size-4 cursor-pointer" onClick={handleOrderIdCopy} />
+        </div>
+      }
     </div>
   );
 };

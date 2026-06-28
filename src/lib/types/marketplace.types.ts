@@ -19,6 +19,7 @@ export interface Pool {
   description: string;
   total_slots: number;
   available_slots: number;
+  weight_per_slot: number;
   imageUrl: string;
   slot_price: number;
   total_value: number;
@@ -67,6 +68,7 @@ export interface PoolReservation {
   delivery: DeliveryMode;
   location: string | null;
   no_of_reservation: number;
+  order_id: string;
   offals: OffalReservationItem[];
   created_at: string; // or Date if transformed
   updated_at: string; // or Date if transformed

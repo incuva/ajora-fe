@@ -18,7 +18,6 @@ import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
 import BackArrow from "@/components/shared/back-arrow";
 
-
 export default function ReservePage() {
   const params = useParams();
   const router = useRouter();
@@ -32,30 +31,35 @@ export default function ReservePage() {
   const [offalSelection, setOffalSelection] = useState<OffalsSelection>({});
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayLoading, setOverlayLoading] = useState(false);
-  const { toastError} = useToastStore();
-
+  const { toastError } = useToastStore();
 
   useEffect(() => {
     getPoolById(id)
       .then((data) => {
         setPool(data);
-        setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching pool:", err);
-        setLoading(false);
         toastError(
           "Error Loading Pool",
-          err?.response?.data?.message || err?.message || "Unable to retrieve pool details. Please reload the page."
+          err?.response?.data?.message ||
+            err?.message ||
+            "Unable to retrieve pool details. Please reload the page.",
         );
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [id, toastError]);
 
   const availableSlots = pool ? pool.available_slots : 0;
 
-  const handleOffalQtyChange = useCallback((offalId: string, name: string | null, qty: number) => {
-    setOffalSelection((prev) => ({ ...prev, [offalId]: { name, qty }}));
-  }, []);
+  const handleOffalQtyChange = useCallback(
+    (offalId: string, name: string | null, qty: number) => {
+      setOffalSelection((prev) => ({ ...prev, [offalId]: { name, qty } }));
+    },
+    [],
+  );
 
   const offalsTotalQty = Object.values(offalSelection).reduce(
     (sum, qty) => sum + qty.qty,
@@ -94,35 +98,44 @@ export default function ReservePage() {
       setOverlayOpen(false);
 
       if (result.data) {
-        router.push(`/marketplace/${id}/confirmation?status=success`);
+        router.push(`/marketplace/${id}/confirmation?status=success&orderId=${result.data.order_id}`);
       } else {
         router.push(`/marketplace/${id}/confirmation?status=fail`);
         toastError(
           "Reservation Failed",
-          result.message ?? "An error occurred while reserving a slot for the pool."
-        )
+          result.message ??
+            "An error occurred while reserving a slot for the pool.",
+        );
       }
     } catch (error: unknown) {
       console.error("Reservation error:", error);
       setOverlayOpen(false);
       let errorMsg = "An unexpected error occurred. Please try again.";
       if (error && typeof error === "object") {
-        const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+        const errObj = error as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
         errorMsg = errObj.response?.data?.message || errObj.message || errorMsg;
       }
-      toastError(
-        "Reservation Failed",
-        errorMsg,
-      );
+      toastError("Reservation Failed", errorMsg);
     } finally {
       setOverlayLoading(false);
     }
   };
 
-  if (loading || !pool) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (!pool) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-red-500">Pool not found</p>
       </div>
     );
   }
@@ -156,6 +169,7 @@ export default function ReservePage() {
             value={slotCount}
             max={Math.min(availableSlots, pool.total_slots)}
             pricePerSlot={pool.slot_price}
+            weightPerSlot={pool.weight_per_slot}
             onChange={setSlotCount}
           />
 
@@ -174,11 +188,11 @@ export default function ReservePage() {
           <div className="h-px w-full bg-soft-green" />
 
           <ReservationSummary
-            orderId={pool.id}
             slotCount={slotCount}
             offalsTotalQty={offalEnabled ? offalsTotalQty : 0}
             amountPerSlot={pool.slot_price}
             offalPricePerSlot={pool.offals[0]?.price ?? 10000}
+            weightPerSlot={pool.weight_per_slot}
           />
         </motion.div>
 

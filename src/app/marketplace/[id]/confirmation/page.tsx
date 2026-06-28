@@ -14,6 +14,7 @@ function ConfirmationContent() {
   const router = useRouter();
   const id = Array.isArray(params?.id) ? params.id[0] : (params?.id ?? "");
   const status = (searchParams.get("status") ?? "success") as "success" | "fail";
+  const orderId = (searchParams.get('orderId'))
   const isSuccess = status === "success";
 
   return (
@@ -25,7 +26,7 @@ function ConfirmationContent() {
         transition={{ duration: 0.45, ease: "easeOut" }}
         className="flex flex-col flex-1 items-center justify-center px-4 md:max-w-xl md:mx-auto md:w-full"
       >
-        <ConfirmationCard status={status} />
+        <ConfirmationCard status={status} orderId={orderId} />
       </motion.div>
 
       <div className="p-4 md:max-w-xl md:mx-auto md:w-full">

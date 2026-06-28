@@ -7,7 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getPoolById, makePayment } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolStatusBadge from "@/components/marketplace/item-page/pool-status-badge";
-import SlotFillBar from "@/components/marketplace/item-page/slot-fill-bar";
 import PoolInfoRow from "@/components/marketplace/item-page/pool-info-row";
 // import PoolInfoCallout from "@/components/marketplace/item-page/pool-info-callout";
 import MakePaymentOverlay from "@/components/marketplace/overlays/make-payment-overlay";
@@ -16,6 +15,7 @@ import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
 import { CowIllustration, ShareIcon } from "@/components/shared/icons";
 import { X } from "lucide-react";
+import SlotAvailableBar from "@/components/marketplace/item-page/slot-available-bar";
 
 // Custom icons for the share overlay
 const WhatsAppIcon = () => (
@@ -25,14 +25,26 @@ const WhatsAppIcon = () => (
 );
 
 const CopyIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    className="w-4 h-4 fill-none stroke-current"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
   </svg>
 );
 
 const NativeShareIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-4 h-4 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    className="w-4 h-4 fill-none stroke-current"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="18" cy="5" r="3" />
     <circle cx="6" cy="12" r="3" />
     <circle cx="18" cy="19" r="3" />
@@ -60,17 +72,18 @@ function ItemPageContent() {
     getPoolById(id)
       .then((data) => {
         setPool(data);
-        setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching pool:", err);
-        setLoading(false);
         toastError(
           "Error Loading Pool",
           err?.response?.data?.message ||
             err?.message ||
             "Unable to retrieve pool details. Please reload the page.",
         );
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [id, toastError]);
 
@@ -108,13 +121,13 @@ function ItemPageContent() {
       setMakePaymentOpen(false);
       let errorMsg = "An unexpected error occurred. Please try again.";
       if (error && typeof error === "object") {
-        const errObj = error as { response?: { data?: { message?: string } }; message?: string };
+        const errObj = error as {
+          response?: { data?: { message?: string } };
+          message?: string;
+        };
         errorMsg = errObj.response?.data?.message || errObj.message || errorMsg;
       }
-      toastError(
-        "Verification Error",
-        errorMsg,
-      );
+      toastError("Verification Error", errorMsg);
     } finally {
       setMakePaymentLoading(false);
     }
@@ -160,10 +173,18 @@ function ItemPageContent() {
     }
   };
 
-  if (loading || !pool) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <Spinner />
+      </div>
+    );
+  }
+
+  if (!pool) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <p className="text-red-500">Pool not found</p>
       </div>
     );
   }
@@ -183,7 +204,7 @@ function ItemPageContent() {
             aria-label="Go back"
             className="absolute left-2 top-4 w-8 h-8 rounded-full flex items-center justify-center bg-white shadow-[0_2px_8px_rgba(0,0,0,0.12)] z-10 cursor-pointer hover:bg-neutral-50 transition-colors border border-border-light/10"
           >
-           <X className="size-4" />
+            <X className="size-4" />
           </button>
 
           {/* Floating Share Button & Overlay */}
@@ -220,7 +241,7 @@ function ItemPageContent() {
                       <WhatsAppIcon />
                       Share via WhatsApp
                     </button>
-                    
+
                     <button
                       onClick={handleCopyLink}
                       className="w-full flex items-center gap-3 px-3 py-2 text-xs font-inter font-medium text-near-black hover:bg-soft-green/50 active:bg-soft-green rounded-lg transition-colors text-left"
@@ -229,15 +250,16 @@ function ItemPageContent() {
                       Copy Link
                     </button>
 
-                    {typeof navigator !== "undefined" && "share" in navigator && (
-                      <button
-                        onClick={handleSystemShare}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-xs font-inter font-medium text-near-black hover:bg-soft-green/50 active:bg-soft-green rounded-lg transition-colors text-left"
-                      >
-                        <NativeShareIcon />
-                        More Options
-                      </button>
-                    )}
+                    {typeof navigator !== "undefined" &&
+                      "share" in navigator && (
+                        <button
+                          onClick={handleSystemShare}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-xs font-inter font-medium text-near-black hover:bg-soft-green/50 active:bg-soft-green rounded-lg transition-colors text-left"
+                        >
+                          <NativeShareIcon />
+                          More Options
+                        </button>
+                      )}
                   </motion.div>
                 </>
               )}
@@ -281,14 +303,18 @@ function ItemPageContent() {
               value={String(pool.total_slots)}
             />
             <PoolInfoRow
+              label="Weight per Slot"
+              value={`${pool.weight_per_slot}kg`}
+            />
+            <PoolInfoRow
               label="Price per slot"
               value={`₦${pool.slot_price.toLocaleString()}`}
             />
           </div>
 
-          {/* Slot fill bar */}
-          <SlotFillBar
-            filled={pool.total_slots - pool.available_slots}
+          {/* Slot available bar */}
+          <SlotAvailableBar
+            available={pool.available_slots}
             total={pool.total_slots}
           />
 
