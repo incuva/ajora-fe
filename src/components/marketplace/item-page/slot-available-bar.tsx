@@ -41,12 +41,9 @@ const SlotAvailableBar = ({ available, total }: SlotAvailableBarProps) => {
 
   return (
     <div className="rounded-xl p-4 flex flex-col gap-4 bg-slot-fill">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold font-inter text-black">
-          {available}/{total}
-        </span>
+      <div className="flex items-center">
         <span className="text-xs font-medium font-inter text-black">
-          Slots Remaining
+          {available} Slots Remaining
         </span>
       </div>
 
