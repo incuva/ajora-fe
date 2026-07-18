@@ -319,10 +319,10 @@ function ItemPageContent() {
           />
 
           {/* Total value */}
-          <PoolInfoRow
+          {/* <PoolInfoRow
             label="Total value"
             value={`₦${(pool.total_slots - pool.available_slots) * pool.slot_price}`}
-          />
+          /> */}
 
           {/* Info callout */}
           {/* <PoolInfoCallout note={pool.info_note} /> */}
