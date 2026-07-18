@@ -97,7 +97,7 @@ export default function Home() {
                 href="/marketplace/057e326a-0a1c-450a-9515-484264d71f07"
                 className="inline-flex items-center gap-2.5 bg-green text-gold-light font-semibold text-sm tracking-wide uppercase px-8 py-4 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
               >
-                Explore the Pool
+                Cow Sharing
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
