@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import Header from "@/components/home/header";
 import Footer from "@/components/home/footer";
@@ -40,9 +41,9 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
               className="font-playfair text-display font-bold text-green leading-display tracking-tight mb-3"
             >
-              Coming{" "}
+              Buy{" "}
               <span className="gold-underline text-gold relative inline-block">
-                Soon
+                Together
               </span>
             </motion.h1>
 
@@ -52,18 +53,8 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className="font-playfair text-tagline font-normal italic text-gold mb-4"
             >
-              Buy Together. Grow Together.
+              Grow Together.
             </motion.p>
-
-            {/* Launch date */}
-            <motion.h2
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.25, ease: "easeOut" }}
-              className="font-playfair text-tagline font-semibold text-green"
-            >
-              01 September 2026
-            </motion.h2>
 
             <motion.div
               initial={{ opacity: 0, y: 18 }}
@@ -89,11 +80,39 @@ export default function Home() {
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-              className="flex gap-2 justify-center flex-wrap"
+              className="flex gap-2 justify-center flex-wrap mb-10"
             >
               {pillars.map((label, i) => (
                 <Pillar key={label} label={label} delay={0.5 + i * 0.07} />
               ))}
+            </motion.div>
+
+            {/* CTA */}
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.65, ease: "easeOut" }}
+            >
+              <Link
+                href="/marketplace/057e326a-0a1c-450a-9515-484264d71f07"
+                className="inline-flex items-center gap-2.5 bg-green text-gold-light font-semibold text-sm tracking-wide uppercase px-8 py-4 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              >
+                Explore the Pool
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </Link>
             </motion.div>
 
           </div>

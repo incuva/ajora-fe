@@ -25,7 +25,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Àjọrà — Coming Soon",
+  title: "Àjọrà — Buy Together. Grow Together.",
   description:
     "A premium, community-driven collective buying platform. Pool demand, earn dividends, and grow together.",
   icons: {
