@@ -24,7 +24,7 @@ const SlotStepper = ({ value, max, pricePerSlot, weightPerSlot, onChange }: Slot
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm font-medium font-inter text-black">
+      <p className="text-base font-medium font-inter text-black">
         How many {`${weightPerSlot}kg Slots`} do you want?
       </p>
 
@@ -34,7 +34,7 @@ const SlotStepper = ({ value, max, pricePerSlot, weightPerSlot, onChange }: Slot
           <span className="text-lg font-semibold font-inter text-green">
             ₦{pricePerSlot.toLocaleString()}
           </span>
-          <span className="text-xs font-inter text-pool-green">/slot</span>
+          <span className="text-base font-inter text-pool-green">/slot</span>
         </div>
 
         <div className="flex-1" />

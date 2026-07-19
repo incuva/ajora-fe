@@ -99,10 +99,10 @@ const ConfirmReservationOverlay = ({
 
               {/* Header */}
               <div className="flex flex-col gap-1">
-                <h2 className="font-playfair text-lg font-medium text-green">
+                <h2 className="font-playfair text-lg md:text-xl font-medium text-green">
                   Confirm Reservation
                 </h2>
-                <p className="text-[10px] font-inter text-gold-muted">
+                <p className="text-sm font-inter text-gold-muted">
                   Enter your details to confirm your reservation
                 </p>
               </div>
@@ -114,7 +114,7 @@ const ConfirmReservationOverlay = ({
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="cr-full-name"
-                      className="text-[13px] font-medium font-inter text-label"
+                      className="text-xs md:text-sm font-medium font-inter text-label"
                     >
                       Full name
                     </label>
@@ -138,7 +138,7 @@ const ConfirmReservationOverlay = ({
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="cr-whatsapp"
-                      className="text-[13px] font-medium font-inter text-label"
+                      className="text-xs md:text-sm font-medium font-inter text-label"
                     >
                       Whatsapp number
                     </label>
@@ -160,7 +160,7 @@ const ConfirmReservationOverlay = ({
 
                   {/* Delivery Mode */}
                   <div className="flex flex-col gap-2">
-                    <span className="text-[13px] font-medium font-inter text-label">
+                    <span className="text-xs md:text-sm font-medium font-inter text-label">
                       Delivery
                     </span>
                     <div className="flex gap-4">
@@ -186,7 +186,7 @@ const ConfirmReservationOverlay = ({
                               <div className="w-2 h-2 rounded-full bg-green" />
                             )}
                           </div>
-                          <span className="text-xs font-inter text-green capitalize">
+                          <span className="text-sm font-inter text-green capitalize">
                             {mode}
                           </span>
                         </label>
@@ -199,7 +199,7 @@ const ConfirmReservationOverlay = ({
                     <div className="flex flex-col gap-1.5">
                       <label
                         htmlFor="cr-location"
-                        className="text-[13px] font-medium font-inter text-label"
+                        className="text-xs md:text-sm font-medium font-inter text-label"
                       >
                         Location
                       </label>

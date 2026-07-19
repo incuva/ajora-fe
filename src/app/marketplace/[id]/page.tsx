@@ -292,7 +292,7 @@ function ItemPageContent() {
           </div>
 
           {/* Description */}
-          <p className="text-xs font-inter text-black leading-relaxed">
+          <p className="text-sm md:text-base font-inter text-black leading-relaxed">
             {pool.description}
           </p>
 
@@ -301,6 +301,10 @@ function ItemPageContent() {
             <PoolInfoRow
               label="Number of Slots"
               value={String(pool.total_slots)}
+            />
+            <PoolInfoRow
+              label="Remaining Slots"
+              value={String(pool.available_slots)}
             />
             <PoolInfoRow
               label="Weight per Slot"
@@ -313,10 +317,10 @@ function ItemPageContent() {
           </div>
 
           {/* Slot available bar */}
-          <SlotAvailableBar
+          {/* <SlotAvailableBar
             available={pool.available_slots}
             total={pool.total_slots}
-          />
+          /> */}
 
           {/* Total value */}
           {/* <PoolInfoRow
@@ -331,15 +335,6 @@ function ItemPageContent() {
         {/* Sticky CTA bar */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white flex gap-3 px-4 pt-3 pb-4 border-t border-border-light max-w-screen">
           <div className="flex gap-3 w-full md:max-w-xl md:mx-auto">
-            {/* Make Payment — secondary (outlined) */}
-            <Button
-              variant="secondary"
-              onClick={() => setMakePaymentOpen(true)}
-              disabled={!canPay}
-            >
-              Make Payment
-            </Button>
-
             {/* Reserve Slot — primary */}
             <Button
               variant="primary"
@@ -347,6 +342,15 @@ function ItemPageContent() {
               disabled={pool.available_slots < 1}
             >
               Book Now
+            </Button>
+
+            {/* Make Payment — secondary (outlined) */}
+            <Button
+              variant="secondary"
+              onClick={() => setMakePaymentOpen(true)}
+              disabled={!canPay}
+            >
+              Make Payment
             </Button>
           </div>
         </div>

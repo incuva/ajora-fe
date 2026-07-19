@@ -25,7 +25,7 @@ const OffalsSection = ({
     <div className="flex flex-col gap-3">
       {/* Toggle row */}
       <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium font-inter text-green">
+        <span className="text-sm font-medium font-inter text-green">
           Offals
         </span>
 
@@ -45,7 +45,7 @@ const OffalsSection = ({
             />
           </button>
         ) : (
-          <span className="text-[11px] font-inter text-muted">
+          <span className="text-sm font-inter text-muted">
             No offals on this pool
           </span>
         )}
@@ -94,10 +94,10 @@ const OffalsSection = ({
                   </div>
 
                   <div className="flex items-center gap-1">
-                    <span className="text-[10px] font-inter text-green">
+                    <span className="text-xs font-inter text-green">
                       {offal.name}
                     </span>
-                    <span className="text-[10px] font-inter text-offal-green">
+                    <span className="text-xs font-inter text-offal-green">
                       ({offal.available_slots})
                     </span>
                   </div>
@@ -112,7 +112,7 @@ const OffalsSection = ({
               <circle cx="6" cy="6" r="5.5" stroke="#A87D2E" />
               <path d="M6 5.5v3M6 4V3.5" stroke="#A87D2E" strokeWidth="1" strokeLinecap="round" />
             </svg>
-            <span className="text-[10px] font-inter text-gold-muted">
+            <span className="text-xs font-inter text-gold-muted">
               Each offal slot is{" "}
               <strong className="text-green text-xs">
                 ₦{pricePerOffalSlot.toLocaleString()}

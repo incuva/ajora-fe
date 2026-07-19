@@ -81,10 +81,10 @@ const MakePaymentOverlay = ({
 
               {/* Header */}
               <div className="flex flex-col gap-1">
-                <h2 className="font-playfair text-lg font-medium text-green">
+                <h2 className="font-playfair text-lg md:text-xl font-medium text-green">
                   Verify Reservation
                 </h2>
-                <p className="text-[10px] font-inter text-gold-muted">
+                <p className="text-sm font-inter text-gold-muted">
                   Enter your details to verify your reservation
                 </p>
               </div>
@@ -96,7 +96,7 @@ const MakePaymentOverlay = ({
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="mp-full-name"
-                      className="text-[13px] font-medium font-inter text-label"
+                      className="text-sm font-medium font-inter text-label"
                     >
                       Full name
                     </label>
@@ -120,7 +120,7 @@ const MakePaymentOverlay = ({
                   <div className="flex flex-col gap-1.5">
                     <label
                       htmlFor="mp-whatsapp"
-                      className="text-[13px] font-medium font-inter text-label"
+                      className="text-sm font-medium font-inter text-label"
                     >
                       Whatsapp number
                     </label>

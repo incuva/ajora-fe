@@ -18,14 +18,14 @@ interface SummaryRowProps {
 const SummaryRow = ({ label, value, bold }: SummaryRowProps) => (
   <div className="flex items-center justify-between w-full">
     <span
-      className={`text-xs font-inter ${
+      className={`text-sm font-inter ${
         bold ? "text-green font-semibold" : "text-pool-green"
       }`}
     >
       {label}
     </span>
     <span
-      className={`text-xs font-inter ${
+      className={`text-sm font-inter ${
         bold ? "text-green font-semibold" : "text-active-green"
       }`}
     >
@@ -48,7 +48,7 @@ const ReservationSummary = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2.5">
-        <p className="text-[13px] font-medium font-inter text-black">
+        <p className="text-base font-medium font-inter text-black">
           Reservation Summary
         </p>
 
@@ -81,8 +81,8 @@ const ReservationSummary = ({
       {/* Notification hint */}
       <div className="flex items-start gap-2">
         <svg
-          width="12"
-          height="12"
+          width="14"
+          height="14"
           viewBox="0 0 12 12"
           fill="none"
           aria-hidden="true"
@@ -96,7 +96,7 @@ const ReservationSummary = ({
             strokeLinecap="round"
           />
         </svg>
-        <p className="text-[10px] font-inter text-green leading-normal">
+        <p className="text-xs font-inter text-green leading-normal">
           You would be notified to make payment immediately the pool is full.
         </p>
       </div>
