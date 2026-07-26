@@ -15,7 +15,6 @@ import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
 import { CowIllustration, ShareIcon } from "@/components/shared/icons";
 import { X } from "lucide-react";
-import SlotAvailableBar from "@/components/marketplace/item-page/slot-available-bar";
 
 // Custom icons for the share overlay
 const WhatsAppIcon = () => (

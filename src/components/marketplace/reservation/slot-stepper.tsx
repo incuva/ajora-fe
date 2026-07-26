@@ -9,16 +9,6 @@ interface SlotStepperProps {
   onChange: (value: number) => void;
 }
 
-const SLOT_LABELS: Record<number, string> = {
-  1: "1 slot",
-  2: "2 slots",
-  3: "3 slots",
-  4: "4 slots",
-  5: "5 slots",
-  6: "6 slots",
-  7: "7 slots",
-};
-
 const SlotStepper = ({ value, min = 0, max, pricePerSlot, weightPerSlot, onChange }: SlotStepperProps) => {
   const decrement = () => onChange(Math.max(min, value - 1));
   const increment = () => onChange(Math.min(max, value + 1));

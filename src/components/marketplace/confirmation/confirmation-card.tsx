@@ -14,7 +14,7 @@ const ConfirmationCard = ({ status, orderId }: ConfirmationCardProps) => {
     try {
       navigator.clipboard.writeText(orderId!);
       toastSuccess("Copied to clipboard", "The order ID has been copied successfully.");
-    } catch (error) {
+    } catch {
       toastError("Error", "Could not copy Order ID");
     }
   }

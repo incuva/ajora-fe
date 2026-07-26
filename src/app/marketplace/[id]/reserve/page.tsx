@@ -93,7 +93,7 @@ export default function ReservePage() {
     try {
       const subpoolsPayload = subpoolsEnabled
         ? Object.entries(subpoolSelection)
-            .filter(([_, item]) => item && item.qty > 0)
+            .filter(([, item]) => item && item.qty > 0)
             .map(([subpoolId, item]) => ({
               id: subpoolId,
               quantity: item.qty,

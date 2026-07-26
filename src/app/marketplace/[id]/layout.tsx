@@ -9,7 +9,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <section className="w-full min-h-screen flex flex-col bg-white">
       {/* Shared logo header */}
-      <header className="flex justify-between items-center px-4 h-14 md:h-20 bg-white sticky top-0 z-20 border-b border-border-light shrink-0">
+      <header className="flex justify-between items-center px-4 h-14 md:h-20 bg-white sticky top-0 z-50 border-b border-border-light shrink-0">
         <Image
           src="/logo.png"
           alt="Àjọrà"
