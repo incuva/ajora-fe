@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
-import type { DeliveryMode } from "@/lib/types/marketplace.types";
+import type { DeliveryMode, PaymentOption } from "@/lib/types/marketplace.types";
 import Button from "@/components/marketplace/common/button";
 import { useReservationStore } from "@/stores/reservation-store";
 import { ConfirmReservationFormValues, confirmReservationSchema } from "@/utils/validators";
@@ -17,6 +17,7 @@ interface ConfirmReservationOverlayProps {
     fullName: string;
     whatsappNumber: string;
     deliveryMode: DeliveryMode;
+    paymentOption: PaymentOption;
     location: string;
   }) => void;
 }
@@ -27,7 +28,7 @@ const ConfirmReservationOverlay = ({
   onClose,
   onProceed,
 }: ConfirmReservationOverlayProps) => {
-  const { fullname, phone, delivery, location, setReservationDetails } = useReservationStore();
+  const { fullname, phone, delivery, payment_option, location, setReservationDetails } = useReservationStore();
 
   const {
     register,
@@ -41,6 +42,7 @@ const ConfirmReservationOverlay = ({
       fullname,
       phone,
       delivery,
+      payment_option: payment_option || "online",
       location,
     },
     mode: "onChange",
@@ -51,14 +53,20 @@ const ConfirmReservationOverlay = ({
     name: "delivery",
   });
 
+  const watchPaymentOption = useWatch({
+    control,
+    name: "payment_option",
+  });
+
   useEffect(() => {
     if (isOpen) {
       setValue("fullname", fullname);
       setValue("phone", phone);
       setValue("delivery", delivery);
+      setValue("payment_option", payment_option || "online");
       setValue("location", location);
     }
-  }, [isOpen, fullname, phone, delivery, location, setValue]);
+  }, [isOpen, fullname, phone, delivery, payment_option, location, setValue]);
 
   const onSubmit = (data: ConfirmReservationFormValues) => {
     setReservationDetails(data);
@@ -66,6 +74,7 @@ const ConfirmReservationOverlay = ({
       fullName: data.fullname,
       whatsappNumber: data.phone,
       deliveryMode: data.delivery,
+      paymentOption: data.payment_option,
       location: data.delivery === "delivery" ? (data.location || "") : "",
     });
   };
@@ -93,9 +102,9 @@ const ConfirmReservationOverlay = ({
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-end justify-center md:items-center w-full"
           >
-            <div className="w-full max-w-md mx-auto rounded-t-2xl md:rounded-2xl bg-white p-4 flex flex-col gap-6 animate-in slide-in-from-bottom">
+            <div className="w-full max-w-md mx-auto rounded-t-2xl md:rounded-2xl bg-white p-4 flex flex-col gap-6 animate-in slide-in-from-bottom max-h-[90vh] overflow-y-auto">
               {/* Drag handle */}
-              <div className="w-10 h-1 rounded-full mx-auto bg-soft-green" />
+              <div className="w-10 h-1 rounded-full mx-auto bg-soft-green shrink-0" />
 
               {/* Header */}
               <div className="flex flex-col gap-1">
@@ -156,6 +165,45 @@ const ConfirmReservationOverlay = ({
                         {errors.phone.message}
                       </span>
                     )}
+                  </div>
+
+                  {/* Payment Option */}
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs md:text-sm font-medium font-inter text-label">
+                      Payment Option
+                    </span>
+                    <div className="flex gap-4">
+                      {[
+                        { value: "online", label: "Online Payment" },
+                        { value: "onsite", label: "Pay Onsite" },
+                      ].map((opt) => (
+                        <label
+                          key={opt.value}
+                          className="flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <input
+                            type="radio"
+                            value={opt.value}
+                            {...register("payment_option")}
+                            className="sr-only"
+                          />
+                          <div
+                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                              watchPaymentOption === opt.value
+                                ? "border-green"
+                                : "border-input-border"
+                            }`}
+                          >
+                            {watchPaymentOption === opt.value && (
+                              <div className="w-2 h-2 rounded-full bg-green" />
+                            )}
+                          </div>
+                          <span className="text-sm font-inter text-green">
+                            {opt.label}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
                   </div>
 
                   {/* Delivery Mode */}

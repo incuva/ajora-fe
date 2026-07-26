@@ -2,6 +2,7 @@
 
 interface SlotStepperProps {
   value: number;
+  min?: number;
   max: number;
   pricePerSlot: number;
   weightPerSlot: number;
@@ -18,8 +19,8 @@ const SLOT_LABELS: Record<number, string> = {
   7: "7 slots",
 };
 
-const SlotStepper = ({ value, max, pricePerSlot, weightPerSlot, onChange }: SlotStepperProps) => {
-  const decrement = () => onChange(Math.max(1, value - 1));
+const SlotStepper = ({ value, min = 0, max, pricePerSlot, weightPerSlot, onChange }: SlotStepperProps) => {
+  const decrement = () => onChange(Math.max(min, value - 1));
   const increment = () => onChange(Math.min(max, value + 1));
 
   return (
@@ -42,7 +43,7 @@ const SlotStepper = ({ value, max, pricePerSlot, weightPerSlot, onChange }: Slot
         <div className="flex items-center gap-3">
           <button
             onClick={decrement}
-            disabled={value <= 1}
+            disabled={value <= min}
             aria-label="Decrease slot count"
             className="w-7 h-7 rounded-full flex items-center justify-center bg-soft-green transition-opacity disabled:opacity-30"
           >

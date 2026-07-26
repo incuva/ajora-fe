@@ -1,9 +1,9 @@
 interface ReservationSummaryProps {
   weightPerSlot?: number;
   slotCount: number;
-  offalsTotalQty: number;
   amountPerSlot: number;
-  offalPricePerSlot: number;
+  subpoolsTotalQty?: number;
+  subpoolsTotalAmount?: number;
 }
 
 const formatNaira = (n: number) =>
@@ -37,13 +37,14 @@ const SummaryRow = ({ label, value, bold }: SummaryRowProps) => (
 const ReservationSummary = ({
   weightPerSlot,
   slotCount,
-  offalsTotalQty,
   amountPerSlot,
-  offalPricePerSlot,
+  subpoolsTotalQty,
+  subpoolsTotalAmount,
 }: ReservationSummaryProps) => {
   const slotAmount = slotCount > 0 ? slotCount * amountPerSlot : 0;
-  const offalAmount = offalsTotalQty * offalPricePerSlot;
-  const total = slotAmount + offalAmount;
+  const subpoolQty = subpoolsTotalQty !== undefined ? subpoolsTotalQty : 0;
+  const subpoolAmount = subpoolsTotalAmount !== undefined ? subpoolsTotalAmount : 0;
+  const total = slotAmount + subpoolAmount;
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,20 +56,26 @@ const ReservationSummary = ({
         <div className="flex flex-col gap-2.5">
           <SummaryRow
             label="Weight per Slot"
-            value={`${weightPerSlot} kg`}
+            value={weightPerSlot ? `${weightPerSlot} kg` : "--"}
           />
           <SummaryRow
             label="Number of Slots"
             value={slotCount > 0 ? String(slotCount) : "--"}
           />
           <SummaryRow
-            label="Offals"
-            value={offalsTotalQty > 0 ? String(offalsTotalQty) : "--"}
+            label="Subpools / Add-ons"
+            value={subpoolQty > 0 ? String(subpoolQty) : "--"}
           />
           <SummaryRow
-            label="Amount"
+            label="Main Pool Amount"
             value={slotAmount > 0 ? formatNaira(slotAmount) : "---"}
           />
+          {subpoolAmount > 0 && (
+            <SummaryRow
+              label="Subpools Amount"
+              value={formatNaira(subpoolAmount)}
+            />
+          )}
           <div className="w-full h-px bg-soft-green" />
           <SummaryRow
             label="Total"

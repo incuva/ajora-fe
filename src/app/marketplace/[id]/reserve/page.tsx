@@ -6,11 +6,12 @@ import { motion } from "framer-motion";
 import { getPoolById, confirmReservation } from "@/lib/api/marketplace.service";
 import type {
   Pool,
-  OffalsSelection,
+  SubpoolSelection,
   DeliveryMode,
+  PaymentOption,
 } from "@/lib/types/marketplace.types";
 import SlotStepper from "@/components/marketplace/reservation/slot-stepper";
-import OffalsSection from "@/components/marketplace/reservation/offals-section";
+import SubpoolsSection from "@/components/marketplace/reservation/subpools-section";
 import ReservationSummary from "@/components/marketplace/reservation/reservation-summary";
 import ConfirmReservationOverlay from "@/components/marketplace/overlays/confirm-reservation-overlay";
 import Button from "@/components/marketplace/common/button";
@@ -27,8 +28,8 @@ export default function ReservePage() {
   const [loading, setLoading] = useState(true);
 
   const [slotCount, setSlotCount] = useState(1);
-  const [offalEnabled, setOffalEnabled] = useState(false);
-  const [offalSelection, setOffalSelection] = useState<OffalsSelection>({});
+  const [subpoolsEnabled, setSubpoolsEnabled] = useState(true);
+  const [subpoolSelection, setSubpoolSelection] = useState<SubpoolSelection>({});
   const [overlayOpen, setOverlayOpen] = useState(false);
   const [overlayLoading, setOverlayLoading] = useState(false);
   const { toastError } = useToastStore();
@@ -37,6 +38,9 @@ export default function ReservePage() {
     getPoolById(id)
       .then((data) => {
         setPool(data);
+        if (data.available_slots === 0) {
+          setSlotCount(0);
+        }
       })
       .catch((err) => {
         console.error("Error fetching pool:", err);
@@ -53,34 +57,45 @@ export default function ReservePage() {
   }, [id, toastError]);
 
   const availableSlots = pool ? pool.available_slots : 0;
+  const subpools = pool ? (pool.subpools || (pool as { offals?: typeof pool.subpools }).offals || []) : [];
 
-  const handleOffalQtyChange = useCallback(
-    (offalId: string, name: string | null, qty: number) => {
-      setOffalSelection((prev) => ({ ...prev, [offalId]: { name, qty } }));
+  const handleSubpoolQtyChange = useCallback(
+    (subpoolId: string, name: string, price: number, qty: number) => {
+      setSubpoolSelection((prev) => ({
+        ...prev,
+        [subpoolId]: { name, price, qty },
+      }));
     },
     [],
   );
 
-  const offalsTotalQty = Object.values(offalSelection).reduce(
-    (sum, qty) => sum + qty.qty,
+  const subpoolsTotalQty = Object.values(subpoolSelection).reduce(
+    (sum, item) => sum + item.qty,
     0,
   );
+
+  const subpoolsTotalAmount = Object.values(subpoolSelection).reduce(
+    (sum, item) => sum + item.qty * item.price,
+    0,
+  );
+
+  const isValidReservation = slotCount > 0 || (subpoolsEnabled && subpoolsTotalQty > 0);
 
   const handleProceed = async (formData: {
     fullName: string;
     whatsappNumber: string;
     deliveryMode: DeliveryMode;
+    paymentOption: PaymentOption;
     location: string;
   }) => {
-    if (!pool) return;
+    if (!pool || !isValidReservation) return;
     setOverlayLoading(true);
     try {
-      const offalsPayload = offalEnabled
-        ? Object.entries(offalSelection)
+      const subpoolsPayload = subpoolsEnabled
+        ? Object.entries(subpoolSelection)
             .filter(([_, item]) => item && item.qty > 0)
-            .map(([id, item]) => ({
-              food_item_part_id: id,
-              name: item.name,
+            .map(([subpoolId, item]) => ({
+              id: subpoolId,
               quantity: item.qty,
             }))
         : [];
@@ -88,10 +103,11 @@ export default function ReservePage() {
       const result = await confirmReservation({
         pool_id: pool.id,
         no_of_reservation: slotCount,
-        offals: offalsPayload,
+        subpools: subpoolsPayload,
         phone: formData.whatsappNumber,
         fullname: formData.fullName,
         delivery: formData.deliveryMode,
+        payment_option: formData.paymentOption,
         location: formData.location,
       });
 
@@ -167,6 +183,7 @@ export default function ReservePage() {
         >
           <SlotStepper
             value={slotCount}
+            min={0}
             max={Math.min(availableSlots, pool.total_slots)}
             pricePerSlot={pool.slot_price}
             weightPerSlot={pool.weight_per_slot}
@@ -175,23 +192,22 @@ export default function ReservePage() {
 
           <div className="h-px w-full bg-soft-green" />
 
-          <OffalsSection
-            hasOffals={pool.offals.length > 0}
-            offals={pool.offals}
-            offalEnabled={offalEnabled}
-            selection={offalSelection}
-            pricePerOffalSlot={pool.offals[0]?.price ?? 10000}
-            onToggle={setOffalEnabled}
-            onQtyChange={handleOffalQtyChange}
+          <SubpoolsSection
+            hasSubpools={subpools.length > 0}
+            subpools={subpools}
+            subpoolsEnabled={subpoolsEnabled}
+            selection={subpoolSelection}
+            onToggle={setSubpoolsEnabled}
+            onQtyChange={handleSubpoolQtyChange}
           />
 
           <div className="h-px w-full bg-soft-green" />
 
           <ReservationSummary
             slotCount={slotCount}
-            offalsTotalQty={offalEnabled ? offalsTotalQty : 0}
+            subpoolsTotalQty={subpoolsEnabled ? subpoolsTotalQty : 0}
+            subpoolsTotalAmount={subpoolsEnabled ? subpoolsTotalAmount : 0}
             amountPerSlot={pool.slot_price}
-            offalPricePerSlot={pool.offals[0]?.price ?? 10000}
             weightPerSlot={pool.weight_per_slot}
           />
         </motion.div>
@@ -202,6 +218,7 @@ export default function ReservePage() {
             <Button
               variant="primary"
               fullWidth
+              disabled={!isValidReservation}
               onClick={() => setOverlayOpen(true)}
             >
               Confirm Booking

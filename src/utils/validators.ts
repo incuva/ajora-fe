@@ -13,6 +13,7 @@ export const confirmReservationSchema = z
       .min(1, "Phone number is required")
       .regex(/^0\d{10}$/, "Must start with 0 followed by 10 digits (total 11 digits)"),
     delivery: z.enum(["pickup", "delivery"]),
+    payment_option: z.enum(["online", "onsite"]),
     location: z.string().optional(),
   })
   .superRefine((data, ctx) => {

@@ -189,6 +189,9 @@ function ItemPageContent() {
     );
   }
 
+  const subpools = pool?.subpools || (pool as { offals?: typeof pool.subpools })?.offals || [];
+  const hasSubpoolSlots = subpools.some((s) => s.available_slots > 0);
+  const canBook = pool ? pool.available_slots > 0 || hasSubpoolSlots : false;
   const canPay = pool
     ? pool.available_slots < 1 && pool.status === "open"
     : false;
@@ -339,7 +342,7 @@ function ItemPageContent() {
             <Button
               variant="primary"
               onClick={() => router.push(`/marketplace/${id}/reserve`)}
-              disabled={pool.available_slots < 1}
+              disabled={!canBook}
             >
               Book Now
             </Button>
