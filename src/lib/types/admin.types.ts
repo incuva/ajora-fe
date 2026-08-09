@@ -28,7 +28,6 @@ export interface AdminLoginResult {
   role: AdminRole;
 }
 export interface CreateAdminPayload {
-  admin: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -84,8 +83,67 @@ export interface AdminPoolDetail {
   unit: string;
   created_at: string;
   deadline?: string;
-  total_pool_value: number;
-  total_purchase: number;
+  /** Server returns these monetary totals as strings (e.g. "620000"). */
+  total_pool_value: string;
+  total_purchase: string;
+}
+
+// Admin pool reservations (GET /admin/pool/{id}/reservations)
+
+export type ReservationStatus = "pending" | "paid" | "delivered";
+
+/** A single reservation row on a pool. */
+export interface AdminPoolReservation {
+  fullname: string;
+  phone: string;
+  no_of_slot: number;
+  /** Monetary value returned as a string (e.g. "19976"). */
+  reservation_value: string;
+  status: ReservationStatus | string;
+  payment_option: string;
+  delivery: string;
+  order_id: string;
+  created_at: string;
+}
+
+export interface ReservationListQuery {
+  page?: number;
+  size?: number;
+  status?: ReservationStatus | string;
+}
+
+// Admin dashboard overview (GET /admin/overview)
+
+export interface OverviewMetric {
+  total: number;
+  change_percentage: number;
+  trend: "increase" | "decrease" | string;
+}
+
+export interface OverviewRecentPool {
+  id: string;
+  name: string;
+  category: string;
+  total_slots: number;
+  available_slots: number;
+  slot_price: number;
+  status: PoolStatus | string;
+  deadline?: string;
+  created_at: string;
+}
+
+export interface OverviewNewUsers {
+  total_last_30_days: number;
+  change_percentage: number;
+  trend: "increase" | "decrease" | string;
+}
+
+export interface AdminOverview {
+  active_pools: OverviewMetric;
+  recent_pools: OverviewRecentPool[];
+  new_users: OverviewNewUsers;
+  total_revenue: number;
+  pending_orders: number;
 }
 
 // Admin pool payloads
@@ -104,8 +162,8 @@ export interface CreatePoolPayload {
   description?: string;
   /** ISO 8601 date-time. */
   deadline?: string;
-  /** ISO 8601 date-time. */
-  start_time?: string;
+  /** ISO 8601 date-time — when the pool starts. */
+  start_date?: string;
   total_slots: number;
   slot_price: number;
   imageUrl?: string;

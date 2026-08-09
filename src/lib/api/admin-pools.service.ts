@@ -12,6 +12,8 @@ import type {
   AdminPoolSummary,
   AdminPoolDetail,
   AdminPoolListQuery,
+  AdminPoolReservation,
+  ReservationListQuery,
   PaginatedResponse,
 } from "@/lib/types/admin.types";
 
@@ -55,6 +57,21 @@ export async function getAdminPoolById(id: string): Promise<AdminPoolDetail> {
     `/admin/pool/${id}`,
   );
   return data.data;
+}
+
+/**
+ * GET /admin/pool/{id}/reservations
+ * Paginated reservations for a pool, with optional status filter
+ * (pending | paid | delivered).
+ */
+export async function getPoolReservations(
+  poolId: string,
+  query: ReservationListQuery = {},
+): Promise<PaginatedResponse<AdminPoolReservation>> {
+  const { data } = await apiClient.get<
+    PaginatedResponse<AdminPoolReservation>
+  >(`/admin/pool/${poolId}/reservations`, { params: query });
+  return data;
 }
 
 /**

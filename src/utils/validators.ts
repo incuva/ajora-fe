@@ -124,7 +124,7 @@ export const createPoolSchema = z.object({
   name: z.string().min(1, "Pool name is required"),
   item_id: z.string().min(1, "Select an item"),
   deadline: z.string().optional(),
-  start_time: z.string().optional(),
+  start_date: z.string().optional(),
   description: z.string().optional(),
   total_slots: z.coerce
     .number()

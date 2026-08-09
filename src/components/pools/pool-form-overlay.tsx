@@ -46,7 +46,7 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
       name: "",
       item_id: "",
       deadline: "",
-      start_time: "",
+      start_date: "",
       description: "",
       total_slots: undefined,
       slot_price: undefined,
@@ -98,8 +98,8 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
         deadline: values.deadline
           ? new Date(values.deadline).toISOString()
           : undefined,
-        start_time: values.start_time
-          ? new Date(values.start_time).toISOString()
+        start_date: values.start_date
+          ? new Date(values.start_date).toISOString()
           : undefined,
         total_slots: values.total_slots,
         slot_price: values.slot_price,
@@ -185,8 +185,8 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
           <FormField label="Start Time (optional)">
             <TextInput
               type="datetime-local"
-              {...register("start_time")}
-              className={errors.start_time ? "border-red-500" : ""}
+              {...register("start_date")}
+              className={errors.start_date ? "border-red-500" : ""}
             />
           </FormField>
 
