@@ -33,6 +33,9 @@ export interface ItemsDataTableProps {
   activeFilter?: string;
   onFilterChange?: (key: string) => void;
 
+  /** Fired when the edit icon on a card is clicked. */
+  onEditItem?: (item: Items) => void;
+
   page: number;
   pageSize: number;
   total: number;
@@ -50,6 +53,7 @@ function ItemsDataTable({
   filters,
   activeFilter = "all",
   onFilterChange,
+  onEditItem,
   page,
   pageSize,
   total,
@@ -86,7 +90,7 @@ function ItemsDataTable({
       <div className="rounded-2xl overflow-hidden ring-1 ring-gray-100 p-3">
         {/* Scrollable wrapper keeps responsiveness on smaller tablets */}
         <div className="overflow-x-auto">
-          <div className="w-full min-w-[600px] border-collapse">
+          <div className="w-full min-w-150 border-collapse">
             {/* Body */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 grid-cols-1 gap-6">
               {!isLoading &&
@@ -115,7 +119,14 @@ function ItemsDataTable({
                           <p className="font-playfair text-lg text-green font-medium">
                             {item.name}
                           </p>
-                          <Edit24Regular />
+                          <button
+                            type="button"
+                            aria-label={`Edit ${item.name}`}
+                            onClick={() => onEditItem?.(item)}
+                            className="text-grey-800 hover:text-green transition-colors"
+                          >
+                            <Edit24Regular />
+                          </button>
                         </div>
                         <div className="flex justify-between items-center">
                           <div className="flex flex-col font-inter">

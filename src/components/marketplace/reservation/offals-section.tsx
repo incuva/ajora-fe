@@ -45,7 +45,7 @@ const OffalsSection = ({
             />
           </button>
         ) : (
-          <span className="text-sm font-inter text-muted">
+          <span className="text-sm font-inter text-neutral-300">
             No offals on this pool
           </span>
         )}
@@ -75,7 +75,7 @@ const OffalsSection = ({
 
                     <span
                       className={`text-xs font-inter min-w-2 text-center ${
-                        qty > 0 ? "text-green" : "text-muted"
+                        qty > 0 ? "text-green" : "text-neutral-300"
                       }`}
                     >
                       {qty}

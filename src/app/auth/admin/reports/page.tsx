@@ -26,7 +26,7 @@ const ReportsPage = () => {
         <ReportsHeader />
 
         {/* Stats Section */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 overflow-x-auto md:overflow-visible pb-1">
           <StatsCard
             title="Total pools"
             value="142"

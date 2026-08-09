@@ -2,38 +2,20 @@
 
 import UIHeader from "@/components/shared/header";
 import UITopbar from "@/components/shared/topbar";
+import MobileNav from "@/components/shared/mobile-nav";
 import React from "react";
-import DeviceRestriction from "@/components/shared/device-restriction";
-import { usePathname } from "next/navigation";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
 }
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
-  const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith("/auth/admin");
-
-  // Only apply restriction to admin routes
-  if (isAdminRoute) {
-    return (
-      <DeviceRestriction>
-        <main className="flex h-screen w-full bg-bg overflow-y-hidden">
-          <UIHeader />
-          <section className="w-full flex flex-col">
-            <UITopbar />
-            {children}
-          </section>
-        </main>
-      </DeviceRestriction>
-    );
-  }
-
   return (
-    <main className="flex h-screen w-full bg-bg">
-      <UIHeader />
-      <section className="w-full flex flex-col">
-        <UITopbar />
+    <main className="flex h-screen w-full bg-bg overflow-y-hidden">
+      <UIHeader className="hidden md:flex" />
+      <section className="w-full min-w-0 flex flex-col">
+        <MobileNav />
+        <UITopbar className="hidden md:flex" />
         {children}
       </section>
     </main>
@@ -41,4 +23,3 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 };
 
 export default AuthLayout;
-

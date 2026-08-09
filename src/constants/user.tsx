@@ -11,7 +11,13 @@ export const BUYER_FILTERS = [
   { key: "suspended", label: "Suspended" },
 ];
 
-export const buildColumns = (): TableColumn<User>[] => [
+export const buildColumns = (
+  actions?: {
+    onView?: (user: User) => void;
+    onSuspend?: (user: User) => void;
+    onDelete?: (user: User) => void;
+  }
+): TableColumn<User>[] => [
   {
     key: "name",
     header: "Pool Name",
@@ -73,25 +79,25 @@ export const buildColumns = (): TableColumn<User>[] => [
     width: "w-10",
     align: "right",
     render: (row) => {
-      const actions: RowAction[] = [
+      const rowActions: RowAction[] = [
         {
           label: "View details",
           icon: <Eye className="w-4 h-4" />,
-          onClick: () => console.log("View", row.id),
+          onClick: () => actions?.onView?.(row),
         },
         {
           label: "Suspend user",
           icon: <Ban className="w-4 h-4" />,
-          onClick: () => console.log("Suspend", row.id),
+          onClick: () => actions?.onSuspend?.(row),
         },
         {
           label: "Delete user",
           icon: <Trash2 className="w-4 h-4" />,
-          onClick: () => console.log("Delete", row.id),
+          onClick: () => actions?.onDelete?.(row),
           variant: "destructive",
         },
       ];
-      return <RowActions actions={actions} />;
+      return <RowActions actions={rowActions} />;
     },
   },
 ];

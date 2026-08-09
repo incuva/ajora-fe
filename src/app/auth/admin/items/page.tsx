@@ -10,10 +10,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import EmptyItems from "@/components/items/empty-item";
 import ItemsDataTable from "@/components/items/table";
-import { useItemsTableStore } from "@/stores/items-table.store";
+import ItemFormOverlay from "@/components/items/item-form-overlay";
+import { useItemsTableStore, type Items } from "@/stores/items-table.store";
 import { ITEMS_FILTERS } from "@/constants/items";
 
 const ItemsPage = () => {
@@ -30,6 +31,9 @@ const ItemsPage = () => {
     fetchitems,
   } = useItemsTableStore();
 
+  const [isAddOpen, setAddOpen] = useState(false);
+  const [editItem, setEditItem] = useState<Items | null>(null);
+
   useEffect(() => {
     fetchitems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -42,7 +46,10 @@ const ItemsPage = () => {
             Items
           </CardTitle>
           <CardAction>
-            <Button className="bg-green text-white">
+            <Button
+              className="bg-green text-white"
+              onClick={() => setAddOpen(true)}
+            >
               <Plus className="w-4 h-4" /> Add New Item
             </Button>
           </CardAction>
@@ -56,6 +63,7 @@ const ItemsPage = () => {
             filters={ITEMS_FILTERS}
             activeFilter={activeFilter}
             onFilterChange={setFilter}
+            onEditItem={setEditItem}
             page={page}
             pageSize={pageSize}
             total={total}
@@ -65,6 +73,17 @@ const ItemsPage = () => {
           />
         </CardContent>
       </Card>
+
+      <ItemFormOverlay
+        isOpen={isAddOpen}
+        onClose={() => setAddOpen(false)}
+      />
+
+      <ItemFormOverlay
+        item={editItem}
+        isOpen={editItem !== null}
+        onClose={() => setEditItem(null)}
+      />
     </UIContentLayout>
   );
 };

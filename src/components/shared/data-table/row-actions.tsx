@@ -40,7 +40,11 @@ const RowActions = ({ actions }: RowActionsProps) => {
   }, [open]);
 
   return (
-    <div ref={ref} className="relative flex justify-end">
+    <div
+      ref={ref}
+      className="relative flex justify-end"
+      onClick={(e) => e.stopPropagation()}
+    >
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Row actions"
@@ -54,7 +58,7 @@ const RowActions = ({ actions }: RowActionsProps) => {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-8 z-50 min-w-[160px] bg-white rounded-xl shadow-lg ring-1 ring-black/5 py-1 overflow-hidden"
+          className="absolute right-0 top-8 z-50 min-w-40 bg-white rounded-xl shadow-lg ring-1 ring-black/5 py-1 overflow-hidden"
         >
           {actions.map((action, idx) => (
             <button

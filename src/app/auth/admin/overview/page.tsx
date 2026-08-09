@@ -24,7 +24,7 @@ const OverviewPage = () => {
               Overview
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0">
+          <CardContent className="flex md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0 overflow-x-auto md:overflow-visible pb-1">
             <StatsCard
               title="Total Active Pools"
               value="--"

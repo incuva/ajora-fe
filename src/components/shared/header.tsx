@@ -2,10 +2,11 @@ import UISidebar from "./sidebar";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const UIHeader = () => {
+const UIHeader = ({ className }: { className?: string }) => {
   return (
-    <main className="w-3xs flex flex-col justify-between border-r border-slate-200">
+    <main className={cn("w-3xs flex flex-col justify-between border-r border-slate-200", className)}>
       <section className="w-full flex flex-col">
         {/* Table Icon View */}
         <section className="lg:hidden w-full h-18 p-2">

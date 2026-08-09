@@ -35,7 +35,13 @@ export const SlotProgress = ({
   );
 };
 
-export const buildColumns = (): TableColumn<Pool>[] => [
+export const buildColumns = (
+  actions?: {
+    onView?: (pool: Pool) => void;
+    onEdit?: (pool: Pool) => void;
+    onDelete?: (pool: Pool) => void;
+  }
+): TableColumn<Pool>[] => [
   {
     key: "name",
     header: "Pool Name",
@@ -83,25 +89,25 @@ export const buildColumns = (): TableColumn<Pool>[] => [
     width: "w-10",
     align: "right",
     render: (row) => {
-      const actions: RowAction[] = [
+      const rowActions: RowAction[] = [
         {
           label: "View pool",
           icon: <Eye className="w-4 h-4" />,
-          onClick: () => console.log("View", row.id),
+          onClick: () => actions?.onView?.(row),
         },
         {
           label: "Edit pool",
           icon: <Pencil className="w-4 h-4" />,
-          onClick: () => console.log("Edit", row.id),
+          onClick: () => actions?.onEdit?.(row),
         },
         {
           label: "Delete pool",
           icon: <Trash2 className="w-4 h-4" />,
-          onClick: () => console.log("Delete", row.id),
+          onClick: () => actions?.onDelete?.(row),
           variant: "destructive",
         },
       ];
-      return <RowActions actions={actions} />;
+      return <RowActions actions={rowActions} />;
     },
   },
 ];

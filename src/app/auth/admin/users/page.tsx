@@ -14,12 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import DataTable from "@/components/shared/data-table/index";
 import EmptyUsers from "@/components/users/empty-users";
+import ShareLinkOverlay from "@/components/users/share-link-overlay";
+import UserDetailsOverlay from "@/components/users/user-details-overlay";
 import { useUsersTableStore, type User } from "@/stores/users-table.store";
 import { useState } from "react";
 import { buildColumns, BUYER_FILTERS } from "@/constants/user";
 
 const UsersPage = () => {
   const [activeMenu, setActiveMenu] = useState("buyers");
+  const [isShareOpen, setShareOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const {
     users,
@@ -39,7 +43,10 @@ const UsersPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const columns = buildColumns();
+  const columns = buildColumns({
+    onView: setSelectedUser,
+    onSuspend: setSelectedUser,
+  });
 
   return (
     <UIContentLayout>
@@ -49,7 +56,11 @@ const UsersPage = () => {
             Users
           </CardTitle>
           <CardAction className="flex gap-2">
-            <Button className="bg-gold-400 text-green" size="lg">
+            <Button
+              className="bg-gold-400 text-green"
+              size="lg"
+              onClick={() => setShareOpen(true)}
+            >
               <Plus className="w-4 h-4" /> Share Link
             </Button>
             <Button className="bg-green text-white" size="lg">
@@ -85,6 +96,7 @@ const UsersPage = () => {
             filters={BUYER_FILTERS}
             activeFilter={activeFilter}
             onFilterChange={setFilter}
+            onRowClick={setSelectedUser}
             page={page}
             pageSize={pageSize}
             total={total}
@@ -93,6 +105,17 @@ const UsersPage = () => {
           />
         </CardContent>
       </Card>
+
+      <ShareLinkOverlay
+        isOpen={isShareOpen}
+        onClose={() => setShareOpen(false)}
+      />
+
+      <UserDetailsOverlay
+        user={selectedUser}
+        isOpen={selectedUser !== null}
+        onClose={() => setSelectedUser(null)}
+      />
     </UIContentLayout>
   );
 };

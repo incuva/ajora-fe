@@ -66,10 +66,10 @@ function PaymentSuccessContent() {
     return (
       <div className="flex flex-col items-center justify-center flex-1 min-h-[60vh] px-4">
         <Spinner />
-        <p className="mt-4 font-inter text-sm text-muted animate-pulse">
+        <p className="mt-4 font-inter text-sm text-neutral-300 animate-pulse">
           Verifying your payment...
         </p>
-        <p className="mt-1 font-inter text-xs text-muted/70">
+        <p className="mt-1 font-inter text-xs text-neutral-300/70">
           Please do not refresh or close this page.
         </p>
       </div>
