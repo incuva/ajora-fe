@@ -19,38 +19,16 @@ export interface Admin {
 }
 
 // Admin auth payloads
-
-/** POST /admin/login */
 export interface AdminLoginPayload {
   email: string;
   password: string;
 }
 
-/**
- * Result of a successful login. The API returns a JWT valid for 7 days.
- * NOTE: confirm the exact envelope against a live response — this assumes
- * `{ message, data: { token, admin } }`.
- */
 export interface AdminLoginResult {
-  token: string;
-  admin: Admin;
+  data: string; // JWT token
+  role: AdminRole;
 }
-
-/** POST /admin/signup — one-time first super-admin creation */
-export interface AdminSignupPayload {
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-  phone: string;
-}
-
-/** POST /admin/new 🔒 — create an additional admin (super-admin only) */
 export interface CreateAdminPayload {
-  /**
-   * Per Swagger this field is required and named `admin`. Its exact meaning is
-   * not documented — confirm with the backend (likely a flag or identifier).
-   */
   admin: string;
   first_name: string;
   last_name: string;
@@ -60,9 +38,59 @@ export interface CreateAdminPayload {
   role?: AdminRole;
 }
 
+// Admin pool list (GET /admin/pools, GET /admin/pools/{item_id})
+
+/** Summary row returned by the admin pool-list endpoints. */
+export interface AdminPoolSummary {
+  id: string;
+  pool_name: string;
+  category: string;
+  total_slots: number;
+  available_slots: number;
+  slot_amount: number;
+  status: PoolStatus | string;
+  deadline?: string;
+}
+
+export interface Pagination {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+  nextPage: number | null;
+  previousPage: number | null;
+}
+
+export interface PaginatedResponse<T> {
+  message: string;
+  data: T[];
+  pagination: Pagination;
+}
+
+export interface AdminPoolListQuery {
+  page?: number;
+  size?: number;
+  status?: PoolStatus | string;
+  search?: string;
+}
+
+/** Detail shape returned by GET /admin/pool/{id} (distinct from marketplace Pool). */
+export interface AdminPoolDetail {
+  id: string;
+  pool_name: string;
+  item_name: string;
+  available_slots: number;
+  total_slots: number;
+  weight_per_slot: number;
+  unit: string;
+  created_at: string;
+  deadline?: string;
+  total_pool_value: number;
+  total_purchase: number;
+}
+
 // Admin pool payloads
 
-/** A subpool created inline as part of POST /admin/pool/create */
 export interface CreateSubpoolInput {
   name: string;
   total_slots: number;
@@ -70,10 +98,15 @@ export interface CreateSubpoolInput {
   price?: number;
 }
 
-/** POST /admin/pool/create */
 export interface CreatePoolPayload {
   name: string;
+  /** Catalogue item this pool draws from (required). */
+  item_id: string;
   description?: string;
+  /** ISO 8601 date-time. */
+  deadline?: string;
+  /** ISO 8601 date-time. */
+  start_time?: string;
   total_slots: number;
   slot_price: number;
   imageUrl?: string;
@@ -81,7 +114,6 @@ export interface CreatePoolPayload {
   subpools?: CreateSubpoolInput[];
 }
 
-/** PUT /admin/pool/{id} 🔒 — all fields optional (partial update) */
 export interface UpdatePoolPayload {
   name?: string;
   description?: string;
@@ -95,7 +127,6 @@ export interface UpdatePoolPayload {
 
 // Admin subpool payloads
 
-/** POST /admin/subpool/add/{poolId} 🔒 */
 export interface AddSubpoolPayload {
   name: string;
   description?: string;
@@ -105,7 +136,6 @@ export interface AddSubpoolPayload {
   status?: PoolStatus;
 }
 
-/** PUT /admin/subpool/{id} 🔒 — all fields optional (partial update) */
 export interface UpdateSubpoolPayload {
   name?: string;
   description?: string;
@@ -115,6 +145,4 @@ export interface UpdateSubpoolPayload {
   status?: PoolStatus;
 }
 
-// Re-export the shared entity types the admin services return, so callers can
-// import everything admin-related from one module.
 export type { Pool, Subpool };

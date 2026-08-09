@@ -4,13 +4,8 @@ import type {
   Admin,
   AdminLoginPayload,
   AdminLoginResult,
-  AdminSignupPayload,
   CreateAdminPayload,
 } from "@/lib/types/admin.types";
-
-// Admin auth service — mirrors the axios + ApiResponse<T> pattern in
-// marketplace.service.ts. The 🔒 endpoints require a Bearer token, which the
-// axios interceptor attaches automatically once useAuthStore has a session.
 
 /**
  * POST /admin/login
@@ -19,27 +14,15 @@ import type {
 export async function adminLogin(
   payload: AdminLoginPayload,
 ): Promise<AdminLoginResult> {
-  const { data } = await apiClient.post<ApiResponse<AdminLoginResult>>(
+  const { data } = await apiClient.post<AdminLoginResult>(
     "/admin/login",
     payload,
   );
-  return data.data;
+  return data;
 }
 
 /**
- * POST /admin/signup
- * Create the first super-admin account. Usable only once (server-enforced).
- */
-export async function adminSignup(payload: AdminSignupPayload): Promise<Admin> {
-  const { data } = await apiClient.post<ApiResponse<Admin>>(
-    "/admin/signup",
-    payload,
-  );
-  return data.data;
-}
-
-/**
- * POST /admin/new  🔒 bearerAuth (super-admin only)
+ * POST /admin/new
  * Create an additional admin account.
  */
 export async function createAdmin(payload: CreateAdminPayload): Promise<Admin> {

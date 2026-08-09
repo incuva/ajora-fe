@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import UIContentLayout from "@/components/shared/content-layout";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import DataTable from "@/components/shared/data-table/index";
 import EmptyOrders from "@/components/orders/empty-orders";
 import OrderDetailsOverlay from "@/components/orders/order-details-overlay";
+import ReservationLookupOverlay from "@/components/orders/reservation-lookup-overlay";
 import { useOrdersTableStore, type Order } from "@/stores/orders-table.store";
 import { useToastStore } from "@/stores/toast-store";
 import StatsCard from "@/components/shared/stats-card";
@@ -39,6 +43,7 @@ const OrdersPage = () => {
 
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLookupOpen, setIsLookupOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -86,6 +91,15 @@ const OrdersPage = () => {
             <CardTitle className="font-playfair text-xl font-medium">
               Orders
             </CardTitle>
+            <CardAction>
+              <Button
+                className="bg-green text-white"
+                size="lg"
+                onClick={() => setIsLookupOpen(true)}
+              >
+                <Search className="w-4 h-4" /> Look up Reservation
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent className="flex md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0 overflow-x-auto md:overflow-visible pb-1">
             <StatsCard
@@ -143,6 +157,12 @@ const OrdersPage = () => {
         onClose={closeDetails}
         onMarkDelivered={handleMarkDelivered}
         onCancelOrder={handleCancelOrder}
+      />
+
+      {/* Look up a single reservation */}
+      <ReservationLookupOverlay
+        isOpen={isLookupOpen}
+        onClose={() => setIsLookupOpen(false)}
       />
     </UIContentLayout>
   );

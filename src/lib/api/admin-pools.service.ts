@@ -9,10 +9,53 @@ import type {
   UpdatePoolPayload,
   AddSubpoolPayload,
   UpdateSubpoolPayload,
+  AdminPoolSummary,
+  AdminPoolDetail,
+  AdminPoolListQuery,
+  PaginatedResponse,
 } from "@/lib/types/admin.types";
 
-// Admin pool & subpool service. All 🔒 endpoints require a Bearer token, which
-// the axios interceptor attaches automatically once a session exists.
+/**
+ * GET /admin/pools 
+ * Paginated admin pool list with optional status/search filters. Returns a
+ * summary row per pool (AdminPoolSummary), not the full marketplace Pool shape.
+ */
+export async function getAdminPools(
+  query: AdminPoolListQuery = {},
+): Promise<PaginatedResponse<AdminPoolSummary>> {
+  const { data } = await apiClient.get<PaginatedResponse<AdminPoolSummary>>(
+    "/admin/pools",
+    { params: query },
+  );
+  return data;
+}
+
+/**
+ * GET /admin/pools/{item_id} 
+ * Same as getAdminPools but scoped to a single catalogue item.
+ */
+export async function getPoolsByItem(
+  itemId: string,
+  query: AdminPoolListQuery = {},
+): Promise<PaginatedResponse<AdminPoolSummary>> {
+  const { data } = await apiClient.get<PaginatedResponse<AdminPoolSummary>>(
+    `/admin/pools/${itemId}`,
+    { params: query },
+  );
+  return data;
+}
+
+/**
+ * GET /admin/pool/{id} 
+ * Admin pool detail (AdminPoolDetail shape: pool_name, item_name, unit,
+ * totals). Distinct from the marketplace GET /user/pool/{id} response.
+ */
+export async function getAdminPoolById(id: string): Promise<AdminPoolDetail> {
+  const { data } = await apiClient.get<ApiResponse<AdminPoolDetail>>(
+    `/admin/pool/${id}`,
+  );
+  return data.data;
+}
 
 /**
  * POST /admin/pool/create
@@ -27,7 +70,7 @@ export async function createPool(payload: CreatePoolPayload): Promise<Pool> {
 }
 
 /**
- * PUT /admin/pool/{id}  🔒 bearerAuth
+ * PUT /admin/pool/{id} 
  * Update pool details. Server rejects reducing total_slots below reserved.
  */
 export async function updatePool(

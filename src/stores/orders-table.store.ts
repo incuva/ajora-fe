@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { apiGet } from "@/lib/api";
 
 // Types
 
@@ -31,82 +30,6 @@ export interface Order {
   poolCreatedTime: string;
   poolDeadlineDate: string;
   poolDeadlineTime: string;
-}
-
-// Mock helpers
-
-const ORDER_POOL_NAMES = [
-  "April Cow meat (B1)",
-  "April Chicken (B1)",
-  "April Rice (B1)",
-  "April Mackerel (B1)",
-  "April Turkey (C1)",
-];
-
-const BUYER_NAMES = [
-  "Jinadu Kamaru",
-  "Aisha Bello",
-  "Ibrahim Musa",
-  "Fatima Ahmed",
-];
-
-const MOCK_STATUSES: OrderStatus[] = [
-  "delivered",
-  "delivered",
-  "delivered",
-  "processing",
-  "cancelled",
-];
-
-// Item metadata keyed by pool index — keeps the detail view consistent per pool.
-const ORDER_ITEMS = [
-  { item: "Cow", category: "Meat", image: "/assets/cow.png" },
-  { item: "Chicken", category: "Frozen Foods", image: "/assets/chicken.png" },
-  { item: "Rice", category: "Grains", image: "/assets/rice.png" },
-  { item: "Mackerel", category: "Frozen Foods", image: "/assets/fish.png" },
-  { item: "Turkey", category: "Frozen Foods", image: "/assets/chicken.png" },
-];
-
-const DELIVERY_ADDRESSES = [
-  "12, Olutokun community, Agbowo, Ibadan.",
-  "24, Ring Road, Challenge, Ibadan.",
-  "7, Bodija Estate, Ibadan.",
-  "15, Sango-Eleyele Road, Ibadan.",
-];
-
-function generateMockOrders(count: number, page: number): Order[] {
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (page - 1) * count + i;
-    const num = String(idx + 1).padStart(4, "0");
-    const buyer = BUYER_NAMES[idx % BUYER_NAMES.length];
-    const meta = ORDER_ITEMS[idx % ORDER_ITEMS.length];
-    const slotAmount = 20000;
-    return {
-      id: `order-${idx}`,
-      orderId: `#AJ-${num}`,
-      poolName: ORDER_POOL_NAMES[idx % ORDER_POOL_NAMES.length],
-      categoryName: buyer,
-      categoryAvatar: undefined,
-      slot: 1,
-      slotAmount,
-      status: MOCK_STATUSES[idx % MOCK_STATUSES.length],
-      paymentStatus: idx % 2 === 0 ? "on-delivery" : "paid",
-
-      // Detail fields
-      buyerName: buyer,
-      buyerAvatar: undefined,
-      itemName: meta.item,
-      itemCategory: meta.category,
-      itemImage: meta.image,
-      quantityLabel: "12 Kg (1 slot)",
-      amount: slotAmount,
-      deliveryAddress: DELIVERY_ADDRESSES[idx % DELIVERY_ADDRESSES.length],
-      poolCreatedDate: "April 14th",
-      poolCreatedTime: "12:43 PM",
-      poolDeadlineDate: "April 14th",
-      poolDeadlineTime: "7:00 PM",
-    };
-  });
 }
 
 // Store
@@ -163,33 +86,8 @@ export const useOrdersTableStore = create<OrdersTableState>((set, get) => ({
     }));
   },
 
-  fetchOrders: async () => {
-    const { page, pageSize, activeFilter, selectedPool } = get();
-    set({ isLoading: true });
-    try {
-      // const response = await apiGet<PaginatedResponse<Order>>("/admin/orders", {
-      //   page,
-      //   pageSize,
-      //   status: activeFilter === "all" ? undefined : activeFilter,
-      //   poolId: selectedPool === "all" ? undefined : selectedPool,
-      // });
-      // set({ orders: response.data, total: response.total, isLoading: false });
 
-      // Mock 
-      await apiGet("/admin/orders", {
-        page,
-        pageSize,
-        status: activeFilter,
-        poolId: selectedPool,
-      });
-      set({ isLoading: false });
-    } catch {
-      await new Promise((r) => setTimeout(r, 900));
-      set({
-        orders: generateMockOrders(pageSize, page),
-        total: 100,
-        isLoading: false,
-      });
-    }
+  fetchOrders: async () => {
+    set({ orders: [], total: 0, isLoading: false });
   },
 }));

@@ -15,7 +15,7 @@ import EmptyItems from "@/components/items/empty-item";
 import ItemsDataTable from "@/components/items/table";
 import ItemFormOverlay from "@/components/items/item-form-overlay";
 import { useItemsTableStore, type Items } from "@/stores/items-table.store";
-import { ITEMS_FILTERS } from "@/constants/items";
+import { useToastStore } from "@/stores/toast-store";
 
 const ItemsPage = () => {
   const {
@@ -29,7 +29,10 @@ const ItemsPage = () => {
     setPageSize,
     setFilter,
     fetchitems,
+    removeItem,
   } = useItemsTableStore();
+
+  const { toastSuccess, toastError } = useToastStore();
 
   const [isAddOpen, setAddOpen] = useState(false);
   const [editItem, setEditItem] = useState<Items | null>(null);
@@ -38,6 +41,26 @@ const ItemsPage = () => {
     fetchitems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleDelete = async (item: Items) => {
+    if (
+      !window.confirm(
+        `Delete "${item.name}"? This cannot be undone.`,
+      )
+    )
+      return;
+    try {
+      await removeItem(item.id);
+      toastSuccess("Item deleted", `"${item.name}" was removed.`);
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
+        "Could not delete the item.";
+      toastError("Delete failed", message);
+    }
+  };
   return (
     <UIContentLayout>
       <Card className="bg-transparent ring-0">
@@ -60,10 +83,11 @@ const ItemsPage = () => {
             data={items}
             isLoading={isLoading}
             emptyState={<EmptyItems />}
-            filters={ITEMS_FILTERS}
+            filters={[]}
             activeFilter={activeFilter}
             onFilterChange={setFilter}
             onEditItem={setEditItem}
+            onDeleteItem={handleDelete}
             page={page}
             pageSize={pageSize}
             total={total}
@@ -77,12 +101,14 @@ const ItemsPage = () => {
       <ItemFormOverlay
         isOpen={isAddOpen}
         onClose={() => setAddOpen(false)}
+        onSaved={fetchitems}
       />
 
       <ItemFormOverlay
         item={editItem}
         isOpen={editItem !== null}
         onClose={() => setEditItem(null)}
+        onSaved={fetchitems}
       />
     </UIContentLayout>
   );

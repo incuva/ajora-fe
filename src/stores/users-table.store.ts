@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { apiGet } from "@/lib/api";
 
 // Types
 
@@ -14,44 +13,6 @@ export interface User {
   amountSpent: number;
   dateJoined: string;
   status: UserStatus;
-}
-
-// Mock helpers
-
-const MOCK_NAMES = [
-  "Jinadu Kamaru",
-  "Aisha Bello",
-  "Ibrahim Musa",
-  "Fatima Ahmed",
-  "Chukwuemeka Osei",
-  "Ngozi Adeyemi",
-  "Tunde Bakare",
-  "Amaka Okonkwo",
-];
-
-const MOCK_STATUSES: UserStatus[] = [
-  "active",
-  "active",
-  "active",
-  "flagged",
-  "suspended",
-];
-
-function generateMockUsers(count: number, page: number): User[] {
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (page - 1) * count + i;
-    const num = String(idx + 1).padStart(4, "0");
-    return {
-      id: `user-${idx}`,
-      name: MOCK_NAMES[idx % MOCK_NAMES.length],
-      avatar: undefined,
-      userId: `#AJ${num}`,
-      poolsParticipation: 5 + (idx % 20),
-      amountSpent: (1 + (idx % 10)) * 5000,
-      dateJoined: "April 14th",
-      status: MOCK_STATUSES[idx % MOCK_STATUSES.length],
-    };
-  });
 }
 
 // Store
@@ -93,28 +54,8 @@ export const useUsersTableStore = create<UsersTableState>((set, get) => ({
     get().fetchUsers();
   },
 
-  fetchUsers: async () => {
-    const { page, pageSize, activeFilter } = get();
-    set({ isLoading: true });
-    try {
-      // ── Real API (uncomment when backend is ready) ──────────────────────────
-      // const response = await apiGet<PaginatedResponse<User>>("/admin/users", {
-      //   page,
-      //   pageSize,
-      //   status: activeFilter === "all" ? undefined : activeFilter,
-      // });
-      // set({ users: response.data, total: response.total, isLoading: false });
 
-      // ── Mock ────────────────────────────────────────────────────────────────
-      await apiGet("/admin/users", { page, pageSize, status: activeFilter });
-      set({ isLoading: false });
-    } catch {
-      await new Promise((r) => setTimeout(r, 900));
-      set({
-        users: generateMockUsers(pageSize, page),
-        total: 100,
-        isLoading: false,
-      });
-    }
+  fetchUsers: async () => {
+    set({ users: [], total: 0, isLoading: false });
   },
 }));

@@ -14,11 +14,7 @@ const EmptyPool = ({ onCreate }: EmptyPoolProps) => {
         </div>
 
         <p className="text-xl font-bold text-green">
-          You haven&apos;t Created any pool
-        </p>
-
-        <p className="text-sm text-gray-800">
-          Add an item to your inventory to get started
+          You haven&apos;t created any pool
         </p>
 
         <Button className="text-white bg-green mt-1" size="lg" onClick={onCreate}>

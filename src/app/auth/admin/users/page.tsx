@@ -16,6 +16,7 @@ import DataTable from "@/components/shared/data-table/index";
 import EmptyUsers from "@/components/users/empty-users";
 import ShareLinkOverlay from "@/components/users/share-link-overlay";
 import UserDetailsOverlay from "@/components/users/user-details-overlay";
+import CreateAdminOverlay from "@/components/users/create-admin-overlay";
 import { useUsersTableStore, type User } from "@/stores/users-table.store";
 import { useState } from "react";
 import { buildColumns, BUYER_FILTERS } from "@/constants/user";
@@ -23,6 +24,7 @@ import { buildColumns, BUYER_FILTERS } from "@/constants/user";
 const UsersPage = () => {
   const [activeMenu, setActiveMenu] = useState("buyers");
   const [isShareOpen, setShareOpen] = useState(false);
+  const [isCreateAdminOpen, setCreateAdminOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const {
@@ -57,15 +59,22 @@ const UsersPage = () => {
           </CardTitle>
           <CardAction className="flex gap-2">
             <Button
-              className="bg-gold-400 text-green"
+              className="bg-gold-400 text-green hidden"
               size="lg"
               onClick={() => setShareOpen(true)}
             >
               <Plus className="w-4 h-4" /> Share Link
             </Button>
-            <Button className="bg-green text-white" size="lg">
-              <Plus className="w-4 h-4" /> Add a User
-            </Button>
+            {/* Add an Admin  */}
+            {activeMenu === "admins" && (
+              <Button
+                className="bg-green text-white"
+                size="lg"
+                onClick={() => setCreateAdminOpen(true)}
+              >
+                <Plus className="w-4 h-4" /> Add an Admin
+              </Button>
+            )}
           </CardAction>
           <CardDescription className="mt-2 flex flex-col gap-3">
             {/* Buyers / Admins toggle */}
@@ -109,6 +118,12 @@ const UsersPage = () => {
       <ShareLinkOverlay
         isOpen={isShareOpen}
         onClose={() => setShareOpen(false)}
+      />
+
+      {/* Add an Admin  */}
+      <CreateAdminOverlay
+        isOpen={isCreateAdminOpen}
+        onClose={() => setCreateAdminOpen(false)}
       />
 
       <UserDetailsOverlay

@@ -1,83 +1,11 @@
 import { create } from "zustand";
-import { apiGet } from "@/lib/api";
+import { getItems, deleteItem } from "@/lib/api/admin-items.service";
+import type { Item } from "@/lib/types/item.types";
 
-// Types
-
-export type category =
-  | "meat"
-  | "poultry"
-  | "fish"
-  | "grain"
-  | "protein"
-  | "other";
-
-export interface Items {
-  id: string;
-  name: string;
-  price: string;
-  activePools: string;
-  img: string;
-  category: category;
-}
-
-// Mock helpers
-
-const ITEM_NAMES = [
-  {
-    name: "Cow Meat",
-    price: "14,500",
-    activePools: "10",
-    img: "/assets/cow.png",
-    category: "meat",
-  },
-  {
-    name: "Layer Chicken",
-    price: "12,000",
-    activePools: "10",
-    img: "/assets/chicken.png",
-    category: "poultry",
-  },
-  {
-    name: "Rice",
-    price: "10000",
-    activePools: "10",
-    img: "/assets/rice.png",
-    category: "grain",
-  },
-  {
-    name: "Mackrel Fish",
-    price: "8500",
-    activePools: "10",
-    img: "/assets/fish.png",
-    category: "fish",
-  },
-  {
-    name: "Egg",
-    price: "12000",
-    activePools: "10",
-    img: "/assets/eggs.png",
-    category: "protein",
-  },
-];
-
-function generateMockitems(count: number, page: number): Items[] {
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (page - 1) * count + i;
-    return {
-      id: `item-${idx}`,
-      name: ITEM_NAMES[idx % ITEM_NAMES.length].name,
-      price: ITEM_NAMES[idx % ITEM_NAMES.length].price,
-      activePools: ITEM_NAMES[idx % ITEM_NAMES.length].activePools,
-      img: ITEM_NAMES[idx % ITEM_NAMES.length].img,
-      category: ITEM_NAMES[idx % ITEM_NAMES.length].category as category,
-    };
-  });
-}
-
-// Store
+export type Items = Item;
 
 interface ItemsTableState {
-  items: Items[];
+  items: Item[];
   isLoading: boolean;
   page: number;
   pageSize: number;
@@ -88,6 +16,7 @@ interface ItemsTableState {
   setPageSize: (size: number) => void;
   setFilter: (filter: string) => void;
   fetchitems: () => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
 }
 
 export const useItemsTableStore = create<ItemsTableState>((set, get) => ({
@@ -113,33 +42,24 @@ export const useItemsTableStore = create<ItemsTableState>((set, get) => ({
     get().fetchitems();
   },
 
+  // GET /admin/items returns the full catalogue (no server pagination), so we
+  // hold every item and let the table paginate client-side.
   fetchitems: async () => {
-    const { page, pageSize, activeFilter } = get();
     set({ isLoading: true });
     try {
-      // ── Real API (uncomment when backend is ready) ──────────────────────────
-      // const response = await apiGet<PaginatedResponse<Order>>("/admin/items", {
-      //   page,
-      //   pageSize,
-      //   status: activeFilter === "all" ? undefined : activeFilter,
-      //   poolId: selectedPool === "all" ? undefined : selectedPool,
-      // });
-      // set({ items: response.data, total: response.total, isLoading: false });
-
-      // ── Mock ────────────────────────────────────────────────────────────────
-      await apiGet("/admin/items", {
-        page,
-        pageSize,
-        status: activeFilter,
-      });
-      set({ isLoading: false });
+      const items = await getItems();
+      set({ items, total: items.length, isLoading: false });
     } catch {
-      await new Promise((r) => setTimeout(r, 900));
-      set({
-        items: generateMockitems(pageSize, page),
-        total: 100,
-        isLoading: false,
-      });
+      set({ items: [], total: 0, isLoading: false });
     }
+  },
+
+  // DELETE /admin/item/{id} then drop the row locally.
+  removeItem: async (id) => {
+    await deleteItem(id);
+    set((state) => {
+      const items = state.items.filter((i) => i.id !== id);
+      return { items, total: items.length };
+    });
   },
 }));

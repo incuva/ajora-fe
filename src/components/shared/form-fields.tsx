@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { ChevronDown, Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -52,6 +52,38 @@ export const TextInput = ({
     );
   }
   return <input className={cn(controlClass, className)} {...props} />;
+};
+
+/**
+ * Password field with a show/hide eye toggle.
+ */
+export const PasswordInput = ({
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement>) => {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div className="relative flex items-center">
+      <input
+        {...props}
+        type={visible ? "text" : "password"}
+        className={cn(controlClass, "pr-10", className)}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? "Hide password" : "Show password"}
+        tabIndex={-1}
+        className="absolute right-3 text-grey-500 hover:text-near-black transition-colors"
+      >
+        {visible ? (
+          <EyeOff className="w-4 h-4" />
+        ) : (
+          <Eye className="w-4 h-4" />
+        )}
+      </button>
+    </div>
+  );
 };
 
 export const SelectInput = ({

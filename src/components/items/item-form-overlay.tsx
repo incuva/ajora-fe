@@ -1,116 +1,198 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { CloudArrowUp24Regular } from "@fluentui/react-icons";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import OverlaySheet, { OverlayHeader } from "@/components/shared/overlay-sheet";
 import {
   FormField,
   TextInput,
   TextArea,
 } from "@/components/shared/form-fields";
-import type { Items } from "@/stores/items-table.store";
+import {
+  createItemSchema,
+  type CreateItemFormValues,
+} from "@/utils/validators";
+import { createItem, updateItem } from "@/lib/api/admin-items.service";
+import type { Item, UpdateItemPayload } from "@/lib/types/item.types";
+import { useToastStore } from "@/stores/toast-store";
 
 interface ItemFormOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   /** Provide an item to open in edit mode; omit for the add flow. */
-  item?: Items | null;
-  onSubmit?: (values: Record<string, string>) => void;
+  item?: Item | null;
+  /** Called after a successful create/update so the caller can refresh. */
+  onSaved?: () => void;
 }
 
+const EMPTY: CreateItemFormValues = {
+  name: "",
+  unit: "",
+  description: "",
+  imageUrl: "",
+};
+
 /**
- * Add New Item / Edit Item  overlay. Edit mode
- * pre-fills the fields and previews the current photo behind the upload zone.
+ * Add New Item / Edit Item overlay.
+ * Create → POST /admin/item/create. Edit → PUT /admin/item/{id}, sending only
+ * the fields that actually changed.
  */
 const ItemFormOverlay = ({
   isOpen,
   onClose,
   item,
-  onSubmit,
+  onSaved,
 }: ItemFormOverlayProps) => {
   const isEdit = Boolean(item);
-  const [name, setName] = useState(item?.name ?? "");
-  const [unitType, setUnitType] = useState(isEdit ? "Kg" : "");
-  const [description, setDescription] = useState("");
+  const { toastSuccess, toastError, toastInfo } = useToastStore();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit?.({ name, unitType, description });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<CreateItemFormValues>({
+    resolver: zodResolver(createItemSchema),
+    defaultValues: EMPTY,
+    mode: "onChange",
+  });
+
+  // Seed the form whenever the target item changes (edit) or the add flow opens.
+  useEffect(() => {
+    if (item) {
+      reset({
+        name: item.name,
+        unit: item.unit,
+        description: item.description ?? "",
+        imageUrl: item.imageUrl ?? "",
+      });
+    } else {
+      reset(EMPTY);
+    }
+  }, [item, isOpen, reset]);
+
+  const handleClose = () => {
+    reset(EMPTY);
     onClose();
   };
 
+  const onSubmit = async (values: CreateItemFormValues) => {
+    setIsSubmitting(true);
+    try {
+      if (isEdit && item) {
+        // Diff against the source; send only what changed.
+        const payload: UpdateItemPayload = {};
+        if (values.name !== item.name) payload.name = values.name;
+        if (values.unit !== item.unit) payload.unit = values.unit;
+        if ((values.description || "") !== (item.description || ""))
+          payload.description = values.description || undefined;
+        if ((values.imageUrl || "") !== (item.imageUrl || ""))
+          payload.imageUrl = values.imageUrl || undefined;
+
+        if (Object.keys(payload).length === 0) {
+          toastInfo("Nothing to update", "No fields were changed.");
+          setIsSubmitting(false);
+          return;
+        }
+        await updateItem(item.id, payload);
+        toastSuccess("Item updated", `"${values.name}" has been saved.`);
+      } else {
+        await createItem({
+          name: values.name,
+          unit: values.unit,
+          description: values.description || undefined,
+          imageUrl: values.imageUrl || undefined,
+        });
+        toastSuccess("Item created", `"${values.name}" was added.`);
+      }
+      reset(EMPTY);
+      onSaved?.();
+      onClose();
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
+        "Could not save the item. Please try again.";
+      toastError("Save failed", message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <OverlaySheet isOpen={isOpen} onClose={onClose}>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 p-6">
+    <OverlaySheet isOpen={isOpen} onClose={handleClose}>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-6">
         <OverlayHeader
           title={isEdit ? `Edit ${item?.name}` : "Add New Item"}
           subtitle="Fill in the details to create a new catalogue entry."
-          onClose={onClose}
+          onClose={handleClose}
         />
-
-        {/* Photo upload */}
-        <FormField label="Photo of Item">
-          <label className="relative flex flex-col items-center justify-center gap-2 h-44 rounded-xl border-2 border-dashed border-input-border cursor-pointer overflow-hidden text-center transition-colors hover:border-green/50">
-            {isEdit && item?.img && (
-              <Image
-                src={item.img}
-                alt={item.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 448px"
-                className="object-cover opacity-40"
-              />
-            )}
-            <div className="relative flex flex-col items-center gap-1">
-              <CloudArrowUp24Regular className="w-7 h-7 text-grey-500" />
-              <span className="text-base font-medium text-near-black font-inter">
-                Upload item photography
-              </span>
-              <span className="text-xs text-grey-500 font-inter">
-                PNG, JPG up to 10MB
-              </span>
-            </div>
-            <input type="file" accept="image/png,image/jpeg" className="hidden" />
-          </label>
-        </FormField>
 
         <FormField label="Item Name">
           <TextInput
-            value={name}
-            onChange={(e) => setName(e.target.value)}
             placeholder="eg. Cow, Rice, Beans"
+            {...register("name")}
+            className={errors.name ? "border-red-500" : ""}
           />
+          {errors.name && (
+            <span className="text-red-500 text-xs font-inter mt-1">
+              {errors.name.message}
+            </span>
+          )}
         </FormField>
 
-        <FormField label="Unit Type">
+        <FormField label="Unit">
           <TextInput
-            value={unitType}
-            onChange={(e) => setUnitType(e.target.value)}
-            placeholder="eg. Bag, kg,"
+            placeholder="eg. kg, bag, crate"
+            {...register("unit")}
+            className={errors.unit ? "border-red-500" : ""}
           />
+          {errors.unit && (
+            <span className="text-red-500 text-xs font-inter mt-1">
+              {errors.unit.message}
+            </span>
+          )}
         </FormField>
 
-        <FormField label="Description">
+        <FormField label="Image URL (optional)">
+          <TextInput
+            type="url"
+            placeholder="https://…"
+            {...register("imageUrl")}
+            className={errors.imageUrl ? "border-red-500" : ""}
+          />
+          {errors.imageUrl && (
+            <span className="text-red-500 text-xs font-inter mt-1">
+              {errors.imageUrl.message}
+            </span>
+          )}
+        </FormField>
+
+        <FormField label="Description (optional)">
           <TextArea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the item"
+            {...register("description")}
           />
         </FormField>
-
-        <button
-          type="button"
-          className="w-full h-12 flex items-center justify-center gap-2 rounded-md border border-input-border bg-bg text-sm font-semibold font-inter text-green transition-colors hover:bg-soft-green"
-        >
-          <Plus className="w-4 h-4" /> Add Item Part
-        </button>
 
         <button
           type="submit"
-          className="w-full h-12 rounded-md bg-green text-primary-foreground text-sm font-semibold font-inter transition-colors hover:bg-green/90"
+          disabled={!isValid || isSubmitting}
+          className="w-full h-12 rounded-md bg-green text-primary-foreground text-sm font-semibold font-inter transition-colors hover:bg-green/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isEdit ? "Save Changes" : "Create Item"}
+          {isSubmitting ? (
+            <>
+              <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+              {isEdit ? "Saving..." : "Creating..."}
+            </>
+          ) : isEdit ? (
+            "Save Changes"
+          ) : (
+            "Create Item"
+          )}
         </button>
       </form>
     </OverlaySheet>

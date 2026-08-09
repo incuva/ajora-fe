@@ -72,13 +72,6 @@ const OverviewPage = () => {
                 <p className="text-lg font-bold text-green">
                   No Activities Yet
                 </p>
-
-                <p className="text-xs text-gray-800">
-                  Add an item to your inventory to get started
-                </p>
-                <Button className="text-white bg-green" size="lg">
-                  <Plus /> Add an Item
-                </Button>
               </div>
             </div>
           </CardContent>

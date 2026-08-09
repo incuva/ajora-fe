@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, ChevronsUpDown } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Alert24Regular } from "@fluentui/react-icons";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import UserMenu from "./user-menu";
 import { navLinks, NavLink } from "./sidebar";
 
 
@@ -110,25 +110,9 @@ const MobileNav = () => {
                 ))}
               </nav>
 
-              {/* Alert + user footer */}
               <div className="shrink-0 border-t border-slate-100">
-                <div className="flex justify-center py-3">
-                  <Alert24Regular className="text-green" />
-                </div>
-                <div className="flex items-center gap-2 p-4 pt-0">
-                  <Avatar className="w-9 h-9">
-                    <AvatarImage
-                      className="rounded-md"
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
-                    <AvatarFallback>GU</AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col font-inter gap-0.5 flex-1 min-w-0">
-                    <p className="font-bold text-sm text-gray-900 truncate">Arme Inc</p>
-                    <p className="text-xs text-gray-600 truncate">Admin</p>
-                  </div>
-                  <ChevronsUpDown className="w-4 h-4 text-slate-700 shrink-0" />
+                <div className="p-2 pt-0">
+                  <UserMenu />
                 </div>
               </div>
             </motion.aside>

@@ -1,16 +1,15 @@
 import { create } from "zustand";
-import type { Admin } from "@/lib/types/admin.types";
+import type { AdminRole, Admin } from "@/lib/types/admin.types";
 import { getToken, setToken, clearToken } from "@/lib/auth-token";
 
-// Store
-
 interface AuthState {
-  admin: Admin | null;
+  role: AdminRole | null;
   token: string | null;
   isAuthenticated: boolean;
+  admin: Admin | null;
 
   /** Persist the session after a successful login. */
-  setSession: (admin: Admin, token: string) => void;
+  setSession: (role: AdminRole, token: string, admin?: Admin | null) => void;
   /** Re-read the persisted token on app start (call once from a client boundary). */
   hydrate: () => void;
   /** Clear the session (logout or 401). */
@@ -18,13 +17,14 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  admin: null,
+  role: null,
   token: null,
   isAuthenticated: false,
+  admin: null,
 
-  setSession: (admin, token) => {
+  setSession: (role, token, admin) => {
     setToken(token);
-    set({ admin, token, isAuthenticated: true });
+    set({ role, token, admin: admin ?? null, isAuthenticated: true });
   },
 
   hydrate: () => {
@@ -34,6 +34,6 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   logout: () => {
     clearToken();
-    set({ admin: null, token: null, isAuthenticated: false });
+    set({ role: null, token: null, admin: null, isAuthenticated: false });
   },
 }));
