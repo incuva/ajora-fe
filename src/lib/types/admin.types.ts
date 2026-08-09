@@ -8,14 +8,10 @@ export type PoolStatus = "open" | "closed" | "filled";
 // Entities
 
 export interface Admin {
-  id: string;
   first_name: string;
   last_name: string;
-  email: string;
-  phone: string;
+  is_active: true;
   role: AdminRole;
-  created_at?: string;
-  updated_at?: string;
 }
 
 // Admin auth payloads
@@ -25,7 +21,10 @@ export interface AdminLoginPayload {
 }
 
 export interface AdminLoginResult {
-  data: string; // JWT token
+  token: string;
+  first_name: string;
+  last_name: string;
+  is_active: true;
   role: AdminRole;
 }
 export interface CreateAdminPayload {
@@ -38,7 +37,7 @@ export interface CreateAdminPayload {
   role?: AdminRole;
 }
 
-// Admin pool list (GET /admin/pools, GET /admin/pools/{item_id})
+// Admin pool list 
 
 /** Summary row returned by the admin pool-list endpoints. */
 export interface AdminPoolSummary {

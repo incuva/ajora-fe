@@ -14,11 +14,11 @@ import type {
 export async function adminLogin(
   payload: AdminLoginPayload,
 ): Promise<AdminLoginResult> {
-  const { data } = await apiClient.post<AdminLoginResult>(
+  const { data } = await apiClient.post<ApiResponse<AdminLoginResult>>(
     "/admin/login",
     payload,
   );
-  return data;
+  return data.data;
 }
 
 /**

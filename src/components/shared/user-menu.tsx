@@ -12,9 +12,6 @@ import { cn } from "@/lib/utils";
  * Admin identity + logout menu, shared by the desktop sidebar header and the
  * mobile drawer footer. Shows the signed-in admin's name/role when available.
  *
- * NOTE: hydrate() restores only the token (not the admin record), so after a
- * hard refresh `admin` is null until the next login. We fall back to a generic
- * label in that case; the session is still valid via the persisted token.
  */
 const UserMenu = ({ className }: { className?: string }) => {
   const router = useRouter();

@@ -39,7 +39,7 @@ const AdminLoginForm = () => {
     setIsSubmitting(true);
     try {
       const result = await adminLogin(values);
-      setSession(result.role, result.data);
+      setSession(result.role, result.token, { ...result });
       const redirect = searchParams.get("redirect");
       router.replace(redirect || "/auth/admin/overview");
     } catch (err: unknown) {
