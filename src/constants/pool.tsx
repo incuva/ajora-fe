@@ -63,13 +63,6 @@ export const buildColumns = (actions?: {
     ),
   },
   {
-    key: "subpools",
-    header: "Subpools",
-    render: (row) => (
-      <span className="text-gray-600">{row.subpools?.length ?? 0}</span>
-    ),
-  },
-  {
     key: "slots",
     header: "Slot",
     render: (row) => (
