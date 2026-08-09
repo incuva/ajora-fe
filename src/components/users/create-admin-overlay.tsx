@@ -16,7 +16,6 @@ import {
 } from "@/utils/validators";
 import { createAdmin } from "@/lib/api/admin-auth.service";
 import type { CreateAdminPayload } from "@/lib/types/admin.types";
-import { useAuthStore } from "@/stores/auth-store";
 import { useToastStore } from "@/stores/toast-store";
 
 interface CreateAdminOverlayProps {
@@ -29,14 +28,8 @@ interface CreateAdminOverlayProps {
 /**
  * Add-an-Admin overlay (super-admin only) → POST /admin/new.
  *
- * The form collects the standard admin fields; the Swagger-required `admin`
- * field is injected at submit time.
- *
- * TODO(confirm): the `admin` field is Swagger-required but its meaning is
- * undocumented (typed as a string). We currently send the acting super-admin's
- * id (`useAuthStore().admin?.id`). If it should be a role flag, a boolean-as-
- * string, or something else, adjust the payload below and the type in
- * src/lib/types/admin.types.ts.
+ * The acting admin is identified server-side from the bearer token, so the
+ * form only sends the new admin's own details.
  */
 const CreateAdminOverlay = ({
   isOpen,
@@ -75,11 +68,7 @@ const CreateAdminOverlay = ({
   const onSubmit = async (values: CreateAdminFormValues) => {
     setIsSubmitting(true);
     try {
-      // TODO(confirm): `admin` is Swagger-required but undocumented — sending
-      // the acting super-admin's id as a best guess.
-      const actingAdminId = useAuthStore.getState().admin?.id ?? "";
       const payload: CreateAdminPayload = {
-        admin: actingAdminId,
         first_name: values.first_name,
         last_name: values.last_name,
         email: values.email,

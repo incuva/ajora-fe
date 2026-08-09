@@ -7,6 +7,7 @@ import TableLoader from "../shared/data-table/table-loader";
 import TablePagination from "../shared/data-table/table-pagination";
 import { Items } from "@/stores/items-table.store";
 import Image from "next/image";
+import Link from "next/link";
 import { ImageOff } from "lucide-react";
 import { Edit24Regular, Delete24Regular } from "@fluentui/react-icons";
 
@@ -101,7 +102,11 @@ function ItemsDataTable({
                       key={item.id ?? id}
                       className="w-full min-w-80 h-80 rounded-md bg-white flex flex-col ring-1 ring-gray-100"
                     >
-                      <div className="h-3/5 flex-1 relative bg-neutral-100">
+                      <Link
+                        href={`/auth/admin/items/${item.id}`}
+                        aria-label={`View ${item.name}`}
+                        className="h-3/5 flex-1 relative bg-neutral-100 block"
+                      >
                         {item.imageUrl ? (
                           <Image
                             src={item.imageUrl}
@@ -116,12 +121,15 @@ function ItemsDataTable({
                             <ImageOff className="w-8 h-8" />
                           </div>
                         )}
-                      </div>
+                      </Link>
                       <div className="px-4 pb-6 pt-4 flex flex-col gap-2">
                         <div className="flex justify-between items-center">
-                          <p className="font-playfair text-lg text-green font-medium">
+                          <Link
+                            href={`/auth/admin/items/${item.id}`}
+                            className="font-playfair text-lg text-green font-medium hover:underline"
+                          >
                             {item.name}
-                          </p>
+                          </Link>
                           <div className="flex items-center gap-3">
                             <button
                               type="button"

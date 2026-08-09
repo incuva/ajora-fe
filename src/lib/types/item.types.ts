@@ -1,8 +1,8 @@
 export interface Item {
   id: string;
   name: string;
-  description?: string;
-  imageUrl?: string;
+  description?: string | null;
+  imageUrl?: string | null;
   unit: string;
   created_at?: string;
   updated_at?: string;
