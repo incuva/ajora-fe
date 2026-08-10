@@ -11,7 +11,7 @@ import SubpoolFormOverlay from "@/components/pools/subpool-form-overlay";
 import PoolReservationsTable from "@/components/pools/pool-reservations-table";
 import { normalizePoolStatus } from "@/constants/pool";
 import { getPoolById } from "@/lib/api/marketplace.service";
-import { getAdminPoolById } from "@/lib/api/admin-pools.service";
+import { getAdminPoolById, setPoolStatus } from "@/lib/api/admin-pools.service";
 import type { Pool, Subpool } from "@/lib/types/marketplace.types";
 import type { AdminPoolDetail } from "@/lib/types/admin.types";
 import { useToastStore } from "@/stores/toast-store";
@@ -43,12 +43,13 @@ const PoolDetailsPage = () => {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const id = params?.id;
-  const { toastError } = useToastStore();
+  const { toastSuccess, toastInfo, toastError } = useToastStore();
 
   const [pool, setPool] = useState<Pool | null>(null);
   const [detail, setDetail] = useState<AdminPoolDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   const [isEditOpen, setEditOpen] = useState(false);
   const [subpoolTarget, setSubpoolTarget] = useState<{
@@ -83,6 +84,41 @@ const PoolDetailsPage = () => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  /**
+   * Open or close the pool . 
+   */
+  const handleToggleStatus = async () => {
+    if (!pool) return;
+    const next = pool.status === "open" ? "closed" : "open";
+    if (
+      next === "closed" &&
+      !window.confirm(
+        `Close ${pool.name}? Buyers won't be able to reserve slots until it's reopened.`,
+      )
+    ) {
+      return;
+    }
+    setIsTogglingStatus(true);
+    try {
+      const result = await setPoolStatus(pool.id, next);
+      setPool((prev) => (prev ? { ...prev, status: result.status } : prev));
+      if (result.status === "open") {
+        toastSuccess("Pool reopened", `${pool.name} is now open for reservations.`);
+      } else {
+        toastInfo("Pool closed", `${pool.name} has been closed.`);
+      }
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
+        "Could not update the pool status.";
+      toastError("Update failed", message);
+    } finally {
+      setIsTogglingStatus(false);
+    }
+  };
 
   const filled = pool ? Math.max(0, pool.total_slots - pool.available_slots) : 0;
   const raised = pool ? filled * pool.slot_price : 0;
@@ -211,6 +247,26 @@ const PoolDetailsPage = () => {
               >
                 Edit Pool
               </button>
+
+              {/* Open / close toggle — only for pools in an open/closed state. */}
+              {(pool.status === "open" || pool.status === "closed") && (
+                <button
+                  type="button"
+                  onClick={handleToggleStatus}
+                  disabled={isTogglingStatus}
+                  className={
+                    pool.status === "open"
+                      ? "w-full h-12 rounded-md border border-fail bg-bg text-sm font-semibold font-inter text-fail transition-colors hover:bg-fail-bg disabled:opacity-50"
+                      : "w-full h-12 rounded-md border border-green bg-bg text-sm font-semibold font-inter text-green transition-colors hover:bg-green/5 disabled:opacity-50"
+                  }
+                >
+                  {isTogglingStatus
+                    ? "Working…"
+                    : pool.status === "open"
+                      ? "Close Pool"
+                      : "Reopen Pool"}
+                </button>
+              )}
             </div>
 
             {/* Right: subpools + reservations */}

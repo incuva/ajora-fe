@@ -72,7 +72,7 @@ export interface AdminPoolListQuery {
   search?: string;
 }
 
-/** Detail shape returned by GET /admin/pool/{id} (distinct from marketplace Pool). */
+/** Distinct from marketplace Pool */
 export interface AdminPoolDetail {
   id: string;
   pool_name: string;
@@ -83,12 +83,11 @@ export interface AdminPoolDetail {
   unit: string;
   created_at: string;
   deadline?: string;
-  /** Server returns these monetary totals as strings (e.g. "620000"). */
   total_pool_value: string;
   total_purchase: string;
 }
 
-// Admin pool reservations (GET /admin/pool/{id}/reservations)
+// Admin pool reservations 
 
 export type ReservationStatus = "pending" | "paid" | "delivered";
 
@@ -97,7 +96,6 @@ export interface AdminPoolReservation {
   fullname: string;
   phone: string;
   no_of_slot: number;
-  /** Monetary value returned as a string (e.g. "19976"). */
   reservation_value: string;
   status: ReservationStatus | string;
   payment_option: string;
@@ -112,7 +110,7 @@ export interface ReservationListQuery {
   status?: ReservationStatus | string;
 }
 
-// Admin dashboard overview (GET /admin/overview)
+// Admin dashboard overview 
 
 export interface OverviewMetric {
   total: number;
@@ -144,6 +142,60 @@ export interface AdminOverview {
   new_users: OverviewNewUsers;
   total_revenue: number;
   pending_orders: number;
+}
+
+// Admin users 
+
+export type UserState = "active" | "suspended";
+
+/** Monetary/count totals are strings. */
+export interface AdminUserSummary {
+  id: string;
+  fullname: string;
+  phone: string;
+  is_active: boolean;
+  created_at: string;
+  total_pool_participation: string;
+  total_amount_spent: string;
+}
+
+export interface AdminUserDetail extends AdminUserSummary {
+  email: string;
+  is_guest: string | boolean;
+  is_verified: boolean;
+}
+
+export interface AdminUserListQuery {
+  page?: number;
+  size?: number;
+  search?: string;
+  state?: UserState | string;
+}
+
+export interface AdminUserOrder {
+  reservation_id: string;
+  order_id: string;
+  pool_name: string;
+  category: string;
+  no_of_slot: number;
+  /** Monetary total returned as a string. */
+  total_amount: string;
+  status: ReservationStatus | string;
+  payment_option: string;
+  delivery: string;
+  created_at: string;
+}
+
+export interface UserOrderListQuery {
+  page?: number;
+  size?: number;
+  status?: ReservationStatus | string;
+}
+
+export interface SuspendUserResult {
+  id: string;
+  fullname: string;
+  is_active: boolean;
 }
 
 // Admin pool payloads
@@ -180,6 +232,14 @@ export interface UpdatePoolPayload {
   total_value?: number;
   weight_per_slot?: number;
   status?: PoolStatus;
+}
+
+export type PoolOpenState = "open" | "closed";
+
+export interface SetPoolStatusResult {
+  id: string;
+  name: string;
+  status: PoolStatus | string;
 }
 
 // Admin subpool payloads

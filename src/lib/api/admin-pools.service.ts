@@ -14,6 +14,8 @@ import type {
   AdminPoolListQuery,
   AdminPoolReservation,
   ReservationListQuery,
+  PoolOpenState,
+  SetPoolStatusResult,
   PaginatedResponse,
 } from "@/lib/types/admin.types";
 
@@ -97,6 +99,22 @@ export async function updatePool(
   const { data } = await apiClient.put<ApiResponse<Pool>>(
     `/admin/pool/${id}`,
     payload,
+  );
+  return data.data;
+}
+
+/**
+ * PUT /admin/pool/{id}/status
+ * Open or close a pool. (The swagger documents this under /pool/{id}/status,
+ * but the mounted route is under /admin.) Body is { status: "open" | "closed" }.
+ */
+export async function setPoolStatus(
+  id: string,
+  status: PoolOpenState,
+): Promise<SetPoolStatusResult> {
+  const { data } = await apiClient.put<ApiResponse<SetPoolStatusResult>>(
+    `/admin/pool/${id}/status`,
+    { status },
   );
   return data.data;
 }
