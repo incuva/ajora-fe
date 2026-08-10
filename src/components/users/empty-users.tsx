@@ -12,11 +12,8 @@ const EmptyUsers = () => {
         <p className="text-lg font-bold text-green">
           You do not have any buyers yet
         </p>
-
-        <p className="text-xs text-gray-800">
-          Add a user manually or share a registration link with them.
-        </p>
-        <div className="flex gap-3">
+        {/* Change to flex when enabled  */}
+        <div className="hidden gap-3">
           <Button className="text-green bg-gold-400" size="lg">
             <Plus /> Share Link
           </Button>

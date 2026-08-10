@@ -21,6 +21,19 @@ export async function getPoolById(id: string): Promise<Pool> {
 }
 
 /**
+ * Retrieve a reservation by its Reservation ID or Order ID.
+ * GET /user/reservations/{id}
+ */
+export async function getReservationById(
+  id: string,
+): Promise<PoolReservation> {
+  const { data } = await apiClient.get<ApiResponse<PoolReservation>>(
+    `/user/reservations/${id}`,
+  );
+  return data.data;
+}
+
+/**
  * Get all pools
  * @returns
  */

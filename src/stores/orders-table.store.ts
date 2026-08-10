@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import { apiGet } from "@/lib/api";
 
 // Types
 
 export type OrderStatus = "delivered" | "processing" | "cancelled";
+
+export type PaymentStatus = "paid" | "on-delivery";
 
 export interface Order {
   id: string;
@@ -14,48 +15,21 @@ export interface Order {
   slot: number;
   slotAmount: number;
   status: OrderStatus;
-}
+  paymentStatus: PaymentStatus;
 
-// Mock helpers
-
-const ORDER_POOL_NAMES = [
-  "April Cow meat (B1)",
-  "April Chicken (B1)",
-  "April Rice (B1)",
-  "April Mackerel (B1)",
-  "April Turkey (C1)",
-];
-
-const BUYER_NAMES = [
-  "Jinadu Kamaru",
-  "Aisha Bello",
-  "Ibrahim Musa",
-  "Fatima Ahmed",
-];
-
-const MOCK_STATUSES: OrderStatus[] = [
-  "delivered",
-  "delivered",
-  "delivered",
-  "processing",
-  "cancelled",
-];
-
-function generateMockOrders(count: number, page: number): Order[] {
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (page - 1) * count + i;
-    const num = String(idx + 1).padStart(4, "0");
-    return {
-      id: `order-${idx}`,
-      orderId: `#AJ-${num}`,
-      poolName: ORDER_POOL_NAMES[idx % ORDER_POOL_NAMES.length],
-      categoryName: BUYER_NAMES[idx % BUYER_NAMES.length],
-      categoryAvatar: undefined,
-      slot: 1,
-      slotAmount: 12000,
-      status: MOCK_STATUSES[idx % MOCK_STATUSES.length],
-    };
-  });
+  // ── Detail fields (Order Details modal) ──
+  buyerName: string;
+  buyerAvatar?: string;
+  itemName: string;
+  itemCategory: string;
+  itemImage: string;
+  quantityLabel: string;
+  amount: number;
+  deliveryAddress: string;
+  poolCreatedDate: string;
+  poolCreatedTime: string;
+  poolDeadlineDate: string;
+  poolDeadlineTime: string;
 }
 
 // Store
@@ -73,6 +47,7 @@ interface OrdersTableState {
   setPageSize: (size: number) => void;
   setFilter: (filter: string) => void;
   setSelectedPool: (pool: string) => void;
+  updateOrderStatus: (id: string, status: OrderStatus) => void;
   fetchOrders: () => Promise<void>;
 }
 
@@ -105,34 +80,14 @@ export const useOrdersTableStore = create<OrdersTableState>((set, get) => ({
     get().fetchOrders();
   },
 
-  fetchOrders: async () => {
-    const { page, pageSize, activeFilter, selectedPool } = get();
-    set({ isLoading: true });
-    try {
-      // ── Real API (uncomment when backend is ready) ──────────────────────────
-      // const response = await apiGet<PaginatedResponse<Order>>("/admin/orders", {
-      //   page,
-      //   pageSize,
-      //   status: activeFilter === "all" ? undefined : activeFilter,
-      //   poolId: selectedPool === "all" ? undefined : selectedPool,
-      // });
-      // set({ orders: response.data, total: response.total, isLoading: false });
+  updateOrderStatus: (id, status) => {
+    set((state) => ({
+      orders: state.orders.map((o) => (o.id === id ? { ...o, status } : o)),
+    }));
+  },
 
-      // ── Mock ────────────────────────────────────────────────────────────────
-      await apiGet("/admin/orders", {
-        page,
-        pageSize,
-        status: activeFilter,
-        poolId: selectedPool,
-      });
-      set({ isLoading: false });
-    } catch {
-      await new Promise((r) => setTimeout(r, 900));
-      set({
-        orders: generateMockOrders(pageSize, page),
-        total: 100,
-        isLoading: false,
-      });
-    }
+
+  fetchOrders: async () => {
+    set({ orders: [], total: 0, isLoading: false });
   },
 }));

@@ -9,7 +9,9 @@ export type StatusVariant =
   | "cancelled"
   | "closed"
   | "filled"
-  | "distributed";
+  | "distributed"
+  | "paid"
+  | "on-delivery";
 
 const STATUS_CONFIG: Record<
   StatusVariant,
@@ -24,6 +26,8 @@ const STATUS_CONFIG: Record<
   closed:      { label: "Closed",      className: "bg-gray-400 text-white" },
   filled:      { label: "Filled",      className: "bg-blue-500 text-white" },
   distributed: { label: "Distributed", className: "bg-emerald-600 text-white" },
+  paid:        { label: "Paid",        className: "bg-gray-100 text-gray-600" },
+  "on-delivery": { label: "On Delivery", className: "bg-gray-100 text-gray-600" },
 };
 
 interface StatusBadgeProps {

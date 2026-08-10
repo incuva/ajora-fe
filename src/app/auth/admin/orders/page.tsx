@@ -1,16 +1,22 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import UIContentLayout from "@/components/shared/content-layout";
 import {
   Card,
+  CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 import DataTable from "@/components/shared/data-table/index";
 import EmptyOrders from "@/components/orders/empty-orders";
+import OrderDetailsOverlay from "@/components/orders/order-details-overlay";
+import ReservationLookupOverlay from "@/components/orders/reservation-lookup-overlay";
 import { useOrdersTableStore, type Order } from "@/stores/orders-table.store";
+import { useToastStore } from "@/stores/toast-store";
 import StatsCard from "@/components/shared/stats-card";
 import { GoArrowUpRight } from "react-icons/go";
 import { buildColumns, ORDER_FILTERS, PoolDropdown } from "@/constants/order";
@@ -29,15 +35,52 @@ const OrdersPage = () => {
     setPageSize,
     setFilter,
     setSelectedPool,
+    updateOrderStatus,
     fetchOrders,
   } = useOrdersTableStore();
+
+  const { toastSuccess, toastInfo } = useToastStore();
+
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isLookupOpen, setIsLookupOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const columns = buildColumns();
+  const openDetails = (order: Order) => {
+    setSelectedOrder(order);
+    setIsDetailsOpen(true);
+  };
+
+  const closeDetails = () => setIsDetailsOpen(false);
+
+  const handleMarkDelivered = (order: Order) => {
+    updateOrderStatus(order.id, "delivered");
+    setSelectedOrder((prev) =>
+      prev && prev.id === order.id ? { ...prev, status: "delivered" } : prev
+    );
+    toastSuccess(
+      "Order updated",
+      `${order.orderId} has been marked as delivered.`
+    );
+  };
+
+  const handleCancelOrder = (order: Order) => {
+    updateOrderStatus(order.id, "cancelled");
+    setSelectedOrder((prev) =>
+      prev && prev.id === order.id ? { ...prev, status: "cancelled" } : prev
+    );
+    toastInfo("Order cancelled", `${order.orderId} has been cancelled.`);
+  };
+
+  const columns = buildColumns({
+    onView: openDetails,
+    onMarkDelivered: handleMarkDelivered,
+    onCancel: handleCancelOrder,
+  });
 
   return (
     <UIContentLayout>
@@ -48,8 +91,17 @@ const OrdersPage = () => {
             <CardTitle className="font-playfair text-xl font-medium">
               Orders
             </CardTitle>
+            <CardAction>
+              <Button
+                className="bg-green text-white"
+                size="lg"
+                onClick={() => setIsLookupOpen(true)}
+              >
+                <Search className="w-4 h-4" /> Look up Reservation
+              </Button>
+            </CardAction>
           </CardHeader>
-          <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0">
+          <CardContent className="flex md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-0 overflow-x-auto md:overflow-visible pb-1">
             <StatsCard
               title="Total Active Orders"
               value="--"
@@ -87,6 +139,7 @@ const OrdersPage = () => {
           filters={ORDER_FILTERS}
           activeFilter={activeFilter}
           onFilterChange={setFilter}
+          onRowClick={openDetails}
           headerRight={
             <PoolDropdown value={selectedPool} onChange={setSelectedPool} />
           }
@@ -97,6 +150,20 @@ const OrdersPage = () => {
           onPageSizeChange={setPageSize}
         />
       </div>
+
+      <OrderDetailsOverlay
+        order={selectedOrder}
+        isOpen={isDetailsOpen}
+        onClose={closeDetails}
+        onMarkDelivered={handleMarkDelivered}
+        onCancelOrder={handleCancelOrder}
+      />
+
+      {/* Look up a single reservation */}
+      <ReservationLookupOverlay
+        isOpen={isLookupOpen}
+        onClose={() => setIsLookupOpen(false)}
+      />
     </UIContentLayout>
   );
 };

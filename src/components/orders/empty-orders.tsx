@@ -10,7 +10,7 @@ const EmptyOrders = () => {
           <AppsListRegular className="w-6 h-6 text-gray-400" />
         </div>
         <p className="text-lg font-bold text-green">No Orders Yet</p>
-        <p className="text-xs text-gray-800 text-center max-w-[220px]">
+        <p className="text-xs text-gray-800 text-center max-w-55">
           Orders will appear here once users start purchasing pool slots.
         </p>
         <Button className="text-white bg-green" size="lg">
