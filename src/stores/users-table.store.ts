@@ -1,60 +1,20 @@
 import { create } from "zustand";
-import { apiGet } from "@/lib/api";
+import {
+  getAdminUsers,
+  toggleUserSuspension,
+} from "@/lib/api/admin-users.service";
+import type { AdminUserSummary, UserState } from "@/lib/types/admin.types";
 
-// Types
+// The table row IS the API summary shape.
+export type User = AdminUserSummary;
+export type { UserState };
 
-export type UserStatus = "active" | "flagged" | "suspended";
-
-export interface User {
-  id: string;
-  name: string;
-  avatar?: string;
-  userId: string;
-  poolsParticipation: number;
-  amountSpent: number;
-  dateJoined: string;
-  status: UserStatus;
-}
-
-// Mock helpers
-
-const MOCK_NAMES = [
-  "Jinadu Kamaru",
-  "Aisha Bello",
-  "Ibrahim Musa",
-  "Fatima Ahmed",
-  "Chukwuemeka Osei",
-  "Ngozi Adeyemi",
-  "Tunde Bakare",
-  "Amaka Okonkwo",
-];
-
-const MOCK_STATUSES: UserStatus[] = [
-  "active",
-  "active",
-  "active",
-  "flagged",
-  "suspended",
-];
-
-function generateMockUsers(count: number, page: number): User[] {
-  return Array.from({ length: count }, (_, i) => {
-    const idx = (page - 1) * count + i;
-    const num = String(idx + 1).padStart(4, "0");
-    return {
-      id: `user-${idx}`,
-      name: MOCK_NAMES[idx % MOCK_NAMES.length],
-      avatar: undefined,
-      userId: `#AJ${num}`,
-      poolsParticipation: 5 + (idx % 20),
-      amountSpent: (1 + (idx % 10)) * 5000,
-      dateJoined: "April 14th",
-      status: MOCK_STATUSES[idx % MOCK_STATUSES.length],
-    };
-  });
-}
-
-// Store
+/** activeFilter key → the `state` query param the API expects. */
+const filterToState = (filter: string): UserState | undefined => {
+  if (filter === "active") return "active";
+  if (filter === "suspended") return "suspended";
+  return undefined;
+};
 
 interface UsersTableState {
   users: User[];
@@ -63,11 +23,14 @@ interface UsersTableState {
   pageSize: number;
   total: number;
   activeFilter: string;
+  search: string;
   // actions
   setPage: (page: number) => void;
   setPageSize: (size: number) => void;
   setFilter: (filter: string) => void;
+  setSearch: (search: string) => void;
   fetchUsers: () => Promise<void>;
+  suspendUser: (id: string) => Promise<boolean>;
 }
 
 export const useUsersTableStore = create<UsersTableState>((set, get) => ({
@@ -77,6 +40,7 @@ export const useUsersTableStore = create<UsersTableState>((set, get) => ({
   pageSize: 10,
   total: 0,
   activeFilter: "all",
+  search: "",
 
   setPage: (page) => {
     set({ page });
@@ -93,28 +57,40 @@ export const useUsersTableStore = create<UsersTableState>((set, get) => ({
     get().fetchUsers();
   },
 
+  setSearch: (search) => {
+    set({ search, page: 1 });
+    get().fetchUsers();
+  },
+
+  // GET /admin/users — server-paginated, with optional search + state filter.
   fetchUsers: async () => {
-    const { page, pageSize, activeFilter } = get();
+    const { page, pageSize, activeFilter, search } = get();
     set({ isLoading: true });
     try {
-      // ── Real API (uncomment when backend is ready) ──────────────────────────
-      // const response = await apiGet<PaginatedResponse<User>>("/admin/users", {
-      //   page,
-      //   pageSize,
-      //   status: activeFilter === "all" ? undefined : activeFilter,
-      // });
-      // set({ users: response.data, total: response.total, isLoading: false });
-
-      // ── Mock ────────────────────────────────────────────────────────────────
-      await apiGet("/admin/users", { page, pageSize, status: activeFilter });
-      set({ isLoading: false });
-    } catch {
-      await new Promise((r) => setTimeout(r, 900));
+      const res = await getAdminUsers({
+        page,
+        size: pageSize,
+        state: filterToState(activeFilter),
+        search: search.trim() || undefined,
+      });
       set({
-        users: generateMockUsers(pageSize, page),
-        total: 100,
+        users: res.data ?? [],
+        total: res.pagination?.totalItems ?? res.data?.length ?? 0,
         isLoading: false,
       });
+    } catch {
+      set({ users: [], total: 0, isLoading: false });
     }
+  },
+
+  // PUT /admin/user/{id}/suspend — toggles state; reflect the new value locally.
+  suspendUser: async (id) => {
+    const result = await toggleUserSuspension(id);
+    set((state) => ({
+      users: state.users.map((u) =>
+        u.id === id ? { ...u, is_active: result.is_active } : u,
+      ),
+    }));
+    return result.is_active;
   },
 }));

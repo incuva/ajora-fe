@@ -2,9 +2,12 @@
 
 import UIHeader from "@/components/shared/header";
 import UITopbar from "@/components/shared/topbar";
-import React from "react";
-import DeviceRestriction from "@/components/shared/device-restriction";
+import MobileNav from "@/components/shared/mobile-nav";
 import { usePathname } from "next/navigation";
+import React from "react";
+
+/** Auth routes that render standalone, without the admin sidebar/header shell. */
+const PUBLIC_AUTH_ROUTES = ["/auth/admin/login"];
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -12,28 +15,21 @@ interface AuthLayoutProps {
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
   const pathname = usePathname();
-  const isAdminRoute = pathname.startsWith("/auth/admin");
+  const isPublicAuthRoute = PUBLIC_AUTH_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
 
-  // Only apply restriction to admin routes
-  if (isAdminRoute) {
-    return (
-      <DeviceRestriction>
-        <main className="flex h-screen w-full bg-bg overflow-y-hidden">
-          <UIHeader />
-          <section className="w-full flex flex-col">
-            <UITopbar />
-            {children}
-          </section>
-        </main>
-      </DeviceRestriction>
-    );
+  // Login — no shell.
+  if (isPublicAuthRoute) {
+    return <>{children}</>;
   }
 
   return (
-    <main className="flex h-screen w-full bg-bg">
-      <UIHeader />
-      <section className="w-full flex flex-col">
-        <UITopbar />
+    <main className="flex h-screen w-full bg-bg overflow-y-hidden">
+      <UIHeader className="hidden md:flex" />
+      <section className="w-full min-w-0 flex flex-col">
+        <MobileNav />
+        <UITopbar className="hidden md:flex" />
         {children}
       </section>
     </main>
@@ -41,4 +37,3 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
 };
 
 export default AuthLayout;
-

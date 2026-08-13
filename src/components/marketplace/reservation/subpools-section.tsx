@@ -48,7 +48,7 @@ const SubpoolsSection = ({
             />
           </button>
         ) : (
-          <span className="text-xs font-inter text-muted shrink-0">
+          <span className="text-xs font-inter text-neutral-300 shrink-0">
             No subpools available
           </span>
         )}
@@ -74,7 +74,7 @@ const SubpoolsSection = ({
                     </span>
                   </div>
                   {subpool.description && (
-                    <p className="text-xs font-inter text-muted">
+                    <p className="text-xs font-inter text-neutral-300">
                       {subpool.description}
                     </p>
                   )}
@@ -121,7 +121,7 @@ const SubpoolsSection = ({
 
                   <span
                     className={`text-xs font-medium font-inter w-5 text-center ${
-                      qty > 0 ? "text-green font-bold" : "text-muted"
+                      qty > 0 ? "text-green font-bold" : "text-neutral-300"
                     }`}
                   >
                     {qty}

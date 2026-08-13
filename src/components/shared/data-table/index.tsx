@@ -33,6 +33,9 @@ export interface DataTableProps<T = Record<string, unknown>> {
   onFilterChange?: (key: string) => void;
   headerRight?: React.ReactNode;
 
+  /** Optional row click handler — makes rows interactive (e.g. open a detail view). */
+  onRowClick?: (row: T) => void;
+
   page: number;
   pageSize: number;
   total: number;
@@ -59,6 +62,7 @@ function DataTable<T = Record<string, unknown>>({
   activeFilter = "all",
   onFilterChange,
   headerRight,
+  onRowClick,
   page,
   pageSize,
   total,
@@ -81,6 +85,7 @@ function DataTable<T = Record<string, unknown>>({
                   key={f.key}
                   active={activeFilter === f.key}
                   label={f.label}
+                  outlined
                   onClick={() => onFilterChange?.(f.key)}
                 />
               ))}
@@ -94,93 +99,100 @@ function DataTable<T = Record<string, unknown>>({
         </div>
       )}
 
-      {/* Table card */}
-      <div className="bg-white rounded-2xl overflow-hidden ring-1 ring-gray-100">
-        {/* Scrollable wrapper keeps responsiveness on smaller tablets */}
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] border-collapse">
-            {/* Head */}
-            <thead>
-              <tr className="bg-grey-100 border-b border-gray-100">
-                {/* Row-number column */}
-                <th className="w-10 px-4 py-3.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wide select-none" />
-                {columns.map((col) => (
-                  <th
-                    key={col.key}
-                    className={cn(
-                      "px-4 py-3.5 text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap",
-                      col.width,
-                      alignClass[col.align ?? "left"]
-                    )}
-                  >
-                    {col.header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            {/* Body */}
-            <tbody>
-              {!isLoading && hasData &&
-                data.map((row, rowIdx) => {
-                  const rowKey = keyField
-                    ? String((row as Record<string, unknown>)[keyField as string])
-                    : rowIdx;
-                  const rowNum = String(
-                    (page - 1) * pageSize + rowIdx + 1
-                  ).padStart(2, "0");
-
-                  return (
-                    <tr
-                      key={rowKey}
-                      className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors"
-                    >
-                      {/* Row number */}
-                      <td className="px-4 py-3.5 text-sm text-gray-400 font-medium select-none w-10">
-                        {rowNum}
-                      </td>
-
+      {/* Empty state — rendered standalone so no table header shows above it */}
+      {!isLoading && !hasData ? (
+        <div>{emptyState ?? <DefaultEmpty />}</div>
+      ) : (
+        <div className="bg-white rounded-2xl overflow-hidden ring-1 ring-gray-100">
+          {isLoading ? (
+            <TableLoader />
+          ) : (
+            <>
+              {/* Scrollable wrapper keeps responsiveness on smaller tablets */}
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-150 border-collapse">
+                  {/* Head */}
+                  <thead>
+                    <tr className="bg-grey-100 border-b border-gray-100">
+                      {/* Row-number column */}
+                      <th className="w-10 px-4 py-3.5 text-left text-xs font-medium text-gray-400 uppercase tracking-wide select-none" />
                       {columns.map((col) => (
-                        <td
+                        <th
                           key={col.key}
                           className={cn(
-                            "px-4 py-3.5 text-sm text-gray-700",
+                            "px-4 py-3.5 text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap",
                             col.width,
                             alignClass[col.align ?? "left"]
                           )}
                         >
-                          {col.render(row, rowIdx)}
-                        </td>
+                          {col.header}
+                        </th>
                       ))}
                     </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+                  </thead>
+
+                  {/* Body */}
+                  <tbody>
+                    {data.map((row, rowIdx) => {
+                      const rowKey = keyField
+                        ? String(
+                            (row as Record<string, unknown>)[keyField as string]
+                          )
+                        : rowIdx;
+                      const rowNum = String(
+                        (page - 1) * pageSize + rowIdx + 1
+                      ).padStart(2, "0");
+
+                      return (
+                        <tr
+                          key={rowKey}
+                          onClick={
+                            onRowClick ? () => onRowClick(row) : undefined
+                          }
+                          className={cn(
+                            "border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors",
+                            onRowClick && "cursor-pointer"
+                          )}
+                        >
+                          {/* Row number */}
+                          <td className="px-4 py-3.5 text-sm text-gray-400 font-medium select-none w-10">
+                            {rowNum}
+                          </td>
+
+                          {columns.map((col) => (
+                            <td
+                              key={col.key}
+                              className={cn(
+                                "px-4 py-3.5 text-sm text-gray-700",
+                                col.width,
+                                alignClass[col.align ?? "left"]
+                              )}
+                            >
+                              {col.render(row, rowIdx)}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className="px-4 pb-3">
+                <TablePagination
+                  page={page}
+                  pageSize={pageSize}
+                  total={total}
+                  pageSizeOptions={pageSizeOptions}
+                  onPageChange={onPageChange}
+                  onPageSizeChange={onPageSizeChange}
+                />
+              </div>
+            </>
+          )}
         </div>
-
-        {/* Loading state */}
-        {isLoading && <TableLoader />}
-
-        {/* Empty state */}
-        {!isLoading && !hasData && (
-          <div>{emptyState ?? <DefaultEmpty />}</div>
-        )}
-
-        {/* Pagination */}
-        {!isLoading && hasData && (
-          <div className="px-4 pb-3">
-            <TablePagination
-              page={page}
-              pageSize={pageSize}
-              total={total}
-              pageSizeOptions={pageSizeOptions}
-              onPageChange={onPageChange}
-              onPageSizeChange={onPageSizeChange}
-            />
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

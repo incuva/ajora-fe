@@ -12,7 +12,15 @@ export const ORDER_FILTERS = [
   { key: "cancelled", label: "Cancelled" },
 ];
 
-export const buildColumns = (): TableColumn<Order>[] => [
+export interface OrderColumnHandlers {
+  onView: (order: Order) => void;
+  onMarkDelivered: (order: Order) => void;
+  onCancel: (order: Order) => void;
+}
+
+export const buildColumns = (
+  handlers: OrderColumnHandlers
+): TableColumn<Order>[] => [
   {
     key: "orderId",
     header: "Order ID",
@@ -70,6 +78,11 @@ export const buildColumns = (): TableColumn<Order>[] => [
     ),
   },
   {
+    key: "paymentStatus",
+    header: "Payment Status",
+    render: (row) => <StatusBadge status={row.paymentStatus} />,
+  },
+  {
     key: "status",
     header: "Status",
     render: (row) => <StatusBadge status={row.status} />,
@@ -80,23 +93,28 @@ export const buildColumns = (): TableColumn<Order>[] => [
     width: "w-10",
     align: "right",
     render: (row) => {
+      const isClosed = row.status === "delivered" || row.status === "cancelled";
       const actions: RowAction[] = [
         {
           label: "View order",
           icon: <Eye className="w-4 h-4" />,
-          onClick: () => console.log("View", row.id),
+          onClick: () => handlers.onView(row),
         },
-        {
-          label: "Mark delivered",
-          icon: <Truck className="w-4 h-4" />,
-          onClick: () => console.log("Deliver", row.id),
-        },
-        {
-          label: "Cancel order",
-          icon: <XCircle className="w-4 h-4" />,
-          onClick: () => console.log("Cancel", row.id),
-          variant: "destructive",
-        },
+        ...(isClosed
+          ? []
+          : [
+              {
+                label: "Mark delivered",
+                icon: <Truck className="w-4 h-4" />,
+                onClick: () => handlers.onMarkDelivered(row),
+              },
+              {
+                label: "Cancel order",
+                icon: <XCircle className="w-4 h-4" />,
+                onClick: () => handlers.onCancel(row),
+                variant: "destructive" as const,
+              },
+            ]),
       ];
       return <RowActions actions={actions} />;
     },
