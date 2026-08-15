@@ -1,14 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Header from "@/components/home/header";
 import Footer from "@/components/home/footer";
 import Pillar from "@/components/home/pillar";
+import { getPools } from "@/lib/api/marketplace.service";
+import type { Pool } from "@/lib/types/marketplace.types";
 
 const pillars = ["Pool Demand", "Earn Dividends", "Full Transparency", "Community First"];
 
+/** Arrow glyph shared by every pool CTA. */
+const ArrowRight = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M5 12h14" />
+    <path d="m12 5 7 7-7 7" />
+  </svg>
+);
+
 export default function Home() {
+  const [openPools, setOpenPools] = useState<Pool[]>([]);
+  const [isLoadingPools, setIsLoadingPools] = useState(true);
+
+  useEffect(() => {
+    getPools()
+      .then((pools) =>
+        setOpenPools((pools ?? []).filter((p) => p.status === "open")),
+      )
+      .catch(() => setOpenPools([]))
+      .finally(() => setIsLoadingPools(false));
+  }, []);
+
   return (
     <>
       <div className="fixed -bottom-30 -right-30 w-120 h-120 rounded-full border border-gold/20 pointer-events-none z-0">
@@ -87,32 +120,69 @@ export default function Home() {
               ))}
             </motion.div>
 
-            {/* CTA */}
+            {/* CTA — one per open pool, pulled live from GET /user/pools */}
             <motion.div
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.65, ease: "easeOut" }}
+              className="flex flex-wrap gap-3 justify-center"
             >
-              <Link
-                href="/marketplace/cde2dd9d-bad1-44d6-80d0-bfa03ac1451c"
-                className="inline-flex items-center gap-2.5 bg-green text-gold-light font-semibold text-sm tracking-wide uppercase px-8 py-4 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
-              >
-                Cow Sharing
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              {isLoadingPools ? (
+                <span
+                  className="inline-flex items-center gap-2.5 text-text-sec text-sm"
+                  role="status"
+                  aria-live="polite"
                 >
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
-              </Link>
+                  <span className="w-4 h-4 rounded-full border-2 border-green border-t-transparent animate-spin" />
+                  Loading pools…
+                </span>
+              ) : openPools.length > 0 ? (
+                <>
+                  {openPools.slice(0, 8).map((pool, i) => (
+                    <motion.div
+                      key={pool.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.5,
+                        delay: 0.65 + Math.min(i, 10) * 0.06,
+                        ease: "easeOut",
+                      }}
+                    >
+                      <Link
+                        href={`/marketplace/${pool.id}`}
+                        className="inline-flex items-center gap-2.5 bg-green text-gold-light font-semibold text-sm tracking-wide uppercase px-8 py-4 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                      >
+                        {pool.name}
+                        <ArrowRight />
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  {/* Gateway to the full listing (there are often more than 8). */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.65 + Math.min(openPools.length, 8) * 0.06,
+                      ease: "easeOut",
+                    }}
+                  >
+                    <Link
+                      href="/marketplace"
+                      className="inline-flex items-center gap-2.5 border border-green text-green font-semibold text-sm tracking-wide uppercase px-8 py-4 rounded-full hover:bg-green hover:text-gold-light transition-all duration-200"
+                    >
+                      View all pools
+                      <ArrowRight />
+                    </Link>
+                  </motion.div>
+                </>
+              ) : (
+                <span className="text-text-sec text-sm font-light">
+                  New pools are opening soon — check back shortly.
+                </span>
+              )}
             </motion.div>
 
           </div>
