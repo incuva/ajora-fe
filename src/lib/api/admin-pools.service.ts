@@ -14,6 +14,7 @@ import type {
   AdminPoolListQuery,
   AdminPoolReservation,
   ReservationListQuery,
+  ConfirmOnsitePaymentResult,
   PoolOpenState,
   SetPoolStatusResult,
   PaginatedResponse,
@@ -115,6 +116,22 @@ export async function setPoolStatus(
   const { data } = await apiClient.put<ApiResponse<SetPoolStatusResult>>(
     `/admin/pool/${id}/status`,
     { status },
+  );
+  return data.data;
+}
+
+/**
+ * PUT /admin/reservations/{id}/payment/update  🔒 bearerAuth
+ * Confirm an onsite reservation's payment, moving it to "paid". Body is
+ * { amount }. Use for reservations whose payment_option is "onsite".
+ */
+export async function confirmReservationPayment(
+  reservationId: string,
+  amount: number,
+): Promise<ConfirmOnsitePaymentResult> {
+  const { data } = await apiClient.put<ApiResponse<ConfirmOnsitePaymentResult>>(
+    `/admin/reservations/${reservationId}/payment/update`,
+    { amount },
   );
   return data.data;
 }

@@ -50,7 +50,6 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
       description: "",
       total_slots: undefined,
       slot_price: undefined,
-      total_value: undefined,
       imageUrl: "",
       subpools: [],
     },
@@ -103,7 +102,9 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
           : undefined,
         total_slots: values.total_slots,
         slot_price: values.slot_price,
-        total_value: values.total_value,
+        // total_value isn't a form entry — it's the value of every slot.
+        // The API still requires it, so derive it from slots × price.
+        total_value: values.total_slots * values.slot_price,
         imageUrl: values.imageUrl || undefined,
         subpools:
           values.subpools && values.subpools.length > 0
@@ -182,9 +183,9 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
         </FormField>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label="Start Time (optional)">
+          <FormField label="Start Date (optional)">
             <TextInput
-              type="datetime-local"
+              type="date"
               {...register("start_date")}
               className={errors.start_date ? "border-red-500" : ""}
             />
@@ -192,7 +193,7 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
 
           <FormField label="Reservation Deadline (optional)">
             <TextInput
-              type="datetime-local"
+              type="date"
               {...register("deadline")}
               className={errors.deadline ? "border-red-500" : ""}
             />
@@ -231,22 +232,6 @@ const PoolFormOverlay = ({ isOpen, onClose, onCreated }: PoolFormOverlayProps) =
             )}
           </FormField>
         </div>
-
-        <FormField label="Total Value">
-          <TextInput
-            type="number"
-            min={0}
-            placeholder="400000"
-            suffix="₦"
-            {...register("total_value")}
-            className={errors.total_value ? "border-red-500" : ""}
-          />
-          {errors.total_value && (
-            <span className="text-red-500 text-xs font-inter mt-1">
-              {errors.total_value.message}
-            </span>
-          )}
-        </FormField>
 
         <FormField label="Image URL (optional)">
           <TextInput

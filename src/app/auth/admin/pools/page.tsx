@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import UIContentLayout from "@/components/shared/content-layout";
 import {
   Card,
@@ -16,7 +17,6 @@ import DataTable from "@/components/shared/data-table/index";
 import EmptyPool from "@/components/pools/empty-pool";
 import PoolFormOverlay from "@/components/pools/pool-form-overlay";
 import PoolEditOverlay from "@/components/pools/pool-edit-overlay";
-import PoolDetailsOverlay from "@/components/pools/pool-details-overlay";
 import SubpoolFormOverlay from "@/components/pools/subpool-form-overlay";
 import { buildColumns, normalizePoolStatus, POOL_FILTERS } from "@/constants/pool";
 import { getPools } from "@/lib/api/marketplace.service";
@@ -24,6 +24,7 @@ import type { Pool, Subpool } from "@/lib/types/marketplace.types";
 import { useToastStore } from "@/stores/toast-store";
 
 const PoolsPage = () => {
+  const router = useRouter();
   const { toastError } = useToastStore();
   const [pools, setPools] = useState<Pool[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +32,6 @@ const PoolsPage = () => {
 
   // Overlay state — the selected real Pool drives every write endpoint.
   const [isCreateOpen, setCreateOpen] = useState(false);
-  const [detailsPool, setDetailsPool] = useState<Pool | null>(null);
   const [editPool, setEditPool] = useState<Pool | null>(null);
   const [subpoolTarget, setSubpoolTarget] = useState<{
     poolId: string;
@@ -61,13 +61,14 @@ const PoolsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const viewPool = (pool: Pool) => router.push(`/auth/admin/pools/${pool.id}`);
+
   const columns = buildColumns({
-    onView: setDetailsPool,
+    onView: viewPool,
     onEdit: setEditPool,
     onAddSubpool: (pool) => setSubpoolTarget({ poolId: pool.id, subpool: null }),
   });
 
-  // Client-side filter (the API returns all pools; no server pagination yet).
   const filteredPools = pools.filter((p) => {
     if (activeFilter === "all") return true;
     return normalizePoolStatus(p.status) === activeFilter;
@@ -102,7 +103,7 @@ const PoolsPage = () => {
             filters={POOL_FILTERS}
             activeFilter={activeFilter}
             onFilterChange={setActiveFilter}
-            onRowClick={setDetailsPool}
+            onRowClick={viewPool}
             page={1}
             pageSize={filteredPools.length || 1}
             total={filteredPools.length}
@@ -119,26 +120,7 @@ const PoolsPage = () => {
         onCreated={fetchPoolsData}
       />
 
-      {/* View → GET /user/pools (list) + subpool/edit entry points */}
-      <PoolDetailsOverlay
-        pool={detailsPool}
-        isOpen={detailsPool !== null}
-        onClose={() => setDetailsPool(null)}
-        onEditPool={(pool) => {
-          setDetailsPool(null);
-          setEditPool(pool);
-        }}
-        onAddSubpool={(pool) => {
-          setDetailsPool(null);
-          setSubpoolTarget({ poolId: pool.id, subpool: null });
-        }}
-        onEditSubpool={(pool, subpool) => {
-          setDetailsPool(null);
-          setSubpoolTarget({ poolId: pool.id, subpool });
-        }}
-      />
-
-      {/* Edit → PUT /admin/pool/{id} */}
+      {/* Edit */}
       <PoolEditOverlay
         pool={editPool}
         isOpen={editPool !== null}

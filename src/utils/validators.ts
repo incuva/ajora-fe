@@ -135,7 +135,6 @@ export const createPoolSchema = z.object({
     .url("Enter a valid image URL")
     .optional()
     .or(z.literal("")),
-  total_value: z.coerce.number().positive("Total value must be greater than 0"),
   subpools: z.array(createSubpoolSchema).optional(),
 });
 

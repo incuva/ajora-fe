@@ -96,12 +96,31 @@ export interface AdminPoolReservation {
   fullname: string;
   phone: string;
   no_of_slot: number;
+  /** Number of subpools this customer booked (present when the pool has subpools). */
+  no_of_subpool?: number;
   reservation_value: string;
   status: ReservationStatus | string;
+  /** "online" | "onsite" — how the customer chose to pay. */
   payment_option: string;
   delivery: string;
   order_id: string;
+  reservation_id?: string;
+  id?: string;
   created_at: string;
+}
+export interface ConfirmOnsitePaymentResult {
+  id: string;
+  order_id: string;
+  user_id: string;
+  pool_id: string;
+  no_of_reservation: number;
+  payment_option: string;
+  payment_status: string;
+  status: string;
+  location: string | null;
+  delivery: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ReservationListQuery {

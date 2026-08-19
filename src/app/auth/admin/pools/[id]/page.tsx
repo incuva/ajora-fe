@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Pencil, Plus } from "lucide-react";
+import { ArrowLeft, Pencil, Plus, Share2 } from "lucide-react";
 import UIContentLayout from "@/components/shared/content-layout";
 import StatusBadge from "@/components/shared/data-table/status-badge";
 import PoolEditOverlay from "@/components/pools/pool-edit-overlay";
@@ -117,6 +117,29 @@ const PoolDetailsPage = () => {
       toastError("Update failed", message);
     } finally {
       setIsTogglingStatus(false);
+    }
+  };
+
+  /**
+   * Share the pool's public marketplace link. Uses the native share sheet when
+   * available (mobile), otherwise copies the link to the clipboard.
+   */
+  const handleShare = async () => {
+    if (!pool) return;
+    const url = `${window.location.origin}/marketplace/${pool.id}`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: pool.name, url });
+      } catch {
+        /* user dismissed the share sheet — no-op */
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toastSuccess("Link copied", "Public pool link copied to your clipboard.");
+    } catch {
+      toastError("Couldn't copy link", url);
     }
   };
 
@@ -246,6 +269,14 @@ const PoolDetailsPage = () => {
                 className="w-full h-12 rounded-md bg-green text-primary-foreground text-sm font-semibold font-inter transition-colors hover:bg-green/90"
               >
                 Edit Pool
+              </button>
+
+              <button
+                type="button"
+                onClick={handleShare}
+                className="w-full h-12 rounded-md border border-green bg-bg text-sm font-semibold font-inter text-green transition-colors hover:bg-green/5 flex items-center justify-center gap-2"
+              >
+                <Share2 className="w-4 h-4" /> Share Pool Link
               </button>
 
               {/* Open / close toggle — only for pools in an open/closed state. */}

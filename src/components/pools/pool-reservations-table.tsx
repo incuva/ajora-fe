@@ -8,7 +8,7 @@ import StatusBadge, {
 } from "@/components/shared/data-table/status-badge";
 import TableLoader from "@/components/shared/data-table/table-loader";
 import TablePagination from "@/components/shared/data-table/table-pagination";
-import { getPoolReservations } from "@/lib/api/admin-pools.service";
+import { getPoolReservations, confirmReservationPayment } from "@/lib/api/admin-pools.service";
 import type {
   AdminPoolReservation,
   Pagination,
@@ -46,17 +46,24 @@ const formatDate = (iso: string) => {
 };
 
 /**
- * Reservations table for a pool → GET /admin/pool/{id}/reservations.
+ * The reservation identifier used by the payment-update route. 
+ */
+const resolveReservationId = (r: AdminPoolReservation): string | undefined =>
+  r.reservation_id ?? r.id;
+
+/**
+ * Reservations table for a pool
  * Server-paginated with an optional status filter.
  */
 const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
-  const { toastError } = useToastStore();
+  const { toastSuccess, toastError } = useToastStore();
   const [rows, setRows] = useState<AdminPoolReservation[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState("all");
+  const [markingId, setMarkingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -85,6 +92,47 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
   useEffect(() => {
     load();
   }, [load]);
+
+  /**
+   * Confirm an onsite payment
+   * Sends the reservation's value as the amount, then refreshes the list.
+   */
+  const handleMarkPaid = async (r: AdminPoolReservation) => {
+    const reservationId = resolveReservationId(r);
+    if (!reservationId) {
+      toastError(
+        "Can't confirm payment",
+        "This reservation is missing an identifier.",
+      );
+      return;
+    }
+    const amount = Number(r.reservation_value);
+    if (
+      !window.confirm(
+        `Mark ${r.fullname}'s onsite payment of ₦${amount.toLocaleString()} as paid?`,
+      )
+    ) {
+      return;
+    }
+    setMarkingId(reservationId);
+    try {
+      await confirmReservationPayment(reservationId, amount);
+      toastSuccess(
+        "Payment confirmed",
+        `${r.fullname}'s reservation is now marked as paid.`,
+      );
+      await load();
+    } catch (err: unknown) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
+        "Could not confirm the payment. Please try again.";
+      toastError("Update failed", message);
+    } finally {
+      setMarkingId(null);
+    }
+  };
 
   const hasData = rows.length > 0;
   const total = pagination?.totalItems ?? rows.length;
@@ -130,7 +178,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-150 border-collapse">
+            <table className="w-full min-w-[1000px] border-collapse">
               <thead>
                 <tr className="bg-grey-100 border-b border-gray-100">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
@@ -143,7 +191,13 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                     Slots
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    Subpools
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
                     Value
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    Payment
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
                     Delivery
@@ -154,44 +208,86 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
                     Date
                   </th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((r) => (
-                  <tr
-                    key={r.order_id}
-                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors"
-                  >
-                    <td className="px-4 py-3.5 text-sm">
-                      <span className="font-mono text-xs text-gray-600">
-                        {r.order_id}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 text-sm">
-                      <div className="flex flex-col">
-                        <span className="font-medium text-gray-800">
-                          {r.fullname}
+                {rows.map((r) => {
+                  const isOnsite = r.payment_option === "onsite";
+                  const canMarkPaid = isOnsite && r.status === "pending";
+                  const reservationId = resolveReservationId(r);
+                  return (
+                    <tr
+                      key={r.order_id}
+                      className="border-b border-gray-50 last:border-0 hover:bg-gray-50/60 transition-colors"
+                    >
+                      <td className="px-4 py-3.5 text-sm">
+                        <span className="font-mono text-xs text-gray-600">
+                          {r.order_id}
                         </span>
-                        <span className="text-xs text-gray-400">{r.phone}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-gray-700">
-                      {r.no_of_slot}
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
-                      ₦{Number(r.reservation_value).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-gray-700 capitalize">
-                      {r.delivery}
-                    </td>
-                    <td className="px-4 py-3.5 text-sm">
-                      <StatusBadge status={reservationStatusVariant(r.status)} />
-                    </td>
-                    <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
-                      {formatDate(r.created_at)}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-800">
+                            {r.fullname}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {r.phone}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700">
+                        {r.no_of_slot}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700">
+                        {r.no_of_subpool ?? "—"}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
+                        ₦{Number(r.reservation_value).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm whitespace-nowrap">
+                        <span
+                          className={
+                            isOnsite
+                              ? "inline-flex rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-medium text-near-black capitalize"
+                              : "inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize"
+                          }
+                        >
+                          {r.payment_option || "—"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700 capitalize">
+                        {r.delivery}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm">
+                        <StatusBadge
+                          status={reservationStatusVariant(r.status)}
+                        />
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
+                        {formatDate(r.created_at)}
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-right whitespace-nowrap">
+                        {canMarkPaid ? (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkPaid(r)}
+                            disabled={markingId === reservationId}
+                            className="inline-flex items-center justify-center rounded-md border border-green bg-bg px-3 py-1.5 text-xs font-semibold text-green transition-colors hover:bg-green/5 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {markingId === reservationId
+                              ? "Confirming…"
+                              : "Mark as paid"}
+                          </button>
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
