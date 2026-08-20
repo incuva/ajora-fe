@@ -12,15 +12,24 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
-import { Person16Regular } from "@fluentui/react-icons";
 import DataTable from "@/components/shared/data-table/index";
 import EmptyUsers from "@/components/users/empty-users";
 import ShareLinkOverlay from "@/components/users/share-link-overlay";
 import UserDetailsOverlay from "@/components/users/user-details-overlay";
 import CreateAdminOverlay from "@/components/users/create-admin-overlay";
 import { useUsersTableStore, type User } from "@/stores/users-table.store";
+import {
+  useAdminsTableStore,
+  type AdminRow,
+} from "@/stores/admins-table.store";
+import { useAuthStore } from "@/stores/auth-store";
 import { useToastStore } from "@/stores/toast-store";
-import { buildColumns, BUYER_FILTERS } from "@/constants/user";
+import {
+  buildColumns,
+  buildAdminColumns,
+  BUYER_FILTERS,
+  ADMIN_FILTERS,
+} from "@/constants/user";
 
 const UsersPage = () => {
   const [activeMenu, setActiveMenu] = useState("buyers");
@@ -48,10 +57,34 @@ const UsersPage = () => {
 
   const { toastSuccess, toastInfo, toastError } = useToastStore();
 
+  // Admin directory (super-admin only).
+  const { role, admin } = useAuthStore();
+  const canManageAdmins = role === "super-admin";
+  const {
+    admins,
+    isLoading: isAdminsLoading,
+    hasLoaded: adminsLoaded,
+    page: adminsPage,
+    pageSize: adminsPageSize,
+    total: adminsTotal,
+    activeFilter: adminsFilter,
+    setPage: setAdminsPage,
+    setPageSize: setAdminsPageSize,
+    setFilter: setAdminsFilter,
+    fetchAdmins,
+    toggleSuspend: toggleAdminSuspend,
+  } = useAdminsTableStore();
+
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Load the admin directory the first time the Admins tab is opened.
+  useEffect(() => {
+    if (activeMenu === "admins" && !adminsLoaded) fetchAdmins();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeMenu]);
 
   // Debounce the search box → store (which refetches page 1).
   useEffect(() => {
@@ -102,6 +135,43 @@ const UsersPage = () => {
     onSuspend: handleToggleSuspend,
   });
 
+  /**
+   * Suspend or reinstate an admin. Confirms before the destructive direction.
+   */
+  const handleToggleAdmin = async (target: AdminRow) => {
+    const suspending = target.is_active;
+    const name = `${target.first_name} ${target.last_name}`.trim();
+    if (
+      suspending &&
+      !window.confirm(
+        `Suspend ${name}? They will lose access to the admin panel until reinstated.`,
+      )
+    ) {
+      return;
+    }
+    try {
+      const nowActive = await toggleAdminSuspend(target);
+      if (nowActive) {
+        toastSuccess("Admin reinstated", `${name} can access the panel again.`);
+      } else {
+        toastInfo("Admin suspended", `${name} has been suspended.`);
+      }
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message ||
+        (err as Error)?.message ||
+        "Could not update this admin.";
+      toastError("Update failed", message);
+    }
+  };
+
+  const adminColumns = buildAdminColumns({
+    canManage: canManageAdmins,
+    currentEmail: admin?.email,
+    onToggleSuspend: handleToggleAdmin,
+  });
+
   return (
     <UIContentLayout>
       <Card className="bg-transparent ring-0">
@@ -118,7 +188,7 @@ const UsersPage = () => {
               <Plus className="w-4 h-4" /> Share Link
             </Button>
             {/* Add an Admin  */}
-            {activeMenu === "admins" && (
+            {activeMenu === "admins" && canManageAdmins && (
               <Button
                 className="bg-green text-white"
                 size="lg"
@@ -178,19 +248,34 @@ const UsersPage = () => {
               onPageSizeChange={setPageSize}
             />
           ) : (
-            // No admin-directory endpoint exists — admins are created, not listed.
-            <div className="bg-white h-[55svh] rounded-2xl flex justify-center items-center font-inter">
-              <div className="flex flex-col items-center justify-center gap-3 text-center px-6">
-                <div className="border border-gray-200 px-3 py-2 rounded-md">
-                  <Person16Regular className="text-gray-400" />
+            <DataTable<AdminRow>
+              columns={adminColumns}
+              data={admins}
+              isLoading={isAdminsLoading}
+              keyField="id"
+              filters={ADMIN_FILTERS}
+              activeFilter={adminsFilter}
+              onFilterChange={setAdminsFilter}
+              emptyState={
+                <div className="bg-white h-[45svh] rounded-2xl flex justify-center items-center font-inter">
+                  <div className="flex flex-col items-center justify-center gap-3 text-center px-6">
+                    <p className="text-lg font-bold text-green">
+                      No admins found
+                    </p>
+                    <p className="text-sm text-gray-500 max-w-xs">
+                      {canManageAdmins
+                        ? "Use “Add an Admin” to create a new admin account."
+                        : "No admin accounts match this filter."}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-lg font-bold text-green">Admin accounts</p>
-                <p className="text-sm text-gray-500 max-w-xs">
-                  There&apos;s no admin directory to display here yet. Use
-                  &ldquo;Add an Admin&rdquo; to create a new admin account.
-                </p>
-              </div>
-            </div>
+              }
+              page={adminsPage}
+              pageSize={adminsPageSize}
+              total={adminsTotal}
+              onPageChange={setAdminsPage}
+              onPageSizeChange={setAdminsPageSize}
+            />
           )}
         </CardContent>
       </Card>
@@ -204,6 +289,7 @@ const UsersPage = () => {
       <CreateAdminOverlay
         isOpen={isCreateAdminOpen}
         onClose={() => setCreateAdminOpen(false)}
+        onCreated={fetchAdmins}
       />
 
       <UserDetailsOverlay

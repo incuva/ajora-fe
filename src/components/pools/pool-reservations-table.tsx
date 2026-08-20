@@ -46,12 +46,6 @@ const formatDate = (iso: string) => {
 };
 
 /**
- * The reservation identifier used by the payment-update route. 
- */
-const resolveReservationId = (r: AdminPoolReservation): string | undefined =>
-  r.reservation_id ?? r.id;
-
-/**
  * Reservations table for a pool
  * Server-paginated with an optional status filter.
  */
@@ -64,6 +58,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState("all");
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -94,18 +89,9 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
   }, [load]);
 
   /**
-   * Confirm an onsite payment
-   * Sends the reservation's value as the amount, then refreshes the list.
+   * Confirm an onsite payment.
    */
   const handleMarkPaid = async (r: AdminPoolReservation) => {
-    const reservationId = resolveReservationId(r);
-    if (!reservationId) {
-      toastError(
-        "Can't confirm payment",
-        "This reservation is missing an identifier.",
-      );
-      return;
-    }
     const amount = Number(r.reservation_value);
     if (
       !window.confirm(
@@ -114,14 +100,14 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
     ) {
       return;
     }
-    setMarkingId(reservationId);
+    setMarkingId(r.order_id);
     try {
-      await confirmReservationPayment(reservationId, amount);
+      await confirmReservationPayment(r.order_id, amount);
+      setPaidIds((prev) => new Set(prev).add(r.order_id));
       toastSuccess(
         "Payment confirmed",
         `${r.fullname}'s reservation is now marked as paid.`,
       );
-      await load();
     } catch (err: unknown) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
@@ -178,7 +164,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
       ) : (
         <>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1000px] border-collapse">
+            <table className="w-full min-w-250 border-collapse">
               <thead>
                 <tr className="bg-grey-100 border-b border-gray-100">
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
@@ -216,8 +202,11 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
               <tbody>
                 {rows.map((r) => {
                   const isOnsite = r.payment_option === "onsite";
-                  const canMarkPaid = isOnsite && r.status === "pending";
-                  const reservationId = resolveReservationId(r);
+                  const effectiveStatus = paidIds.has(r.order_id)
+                    ? "paid"
+                    : r.status;
+                  const canMarkPaid =
+                    isOnsite && effectiveStatus === "pending";
                   return (
                     <tr
                       key={r.order_id}
@@ -242,7 +231,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                         {r.no_of_slot}
                       </td>
                       <td className="px-4 py-3.5 text-sm text-gray-700">
-                        {r.no_of_subpool ?? "—"}
+                        {r.no_of_subpools ?? "—"}
                       </td>
                       <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
                         ₦{Number(r.reservation_value).toLocaleString()}
@@ -263,7 +252,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                       </td>
                       <td className="px-4 py-3.5 text-sm">
                         <StatusBadge
-                          status={reservationStatusVariant(r.status)}
+                          status={reservationStatusVariant(effectiveStatus)}
                         />
                       </td>
                       <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
@@ -274,10 +263,10 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                           <button
                             type="button"
                             onClick={() => handleMarkPaid(r)}
-                            disabled={markingId === reservationId}
+                            disabled={markingId === r.order_id}
                             className="inline-flex items-center justify-center rounded-md border border-green bg-bg px-3 py-1.5 text-xs font-semibold text-green transition-colors hover:bg-green/5 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            {markingId === reservationId
+                            {markingId === r.order_id
                               ? "Confirming…"
                               : "Mark as paid"}
                           </button>

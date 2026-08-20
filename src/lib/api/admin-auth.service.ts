@@ -2,9 +2,12 @@ import apiClient from "./axios";
 import type { ApiResponse } from "@/lib/types/marketplace.types";
 import type {
   Admin,
+  AdminAccount,
+  AdminListQuery,
   AdminLoginPayload,
   AdminLoginResult,
   CreateAdminPayload,
+  PaginatedResponse,
 } from "@/lib/types/admin.types";
 
 /**
@@ -31,4 +34,34 @@ export async function createAdmin(payload: CreateAdminPayload): Promise<Admin> {
     payload,
   );
   return data.data;
+}
+
+/**
+ * GET /admin/admins  🔒 super-admin
+ * Paginated admin directory. Optional filters: `suspended` (boolean) and `role`.
+ */
+export async function getAdmins(
+  query: AdminListQuery = {},
+): Promise<PaginatedResponse<AdminAccount>> {
+  const { data } = await apiClient.get<PaginatedResponse<AdminAccount>>(
+    "/admin/admins",
+    { params: query },
+  );
+  return data;
+}
+
+/**
+ * Suspend an admin.  🔒 super-admin
+ *
+ */
+export async function suspendAdmin(id: string): Promise<void> {
+  await apiClient.patch(`/admin/${id}/suspend`, { admin: id });
+}
+
+/**
+ * Reinstate a suspended admin.  🔒 super-admin
+ *
+ */
+export async function reinstateAdmin(id: string): Promise<void> {
+  await apiClient.put(`/admin/${id}/reinstate`, { admin: id });
 }

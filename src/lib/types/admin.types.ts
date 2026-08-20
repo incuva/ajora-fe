@@ -12,6 +12,7 @@ export interface Admin {
   last_name: string;
   is_active: true;
   role: AdminRole;
+  email?: string;
 }
 
 // Admin auth payloads
@@ -34,6 +35,26 @@ export interface CreateAdminPayload {
   password: string;
   phone: string;
   role?: AdminRole;
+}
+
+// Admin directory 
+
+/** A row in the admin directory returned by GET /admin/admins. */
+export interface AdminAccount {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  is_active: boolean;
+  role: AdminRole;
+}
+
+export interface AdminListQuery {
+  page?: number;
+  size?: number;
+  /** true → only suspended admins, false → only active admins. */
+  suspended?: boolean;
+  role?: AdminRole | string;
 }
 
 // Admin pool list 
@@ -96,29 +117,47 @@ export interface AdminPoolReservation {
   fullname: string;
   phone: string;
   no_of_slot: number;
-  /** Number of subpools this customer booked (present when the pool has subpools). */
-  no_of_subpool?: number;
+  /** Number of subpools this customer booked (0 when the pool has no subpools). */
+  no_of_subpools: number;
   reservation_value: string;
   status: ReservationStatus | string;
   /** "online" | "onsite" — how the customer chose to pay. */
   payment_option: string;
+  /** "pickup" | "delivery". */
   delivery: string;
+  /** Human-facing order reference (e.g. "AJR-FEXJUHA"); also the id the payment-update route expects. */
   order_id: string;
-  reservation_id?: string;
-  id?: string;
   created_at: string;
 }
+
+/** A subpool line item echoed back by the payment-update endpoint. */
+export interface ConfirmedPaymentSubpool {
+  name: string;
+  price: number;
+  quantity: number;
+  subpool_id: string;
+}
+
 export interface ConfirmOnsitePaymentResult {
   id: string;
   order_id: string;
+  reservation_id: string;
   user_id: string;
   pool_id: string;
-  no_of_reservation: number;
-  payment_option: string;
-  payment_status: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  /** Order fulfilment status (pending | paid | delivered). */
   status: string;
+  payment_status: string;
+  payment_option: string;
+  delivery: string;
   location: string | null;
-  delivery: boolean;
+  no_of_reservation: number;
+  subpools: ConfirmedPaymentSubpool[];
+  authorization_url: string | null;
+  access_code: string | null;
+  email: string | null;
   created_at: string;
   updated_at: string;
 }
