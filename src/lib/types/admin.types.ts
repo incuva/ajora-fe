@@ -168,6 +168,79 @@ export interface ReservationListQuery {
   status?: ReservationStatus | string;
 }
 
+// Admin orders
+
+/**
+ * Fulfilment status of an order; also the set of
+ * values accepted by the `order_status` query filter.
+ */
+export type OrderReservationStatus =
+  | "pending"
+  | "paid"
+  | "delivered"
+  | "cancelled";
+
+/** Payment lifecycle state (backend `payment_status`). */
+export type OrderPaymentStatus =
+  | "paid"
+  | "initialized"
+  | "failed"
+  | "cancelled"
+  | string;
+
+export type OrderPaymentMethod = "online" | "onsite" | string;
+
+/** A row in the global orders list (GET /admin/orders) — intentionally lean. */
+export interface AdminOrder {
+  id: string;
+  order_id: string;
+  reservation_status: OrderReservationStatus | string;
+  payment_status: OrderPaymentStatus;
+  payment_method: OrderPaymentMethod;
+  no_of_slot: number;
+}
+
+/**
+ * GET /admin/order/{id} — full order detail.
+ * `id` is the order UUID from the list row; the AJR-… reference is NOT accepted.
+ */
+export interface AdminOrderDetail {
+  item: { id: string; name: string; unit: string };
+  pool: {
+    id: string;
+    name: string;
+    created_at: string;
+    deadline: string;
+    image: string;
+  };
+  order: {
+    id: string;
+    order_id: string;
+    no_of_slot: number;
+    payment_status: OrderPaymentStatus;
+    payment_method: OrderPaymentMethod;
+    total_amount: number;
+    delivery: string;
+  };
+  buyer: { id: string; fullname: string };
+}
+
+/** PUT /admin/order/{id}/deliver | /cancel result. */
+export interface OrderMutationResult {
+  id: string;
+  order_id: string;
+  status: OrderReservationStatus | string;
+}
+
+export interface OrderListQuery {
+  page?: number;
+  size?: number;
+  /** Filters on reservation_status (pending | paid | delivered | cancelled). */
+  order_status?: string;
+  /** Pool UUID to scope orders to a single pool. */
+  pool_id?: string;
+}
+
 // Admin dashboard overview 
 
 export interface OverviewMetric {

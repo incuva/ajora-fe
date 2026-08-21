@@ -4,8 +4,10 @@ import { useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import StatusBadge from "@/components/shared/data-table/status-badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import StatusBadge, {
+  type StatusVariant,
+} from "@/components/shared/data-table/status-badge";
 import type { Order } from "@/stores/orders-table.store";
 
 interface OrderDetailsOverlayProps {
@@ -26,15 +28,20 @@ const DetailField = ({
   value: string;
   className?: string;
 }) => (
-  <div className={`flex flex-col gap-1 border-b border-gray-200 pb-2 ${className}`}>
+  <div
+    className={`flex flex-col gap-1 border-b border-gray-200 pb-2 ${className}`}
+  >
     <span className="text-badge font-medium uppercase tracking-wide text-neutral-300 font-inter">
       {label}
     </span>
-    <span className="text-sm font-medium text-near-black font-inter">
+    <span className="text-sm font-medium text-near-black font-inter capitalize">
       {value}
     </span>
   </div>
 );
+
+const statusVariant = (status: string): StatusVariant =>
+  (status === "pending" ? "processing" : status) as StatusVariant;
 
 const OrderDetailsOverlay = ({
   order,
@@ -51,8 +58,8 @@ const OrderDetailsOverlay = ({
     return () => document.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
-  const markDeliveredDisabled =
-    !order || order.status === "delivered" || order.status === "cancelled";
+  // Only paid orders can be delivered; delivered/cancelled orders are terminal.
+  const markDeliveredDisabled = !order || order.status !== "paid";
   const cancelDisabled =
     !order || order.status === "cancelled" || order.status === "delivered";
 
@@ -65,6 +72,9 @@ const OrderDetailsOverlay = ({
         .join("")
         .slice(0, 2)
     : "";
+
+  const dash = (v?: string | number) =>
+    v === undefined || v === null || v === "" ? "—" : String(v);
 
   return (
     <AnimatePresence>
@@ -110,25 +120,31 @@ const OrderDetailsOverlay = ({
                   </button>
                 </div>
 
-                {/* Status */}
-                <div>
-                  <StatusBadge status={order.status} className="px-4 py-1" />
+                {/* Statuses */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <StatusBadge
+                    status={statusVariant(order.status)}
+                    className="px-4 py-1"
+                  />
+                  <StatusBadge
+                    status={statusVariant(order.paymentStatus)}
+                    className="px-4 py-1"
+                  />
                 </div>
 
                 {/* Buyer */}
                 <div className="flex flex-col gap-2">
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-neutral-300 font-inter">
+                  <span className="text-badge font-medium uppercase tracking-wide text-neutral-300 font-inter">
                     Buyer
                   </span>
                   <div className="flex items-center gap-3">
                     <Avatar size="lg">
-                      <AvatarImage src={order.buyerAvatar} alt={order.buyerName} />
                       <AvatarFallback className="bg-gold-100 text-green text-sm font-semibold">
-                        {buyerInitials}
+                        {buyerInitials || "?"}
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-base font-bold text-near-black font-inter">
-                      {order.buyerName}
+                      {dash(order.buyerName)}
                     </span>
                   </div>
                 </div>
@@ -142,28 +158,44 @@ const OrderDetailsOverlay = ({
                   </h3>
 
                   {/* Item image */}
-                  <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-grey">
-                    <Image
-                      src={order.itemImage}
-                      alt={order.itemName}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 448px"
-                      className="object-cover"
-                    />
-                  </div>
+                  {order.poolImage ? (
+                    <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden bg-grey-100">
+                      <Image
+                        src={order.poolImage}
+                        alt={order.itemName ?? order.poolName ?? "Item"}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 448px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full aspect-4/3 rounded-xl bg-grey-100 flex items-center justify-center text-sm text-text-sec font-inter">
+                      No image
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-2 gap-x-5 gap-y-4">
-                    <DetailField label="Item" value={order.itemName} />
-                    <DetailField label="Category" value={order.itemCategory} />
-                    <DetailField label="Quantity" value={order.quantityLabel} />
+                    <DetailField label="Item" value={dash(order.itemName)} />
+                    <DetailField label="Unit" value={dash(order.itemUnit)} />
                     <DetailField
-                      label="Amount"
-                      value={`₦${order.amount.toLocaleString()}`}
+                      label="Quantity"
+                      value={`${order.slot} slot${order.slot !== 1 ? "s" : ""}`}
                     />
                     <DetailField
-                      label="Delivery Address"
-                      value={order.deliveryAddress}
-                      className="col-span-2"
+                      label="Amount"
+                      value={
+                        order.amount !== undefined
+                          ? `₦${order.amount.toLocaleString()}`
+                          : "—"
+                      }
+                    />
+                    <DetailField
+                      label="Payment Method"
+                      value={dash(order.paymentMethod)}
+                    />
+                    <DetailField
+                      label="Delivery"
+                      value={dash(order.delivery)}
                     />
                   </div>
                 </div>
@@ -177,13 +209,25 @@ const OrderDetailsOverlay = ({
                   <div className="grid grid-cols-2 gap-x-5 gap-y-4">
                     <DetailField
                       label="Pool Name"
-                      value={order.poolName}
+                      value={dash(order.poolName)}
                       className="col-span-2"
                     />
-                    <DetailField label="Created On" value={order.poolCreatedDate} />
-                    <DetailField label="Time" value={order.poolCreatedTime} />
-                    <DetailField label="Deadline" value={order.poolDeadlineDate} />
-                    <DetailField label="Time" value={order.poolDeadlineTime} />
+                    <DetailField
+                      label="Created On"
+                      value={dash(order.poolCreatedDate)}
+                    />
+                    <DetailField
+                      label="Time"
+                      value={dash(order.poolCreatedTime)}
+                    />
+                    <DetailField
+                      label="Deadline"
+                      value={dash(order.poolDeadlineDate)}
+                    />
+                    <DetailField
+                      label="Time"
+                      value={dash(order.poolDeadlineTime)}
+                    />
                   </div>
                 </div>
 

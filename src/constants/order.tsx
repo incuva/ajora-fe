@@ -1,16 +1,24 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Order } from "@/stores/orders-table.store";
 import { ChevronDown, Eye, Truck, XCircle } from "lucide-react";
 import { type TableColumn } from "@/components/shared/data-table";
-import StatusBadge from "@/components/shared/data-table/status-badge";
-import RowActions, { RowAction } from "@/components/shared/data-table/row-actions";
+import StatusBadge, {
+  type StatusVariant,
+} from "@/components/shared/data-table/status-badge";
+import RowActions, {
+  RowAction,
+} from "@/components/shared/data-table/row-actions";
 
 export const ORDER_FILTERS = [
   { key: "all", label: "All Orders" },
-  { key: "processing", label: "Processing" },
+  { key: "pending", label: "Pending" },
+  { key: "paid", label: "Paid" },
   { key: "delivered", label: "Delivered" },
   { key: "cancelled", label: "Cancelled" },
 ];
+
+/** Status string → badge variant ("pending" reads nicer as "Processing"). */
+const statusVariant = (status: string): StatusVariant =>
+  (status === "pending" ? "processing" : status) as StatusVariant;
 
 export interface OrderColumnHandlers {
   onView: (order: Order) => void;
@@ -19,7 +27,7 @@ export interface OrderColumnHandlers {
 }
 
 export const buildColumns = (
-  handlers: OrderColumnHandlers
+  handlers: OrderColumnHandlers,
 ): TableColumn<Order>[] => [
   {
     key: "orderId",
@@ -29,39 +37,8 @@ export const buildColumns = (
     ),
   },
   {
-    key: "poolName",
-    header: "Pool Name",
-    width: "w-48",
-    render: (row) => (
-      <span className="font-medium text-gray-800 whitespace-nowrap">
-        {row.poolName}
-      </span>
-    ),
-  },
-  {
-    key: "category",
-    header: "Category",
-    width: "w-44",
-    render: (row) => (
-      <div className="flex items-center gap-2.5">
-        <Avatar size="sm">
-          <AvatarImage src={row.categoryAvatar} alt={row.categoryName} />
-          <AvatarFallback className="bg-gold-100 text-green text-xs font-semibold">
-            {row.categoryName
-              .split(" ")
-              .map((n) => n[0])
-              .join("")}
-          </AvatarFallback>
-        </Avatar>
-        <span className="text-gray-700 whitespace-nowrap">
-          {row.categoryName}
-        </span>
-      </div>
-    ),
-  },
-  {
     key: "slot",
-    header: "Slot",
+    header: "Slots",
     render: (row) => (
       <span className="text-gray-600">
         {row.slot} slot{row.slot !== 1 ? "s" : ""}
@@ -69,23 +46,29 @@ export const buildColumns = (
     ),
   },
   {
-    key: "slotAmount",
-    header: "Slot Amount",
+    key: "paymentMethod",
+    header: "Payment Method",
     render: (row) => (
-      <span className="font-medium text-gray-700">
-        ₦{row.slotAmount.toLocaleString()}
+      <span
+        className={
+          row.paymentMethod === "onsite"
+            ? "inline-flex rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-medium text-near-black capitalize"
+            : "inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize"
+        }
+      >
+        {row.paymentMethod || "—"}
       </span>
     ),
   },
   {
     key: "paymentStatus",
     header: "Payment Status",
-    render: (row) => <StatusBadge status={row.paymentStatus} />,
+    render: (row) => <StatusBadge status={statusVariant(row.paymentStatus)} />,
   },
   {
     key: "status",
     header: "Status",
-    render: (row) => <StatusBadge status={row.status} />,
+    render: (row) => <StatusBadge status={statusVariant(row.status)} />,
   },
   {
     key: "actions",
@@ -93,28 +76,35 @@ export const buildColumns = (
     width: "w-10",
     align: "right",
     render: (row) => {
-      const isClosed = row.status === "delivered" || row.status === "cancelled";
+      // Backend rules: only paid orders may be delivered; delivered/cancelled
+      // orders are terminal, so cancel is only offered while pending or paid.
+      const canDeliver = row.status === "paid";
+      const canCancel = row.status === "pending" || row.status === "paid";
       const actions: RowAction[] = [
         {
           label: "View order",
           icon: <Eye className="w-4 h-4" />,
           onClick: () => handlers.onView(row),
         },
-        ...(isClosed
-          ? []
-          : [
+        ...(canDeliver
+          ? [
               {
                 label: "Mark delivered",
                 icon: <Truck className="w-4 h-4" />,
                 onClick: () => handlers.onMarkDelivered(row),
               },
+            ]
+          : []),
+        ...(canCancel
+          ? [
               {
                 label: "Cancel order",
                 icon: <XCircle className="w-4 h-4" />,
                 onClick: () => handlers.onCancel(row),
                 variant: "destructive" as const,
               },
-            ]),
+            ]
+          : []),
       ];
       return <RowActions actions={actions} />;
     },
@@ -124,9 +114,11 @@ export const buildColumns = (
 export const PoolDropdown = ({
   value,
   onChange,
+  pools = [],
 }: {
   value: string;
   onChange: (v: string) => void;
+  pools?: { id: string; name: string }[];
 }) => (
   <div className="relative">
     <select
@@ -136,9 +128,11 @@ export const PoolDropdown = ({
       aria-label="Filter by pool"
     >
       <option value="all">All Pools</option>
-      <option value="pool-1">April Cow meat (B1)</option>
-      <option value="pool-2">April Chicken (B1)</option>
-      <option value="pool-3">April Rice (B1)</option>
+      {pools.map((p) => (
+        <option key={p.id} value={p.id}>
+          {p.name}
+        </option>
+      ))}
     </select>
     <div className="pointer-events-none absolute inset-y-0 right-2 flex items-center">
       <ChevronDown className="w-3.5 h-3.5 text-gray-500" />
