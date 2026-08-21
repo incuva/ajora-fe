@@ -28,7 +28,7 @@ interface PoolEditOverlayProps {
 }
 
 /**
- * Edit-a-Pool overlay 
+ * Edit-a-Pool overlay
  */
 const PoolEditOverlay = ({
   pool,
@@ -132,7 +132,10 @@ const PoolEditOverlay = ({
 
   return (
     <OverlaySheet isOpen={isOpen} onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 p-6">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-5 p-6"
+      >
         <OverlayHeader
           title="Edit Pool"
           subtitle="Update the pool details below"
@@ -186,22 +189,6 @@ const PoolEditOverlay = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label="Total Value">
-            <TextInput
-              type="number"
-              min={0}
-              placeholder="400000"
-              suffix="₦"
-              {...register("total_value")}
-              className={errors.total_value ? "border-red-500" : ""}
-            />
-            {errors.total_value && (
-              <span className="text-red-500 text-xs font-inter mt-1">
-                {errors.total_value.message}
-              </span>
-            )}
-          </FormField>
-
           <FormField label="Weight per Slot (kg)">
             <TextInput
               type="number"
@@ -216,15 +203,15 @@ const PoolEditOverlay = ({
               </span>
             )}
           </FormField>
-        </div>
 
-        <FormField label="Status">
-          <SelectInput {...register("status")}>
-            <option value="open">Open</option>
-            <option value="closed">Closed</option>
-            <option value="filled">Filled</option>
-          </SelectInput>
-        </FormField>
+          <FormField label="Status">
+            <SelectInput {...register("status")}>
+              <option value="open">Open</option>
+              <option value="closed">Closed</option>
+              <option value="filled">Filled</option>
+            </SelectInput>
+          </FormField>
+        </div>
 
         <FormField label="Image URL (optional)">
           <TextInput
@@ -241,7 +228,10 @@ const PoolEditOverlay = ({
         </FormField>
 
         <FormField label="Pool Description (optional)">
-          <TextArea placeholder="Describe the item" {...register("description")} />
+          <TextArea
+            placeholder="Describe the item"
+            {...register("description")}
+          />
         </FormField>
 
         <div className="flex flex-col gap-3 pt-1">
