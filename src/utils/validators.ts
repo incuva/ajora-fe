@@ -20,6 +20,15 @@ export const confirmReservationSchema = z
     location: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    // Pay Onsite is only compatible with Pickup
+    if (data.payment_option === "onsite" && data.delivery === "delivery") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Pay Onsite is only available for Pickup orders",
+        path: ["delivery"],
+      });
+    }
+
     if (data.delivery === "delivery") {
       if (!data.location || data.location.trim().length === 0) {
         ctx.addIssue({

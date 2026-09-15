@@ -58,6 +58,13 @@ const ConfirmReservationOverlay = ({
     name: "payment_option",
   });
 
+  // When "Pay Onsite" is selected, lock delivery to pickup
+  useEffect(() => {
+    if (watchPaymentOption === "onsite") {
+      setValue("delivery", "pickup", { shouldValidate: true });
+    }
+  }, [watchPaymentOption, setValue]);
+
   useEffect(() => {
     if (isOpen) {
       setValue("fullname", fullname);
@@ -206,41 +213,72 @@ const ConfirmReservationOverlay = ({
                     </div>
                   </div>
 
-                  {/* Delivery Mode */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-xs md:text-sm font-medium font-inter text-label">
-                      Delivery
-                    </span>
-                    <div className="flex gap-4">
-                      {(["pickup", "delivery"] as DeliveryMode[]).map((mode) => (
-                        <label
-                          key={mode}
-                          className="flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <input
-                            type="radio"
-                            value={mode}
-                            {...register("delivery")}
-                            className="sr-only"
-                          />
-                          <div
-                            className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                              watchDelivery === mode
-                                ? "border-green"
-                                : "border-input-border"
-                            }`}
+                  {/* Delivery Mode — hidden when Pay Onsite is selected (pickup only) */}
+                  {watchPaymentOption !== "onsite" && (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-xs md:text-sm font-medium font-inter text-label">
+                        Delivery
+                      </span>
+                      <div className="flex gap-4">
+                        {(["pickup", "delivery"] as DeliveryMode[]).map((mode) => (
+                          <label
+                            key={mode}
+                            className="flex items-center gap-1.5 cursor-pointer"
                           >
-                            {watchDelivery === mode && (
-                              <div className="w-2 h-2 rounded-full bg-green" />
-                            )}
-                          </div>
-                          <span className="text-sm font-inter text-green capitalize">
-                            {mode}
-                          </span>
-                        </label>
-                      ))}
+                            <input
+                              type="radio"
+                              value={mode}
+                              {...register("delivery")}
+                              className="sr-only"
+                            />
+                            <div
+                              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                watchDelivery === mode
+                                  ? "border-green"
+                                  : "border-input-border"
+                              }`}
+                            >
+                              {watchDelivery === mode && (
+                                <div className="w-2 h-2 rounded-full bg-green" />
+                              )}
+                            </div>
+                            <span className="text-sm font-inter text-green capitalize">
+                              {mode}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Pickup address — shown when delivery mode is pickup */}
+                  {watchDelivery === "pickup" && (
+                    <div className="flex items-start gap-2.5 bg-soft-green rounded-lg px-3.5 py-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-green mt-0.5 shrink-0"
+                      >
+                        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-xs font-semibold font-inter text-green uppercase tracking-wide">
+                          Pickup Address
+                        </span>
+                        <span className="text-sm font-inter text-green/80 leading-snug">
+                          Block F5, Shop 108, Albarka Shopping Centre, Bodija. Ibadan.
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Location — only when delivery is selected */}
                   {watchDelivery === "delivery" && (
