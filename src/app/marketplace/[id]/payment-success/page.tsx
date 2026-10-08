@@ -37,8 +37,8 @@ function PaymentSuccessContent() {
           setPaymentData(res);
           setStatus("success");
           toastSuccess(
-            "Payment Confirmed",
-            "Your payment has been verified successfully!"
+            "Booking Confirmed",
+            "Your payment was verified and your slot is secured!"
           );
         } else {
           setStatus("failed");
@@ -110,6 +110,10 @@ function PaymentSuccessContent() {
             <p className="font-inter text-sm text-near-black max-w-sm mx-auto leading-relaxed">
               {errorMsg || "We encountered an issue confirming your payment."}
             </p>
+            <p className="font-inter text-xs text-gold-800 max-w-sm mx-auto leading-relaxed">
+              Your slot is not confirmed until payment is completed. You can retry
+              verification or use &quot;Make Payment&quot; on the item page.
+            </p>
           </div>
 
           {/* Details Card */}
@@ -169,10 +173,10 @@ function PaymentSuccessContent() {
 
         <div className="text-center gap-2 flex flex-col">
           <h1 className="font-playfair text-2xl font-bold text-green">
-            Payment Confirmed!
+            Booking Confirmed!
           </h1>
           <p className="font-inter text-sm text-near-black max-w-sm mx-auto leading-relaxed">
-            Your payment was verified successfully. You will be contacted shortly for the delivery/pickup setup.
+            Your payment was verified and your slot is secured. You will be contacted shortly for the delivery/pickup setup.
           </p>
         </div>
 

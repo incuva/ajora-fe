@@ -8,7 +8,7 @@ import StatusBadge, {
 } from "@/components/shared/data-table/status-badge";
 import TableLoader from "@/components/shared/data-table/table-loader";
 import TablePagination from "@/components/shared/data-table/table-pagination";
-import { getPoolReservations, confirmReservationPayment } from "@/lib/api/admin-pools.service";
+import { getPoolReservations } from "@/lib/api/admin-pools.service";
 import type {
   AdminPoolReservation,
   Pagination,
@@ -50,15 +50,13 @@ const formatDate = (iso: string) => {
  * Server-paginated with an optional status filter.
  */
 const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
-  const { toastSuccess, toastError } = useToastStore();
+  const { toastError } = useToastStore();
   const [rows, setRows] = useState<AdminPoolReservation[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(10);
   const [filter, setFilter] = useState("all");
-  const [markingId, setMarkingId] = useState<string | null>(null);
-  const [paidIds, setPaidIds] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -87,38 +85,6 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
   useEffect(() => {
     load();
   }, [load]);
-
-  /**
-   * Confirm an onsite payment.
-   */
-  const handleMarkPaid = async (r: AdminPoolReservation) => {
-    const amount = Number(r.reservation_value);
-    if (
-      !window.confirm(
-        `Mark ${r.fullname}'s onsite payment of ₦${amount.toLocaleString()} as paid?`,
-      )
-    ) {
-      return;
-    }
-    setMarkingId(r.order_id);
-    try {
-      await confirmReservationPayment(r.order_id, amount);
-      setPaidIds((prev) => new Set(prev).add(r.order_id));
-      toastSuccess(
-        "Payment confirmed",
-        `${r.fullname}'s reservation is now marked as paid.`,
-      );
-    } catch (err: unknown) {
-      const message =
-        (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ||
-        (err as Error)?.message ||
-        "Could not confirm the payment. Please try again.";
-      toastError("Update failed", message);
-    } finally {
-      setMarkingId(null);
-    }
-  };
 
   const hasData = rows.length > 0;
   const total = pagination?.totalItems ?? rows.length;
@@ -194,19 +160,10 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
                     Date
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">
-                    Action
-                  </th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r) => {
-                  const isOnsite = r.payment_option === "onsite";
-                  const effectiveStatus = paidIds.has(r.order_id)
-                    ? "paid"
-                    : r.status;
-                  const canMarkPaid =
-                    isOnsite && effectiveStatus === "pending";
                   return (
                     <tr
                       key={r.order_id}
@@ -237,13 +194,7 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                         ₦{Number(r.reservation_value).toLocaleString()}
                       </td>
                       <td className="px-4 py-3.5 text-sm whitespace-nowrap">
-                        <span
-                          className={
-                            isOnsite
-                              ? "inline-flex rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-medium text-near-black capitalize"
-                              : "inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize"
-                          }
-                        >
+                        <span className="inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize">
                           {r.payment_option || "—"}
                         </span>
                       </td>
@@ -252,27 +203,11 @@ const PoolReservationsTable = ({ poolId }: PoolReservationsTableProps) => {
                       </td>
                       <td className="px-4 py-3.5 text-sm">
                         <StatusBadge
-                          status={reservationStatusVariant(effectiveStatus)}
+                          status={reservationStatusVariant(r.status)}
                         />
                       </td>
                       <td className="px-4 py-3.5 text-sm text-gray-700 whitespace-nowrap">
                         {formatDate(r.created_at)}
-                      </td>
-                      <td className="px-4 py-3.5 text-sm text-right whitespace-nowrap">
-                        {canMarkPaid ? (
-                          <button
-                            type="button"
-                            onClick={() => handleMarkPaid(r)}
-                            disabled={markingId === r.order_id}
-                            className="inline-flex items-center justify-center rounded-md border border-green bg-bg px-3 py-1.5 text-xs font-semibold text-green transition-colors hover:bg-green/5 disabled:opacity-50 disabled:cursor-not-allowed"
-                          >
-                            {markingId === r.order_id
-                              ? "Confirming…"
-                              : "Mark as paid"}
-                          </button>
-                        ) : (
-                          <span className="text-gray-300">—</span>
-                        )}
                       </td>
                     </tr>
                   );

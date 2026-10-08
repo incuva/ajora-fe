@@ -121,45 +121,13 @@ export interface AdminPoolReservation {
   no_of_subpools: number;
   reservation_value: string;
   status: ReservationStatus | string;
-  /** "online" | "onsite" — how the customer chose to pay. */
+  /** How the customer paid. New bookings are always "online"; legacy rows may be "onsite". */
   payment_option: string;
   /** "pickup" | "delivery". */
   delivery: string;
-  /** Human-facing order reference (e.g. "AJR-FEXJUHA"); also the id the payment-update route expects. */
+  /** Human-facing order reference (e.g. "AJR-FEXJUHA"). */
   order_id: string;
   created_at: string;
-}
-
-/** A subpool line item echoed back by the payment-update endpoint. */
-export interface ConfirmedPaymentSubpool {
-  name: string;
-  price: number;
-  quantity: number;
-  subpool_id: string;
-}
-
-export interface ConfirmOnsitePaymentResult {
-  id: string;
-  order_id: string;
-  reservation_id: string;
-  user_id: string;
-  pool_id: string;
-  reference: string;
-  amount: number;
-  currency: string;
-  /** Order fulfilment status (pending | paid | delivered). */
-  status: string;
-  payment_status: string;
-  payment_option: string;
-  delivery: string;
-  location: string | null;
-  no_of_reservation: number;
-  subpools: ConfirmedPaymentSubpool[];
-  authorization_url: string | null;
-  access_code: string | null;
-  email: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface ReservationListQuery {

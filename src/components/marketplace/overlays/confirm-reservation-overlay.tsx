@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
-import type { DeliveryMode, PaymentOption } from "@/lib/types/marketplace.types";
+import type { DeliveryMode } from "@/lib/types/marketplace.types";
 import Button from "@/components/marketplace/common/button";
 import { useReservationStore } from "@/stores/reservation-store";
 import { ConfirmReservationFormValues, confirmReservationSchema } from "@/utils/validators";
@@ -17,7 +17,6 @@ interface ConfirmReservationOverlayProps {
     fullName: string;
     whatsappNumber: string;
     deliveryMode: DeliveryMode;
-    paymentOption: PaymentOption;
     location: string;
   }) => void;
 }
@@ -28,7 +27,7 @@ const ConfirmReservationOverlay = ({
   onClose,
   onProceed,
 }: ConfirmReservationOverlayProps) => {
-  const { fullname, phone, delivery, payment_option, location, setReservationDetails } = useReservationStore();
+  const { fullname, phone, delivery, location, setReservationDetails } = useReservationStore();
 
   const {
     register,
@@ -42,7 +41,6 @@ const ConfirmReservationOverlay = ({
       fullname,
       phone,
       delivery,
-      payment_option: payment_option || "online",
       location,
     },
     mode: "onChange",
@@ -53,27 +51,14 @@ const ConfirmReservationOverlay = ({
     name: "delivery",
   });
 
-  const watchPaymentOption = useWatch({
-    control,
-    name: "payment_option",
-  });
-
-  // When "Pay Onsite" is selected, lock delivery to pickup
-  useEffect(() => {
-    if (watchPaymentOption === "onsite") {
-      setValue("delivery", "pickup", { shouldValidate: true });
-    }
-  }, [watchPaymentOption, setValue]);
-
   useEffect(() => {
     if (isOpen) {
       setValue("fullname", fullname);
       setValue("phone", phone);
       setValue("delivery", delivery);
-      setValue("payment_option", payment_option || "online");
       setValue("location", location);
     }
-  }, [isOpen, fullname, phone, delivery, payment_option, location, setValue]);
+  }, [isOpen, fullname, phone, delivery, location, setValue]);
 
   const onSubmit = (data: ConfirmReservationFormValues) => {
     setReservationDetails(data);
@@ -81,7 +66,6 @@ const ConfirmReservationOverlay = ({
       fullName: data.fullname,
       whatsappNumber: data.phone,
       deliveryMode: data.delivery,
-      paymentOption: data.payment_option,
       location: data.delivery === "delivery" ? (data.location || "") : "",
     });
   };
@@ -119,7 +103,7 @@ const ConfirmReservationOverlay = ({
                   Confirm Reservation
                 </h2>
                 <p className="text-sm font-inter text-gold-muted">
-                  Enter your details to confirm your reservation
+                  Enter your details, then complete payment to secure your slot
                 </p>
               </div>
 
@@ -174,82 +158,41 @@ const ConfirmReservationOverlay = ({
                     )}
                   </div>
 
-                  {/* Payment Option */}
+                  {/* Delivery Mode */}
                   <div className="flex flex-col gap-2">
                     <span className="text-xs md:text-sm font-medium font-inter text-label">
-                      Payment Option
+                      Delivery
                     </span>
                     <div className="flex gap-4">
-                      {[
-                        { value: "online", label: "Online Payment" },
-                        { value: "onsite", label: "Pay Onsite" },
-                      ].map((opt) => (
+                      {(["pickup", "delivery"] as DeliveryMode[]).map((mode) => (
                         <label
-                          key={opt.value}
+                          key={mode}
                           className="flex items-center gap-1.5 cursor-pointer"
                         >
                           <input
                             type="radio"
-                            value={opt.value}
-                            {...register("payment_option")}
+                            value={mode}
+                            {...register("delivery")}
                             className="sr-only"
                           />
                           <div
                             className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                              watchPaymentOption === opt.value
+                              watchDelivery === mode
                                 ? "border-green"
                                 : "border-input-border"
                             }`}
                           >
-                            {watchPaymentOption === opt.value && (
+                            {watchDelivery === mode && (
                               <div className="w-2 h-2 rounded-full bg-green" />
                             )}
                           </div>
-                          <span className="text-sm font-inter text-green">
-                            {opt.label}
+                          <span className="text-sm font-inter text-green capitalize">
+                            {mode}
                           </span>
                         </label>
                       ))}
                     </div>
                   </div>
-
-                  {/* Delivery Mode — hidden when Pay Onsite is selected (pickup only) */}
-                  {watchPaymentOption !== "onsite" && (
-                    <div className="flex flex-col gap-2">
-                      <span className="text-xs md:text-sm font-medium font-inter text-label">
-                        Delivery
-                      </span>
-                      <div className="flex gap-4">
-                        {(["pickup", "delivery"] as DeliveryMode[]).map((mode) => (
-                          <label
-                            key={mode}
-                            className="flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <input
-                              type="radio"
-                              value={mode}
-                              {...register("delivery")}
-                              className="sr-only"
-                            />
-                            <div
-                              className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                watchDelivery === mode
-                                  ? "border-green"
-                                  : "border-input-border"
-                              }`}
-                            >
-                              {watchDelivery === mode && (
-                                <div className="w-2 h-2 rounded-full bg-green" />
-                              )}
-                            </div>
-                            <span className="text-sm font-inter text-green capitalize">
-                              {mode}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   {/* Pickup address — shown when delivery mode is pickup */}
                   {watchDelivery === "pickup" && (
@@ -307,6 +250,12 @@ const ConfirmReservationOverlay = ({
                   )}
                 </div>
 
+                {/* Payment notice */}
+                <p className="text-xs font-inter text-gold-muted leading-snug">
+                  You&apos;ll be redirected to our secure payment page. Your slot is
+                  only confirmed once payment is successful.
+                </p>
+
                 {/* Actions */}
                 <div className="flex gap-3">
                   <Button
@@ -323,7 +272,7 @@ const ConfirmReservationOverlay = ({
                     isLoading={isLoading}
                     disabled={!isValid}
                   >
-                    Proceed
+                    Proceed to Payment
                   </Button>
                 </div>
               </form>

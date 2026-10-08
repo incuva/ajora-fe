@@ -34,7 +34,8 @@ export interface Pool {
 }
 
 export type DeliveryMode = "pickup" | "delivery";
-export type PaymentOption = "online" | "onsite";
+/** Online payment is the only option offered; payment confirms the booking. */
+export type PaymentOption = "online";
 
 export interface SubpoolSelection {
   /** Map of subpool id → selection info */

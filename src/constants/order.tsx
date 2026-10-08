@@ -49,13 +49,7 @@ export const buildColumns = (
     key: "paymentMethod",
     header: "Payment Method",
     render: (row) => (
-      <span
-        className={
-          row.paymentMethod === "onsite"
-            ? "inline-flex rounded-full bg-gold-100 px-2.5 py-0.5 text-xs font-medium text-near-black capitalize"
-            : "inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize"
-        }
-      >
+      <span className="inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize">
         {row.paymentMethod || "—"}
       </span>
     ),

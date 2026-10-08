@@ -191,9 +191,8 @@ function ItemPageContent() {
   const subpools = pool?.subpools || (pool as { offals?: typeof pool.subpools })?.offals || [];
   const hasSubpoolSlots = subpools.some((s) => s.available_slots > 0);
   const canBook = pool ? pool.available_slots > 0 || hasSubpoolSlots : false;
-  const canPay = pool
-    ? pool.available_slots < 1 && pool.status === "open"
-    : false;
+  // Payment is required at booking; this lets users resume an unfinished payment.
+  const canPay = pool ? pool.status === "open" : false;
 
   return (
     <>
