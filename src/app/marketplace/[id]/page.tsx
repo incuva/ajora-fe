@@ -346,13 +346,13 @@ function ItemPageContent() {
             </Button>
 
             {/* Make Payment — secondary (outlined) */}
-            <Button
+            {/* <Button
               variant="secondary"
               onClick={() => setMakePaymentOpen(true)}
               disabled={!canPay}
             >
               Make Payment
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

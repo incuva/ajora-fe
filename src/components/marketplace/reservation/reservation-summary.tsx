@@ -86,7 +86,7 @@ const ReservationSummary = ({
       </div>
 
       {/* Notification hint */}
-      <div className="flex items-start gap-2">
+      {/* <div className="flex items-start gap-2">
         <svg
           width="14"
           height="14"
@@ -106,7 +106,7 @@ const ReservationSummary = ({
         <p className="text-xs font-inter text-green leading-normal">
           You would be notified to make payment immediately the pool is full.
         </p>
-      </div>
+      </div> */}
     </div>
   );
 };

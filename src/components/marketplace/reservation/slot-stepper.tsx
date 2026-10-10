@@ -16,7 +16,8 @@ const SlotStepper = ({ value, min = 0, max, pricePerSlot, weightPerSlot, onChang
   return (
     <div className="flex flex-col gap-3">
       <p className="text-base font-medium font-inter text-black">
-        How many {`${weightPerSlot}kg Slots`} do you want?
+        {/* How many {`${weightPerSlot}kg Slots`} do you want? */}
+        How many slots do you want?
       </p>
 
       {/* Price + stepper row */}

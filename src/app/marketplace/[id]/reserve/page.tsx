@@ -71,6 +71,7 @@ export default function ReservePage() {
   const subpoolsTotalQty = Object.values(subpoolSelection).reduce(
     (sum, item) => sum + item.qty,
     0,
+    
   );
 
   const subpoolsTotalAmount = Object.values(subpoolSelection).reduce(
