@@ -189,8 +189,15 @@ export interface AdminOrderDetail {
     payment_method: OrderPaymentMethod;
     total_amount: number;
     delivery: string;
+    location?: string | null;
+    phone?: string | null;
   };
-  buyer: { id: string; fullname: string };
+  buyer: {
+    id: string;
+    fullname: string;
+    phone?: string | null;
+    location?: string | null;
+  };
 }
 
 /** PUT /admin/order/{id}/deliver | /cancel result. */

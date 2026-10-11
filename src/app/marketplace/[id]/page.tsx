@@ -89,9 +89,11 @@ function ItemPageContent() {
   const handleMakePaymentContinue = async ({
     fullName,
     whatsappNumber,
+    email,
   }: {
     fullName: string;
     whatsappNumber: string;
+    email: string;
   }) => {
     if (!pool) return;
     setMakePaymentLoading(true);
@@ -100,7 +102,7 @@ function ItemPageContent() {
         pool_id: pool.id,
         fullname: fullName,
         phone: whatsappNumber,
-        email: "incuvaltd@gmail.com",
+        email,
         callbackUrl: `${url}/marketplace/${pool.id}/payment-success?status=success`,
       });
 

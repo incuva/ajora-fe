@@ -15,6 +15,7 @@ export const confirmReservationSchema = z
         /^0\d{10}$/,
         "Must start with 0 followed by 10 digits (total 11 digits)",
       ),
+    email: z.email("Enter a valid email"),
     delivery: z.enum(["pickup", "delivery"]),
     location: z.string().optional(),
   })
@@ -48,6 +49,7 @@ export const verifyReservationSchema = z.object({
       /^0\d{10}$/,
       "Must start with 0 followed by 10 digits (total 11 digits)",
     ),
+  email: z.email("Enter a valid email"),
 });
 
 export type VerifyReservationFormValues = z.infer<

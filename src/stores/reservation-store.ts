@@ -4,6 +4,7 @@ import type { DeliveryMode } from "@/lib/types/marketplace.types";
 interface ReservationState {
   fullname: string;
   phone: string;
+  email: string;
   delivery: DeliveryMode;
   location: string;
   setReservationDetails: (details: Partial<Omit<ReservationState, "setReservationDetails" | "resetReservationDetails">>) => void;
@@ -13,6 +14,7 @@ interface ReservationState {
 export const useReservationStore = create<ReservationState>((set) => ({
   fullname: "",
   phone: "",
+  email: "",
   delivery: "pickup",
   location: "",
 
@@ -24,6 +26,7 @@ export const useReservationStore = create<ReservationState>((set) => ({
     set({
       fullname: "",
       phone: "",
+      email: "",
       delivery: "pickup",
       location: "",
     });

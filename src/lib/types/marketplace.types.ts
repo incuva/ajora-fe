@@ -57,6 +57,7 @@ export interface ReservationPayload {
   pool_id: string;
   fullname: string;
   phone: string;
+  email: string;
   delivery: DeliveryMode;
   payment_option: PaymentOption;
   /** Required when deliveryMode === "delivery" */
@@ -120,6 +121,7 @@ export type PaymentStatus = "paid" | "initialized" | "failed" | "pending" | "ove
 export interface ConfirmPaymentResult {
   payment_id: string;
   reservation_id: string;
+  order_id: string;
   reference: string;
   amount: number;
   currency: string;

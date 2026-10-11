@@ -105,7 +105,7 @@ const OrderDetailsOverlay = ({
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex flex-col gap-1">
                     <h2 className="font-playfair text-3xl font-bold text-green">
-                      {order.orderId}
+                      Order ID: {order.orderId}
                     </h2>
                     <p className="text-sm font-inter text-text-sec">
                       Below are the details of this order
@@ -114,7 +114,7 @@ const OrderDetailsOverlay = ({
                   <button
                     onClick={onClose}
                     aria-label="Close"
-                    className="shrink-0 text-gray-500 hover:text-gray-800 transition-colors"
+                    className="shrink-0 print:hidden text-gray-500 hover:text-gray-800 transition-colors"
                   >
                     <X className="w-6 h-6" />
                   </button>
@@ -157,9 +157,9 @@ const OrderDetailsOverlay = ({
                     Order Details
                   </h3>
 
-                  {/* Item image */}
+                  {/* Item image (excluded from print) */}
                   {order.poolImage ? (
-                    <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden bg-grey-100">
+                    <div className="relative w-full aspect-4/3 rounded-xl overflow-hidden bg-grey-100 print:hidden">
                       <Image
                         src={order.poolImage}
                         alt={order.itemName ?? order.poolName ?? "Item"}
@@ -169,7 +169,7 @@ const OrderDetailsOverlay = ({
                       />
                     </div>
                   ) : (
-                    <div className="w-full aspect-4/3 rounded-xl bg-grey-100 flex items-center justify-center text-sm text-text-sec font-inter">
+                    <div className="w-full aspect-4/3 rounded-xl bg-grey-100 flex items-center justify-center text-sm text-text-sec font-inter print:hidden">
                       No image
                     </div>
                   )}
@@ -196,6 +196,19 @@ const OrderDetailsOverlay = ({
                     <DetailField
                       label="Delivery"
                       value={dash(order.delivery)}
+                    />
+                    <DetailField
+                      label="Phone"
+                      value={dash(order.phone)}
+                      className="col-span-2"
+                    />
+                    <DetailField
+                      label="Location"
+                      value={
+                        order.location ||
+                        (order.delivery === "pickup" ? "Pickup" : "—")
+                      }
+                      className="col-span-2 [&>span:last-child]:normal-case"
                     />
                   </div>
                 </div>
@@ -231,8 +244,8 @@ const OrderDetailsOverlay = ({
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex flex-col gap-3 pt-1">
+                {/* Actions (excluded from print) */}
+                <div className="flex flex-col gap-3 pt-1 print:hidden">
                   <button
                     onClick={handlePrint}
                     className="w-full h-12 rounded-lg bg-green text-white text-sm font-semibold font-inter transition-colors hover:bg-green/90"

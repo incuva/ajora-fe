@@ -211,6 +211,15 @@ function PaymentSuccessContent() {
                 {paymentData.reservation_id}
               </span>
             </div>
+          
+            <div className="h-px bg-soft-green/75" />
+
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-gold-800 font-inter w-2/5">Order ID</span>
+              <span className="font-mono text-near-black font-medium w-3/5 text-right">
+                {paymentData.order_id}
+              </span>
+            </div>
 
             <div className="h-px bg-soft-green/75" />
 

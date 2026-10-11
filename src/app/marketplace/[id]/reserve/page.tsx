@@ -100,6 +100,7 @@ export default function ReservePage() {
   const handleProceed = async (formData: {
     fullName: string;
     whatsappNumber: string;
+    email: string;
     deliveryMode: DeliveryMode;
     location: string;
   }) => {
@@ -122,6 +123,7 @@ export default function ReservePage() {
         no_of_reservation: slotCount,
         subpools: subpoolsPayload,
         phone: formData.whatsappNumber,
+        email: formData.email,
         fullname: formData.fullName,
         delivery: formData.deliveryMode,
         payment_option: "online",
@@ -154,7 +156,7 @@ export default function ReservePage() {
         pool_id: pool.id,
         fullname: formData.fullName,
         phone: formData.whatsappNumber,
-        email: "incuvaltd@gmail.com",
+        email: formData.email,
         callbackUrl: `${origin}/marketplace/${pool.id}/payment-success?status=success`,
       });
 

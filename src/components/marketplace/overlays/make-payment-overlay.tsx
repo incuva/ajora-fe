@@ -12,7 +12,7 @@ interface MakePaymentOverlayProps {
   isOpen: boolean;
   isLoading: boolean;
   onClose: () => void;
-  onContinue: (data: { fullName: string; whatsappNumber: string }) => void;
+  onContinue: (data: { fullName: string; whatsappNumber: string; email: string }) => void;
 }
 
 
@@ -22,7 +22,7 @@ const MakePaymentOverlay = ({
   onClose,
   onContinue,
 }: MakePaymentOverlayProps) => {
-  const { fullname, phone, setReservationDetails } = useReservationStore();
+  const { fullname, phone, email, setReservationDetails } = useReservationStore();
 
   const {
     register,
@@ -34,6 +34,7 @@ const MakePaymentOverlay = ({
     defaultValues: {
       fullname,
       phone,
+      email,
     },
     mode: "onChange",
   });
@@ -43,12 +44,17 @@ const MakePaymentOverlay = ({
     if (isOpen) {
       setValue("fullname", fullname);
       setValue("phone", phone);
+      setValue("email", email);
     }
-  }, [isOpen, fullname, phone, setValue]);
+  }, [isOpen, fullname, phone, email, setValue]);
 
   const onSubmit = (data: VerifyReservationFormValues) => {
     setReservationDetails(data);
-    onContinue({ fullName: data.fullname, whatsappNumber: data.phone });
+    onContinue({
+      fullName: data.fullname,
+      whatsappNumber: data.phone,
+      email: data.email.trim(),
+    });
   };
 
   return (
@@ -136,6 +142,31 @@ const MakePaymentOverlay = ({
                     {errors.phone && (
                       <span className="text-red-500 text-xs font-inter mt-0.5">
                         {errors.phone.message}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor="mp-email"
+                      className="text-sm font-medium font-inter text-label"
+                    >
+                      Email address
+                    </label>
+                    <input
+                      id="mp-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter your email address"
+                      {...register("email")}
+                      className={`w-full border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder ${
+                        errors.email ? "border-red-500 focus:border-red-500" : "border-input-border focus:border-green"
+                      }`}
+                    />
+                    {errors.email && (
+                      <span className="text-red-500 text-xs font-inter mt-0.5">
+                        {errors.email.message}
                       </span>
                     )}
                   </div>

@@ -34,6 +34,8 @@ export interface Order {
   itemUnit?: string;
   amount?: number;
   delivery?: string;
+  location?: string;
+  phone?: string;
   buyerName?: string;
   buyerId?: string;
 }
@@ -89,6 +91,8 @@ export const applyOrderDetail = (base: Order, d: AdminOrderDetail): Order => ({
   itemUnit: d.item?.unit,
   amount: num(d.order?.total_amount),
   delivery: d.order?.delivery,
+  location: d.order?.location ?? d.buyer?.location ?? undefined,
+  phone: d.buyer?.phone ?? d.order?.phone ?? undefined,
   paymentStatus: d.order?.payment_status ?? base.paymentStatus,
   paymentMethod: d.order?.payment_method ?? base.paymentMethod,
   slot: num(d.order?.no_of_slot) || base.slot,

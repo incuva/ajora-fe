@@ -16,6 +16,7 @@ interface ConfirmReservationOverlayProps {
   onProceed: (data: {
     fullName: string;
     whatsappNumber: string;
+    email: string;
     deliveryMode: DeliveryMode;
     location: string;
   }) => void;
@@ -27,7 +28,7 @@ const ConfirmReservationOverlay = ({
   onClose,
   onProceed,
 }: ConfirmReservationOverlayProps) => {
-  const { fullname, phone, delivery, location, setReservationDetails } = useReservationStore();
+  const { fullname, phone, email, delivery, location, setReservationDetails } = useReservationStore();
 
   const {
     register,
@@ -40,6 +41,7 @@ const ConfirmReservationOverlay = ({
     defaultValues: {
       fullname,
       phone,
+      email,
       delivery,
       location,
     },
@@ -55,16 +57,18 @@ const ConfirmReservationOverlay = ({
     if (isOpen) {
       setValue("fullname", fullname);
       setValue("phone", phone);
+      setValue("email", email);
       setValue("delivery", delivery);
       setValue("location", location);
     }
-  }, [isOpen, fullname, phone, delivery, location, setValue]);
+  }, [isOpen, fullname, phone, email, delivery, location, setValue]);
 
   const onSubmit = (data: ConfirmReservationFormValues) => {
     setReservationDetails(data);
     onProceed({
       fullName: data.fullname,
       whatsappNumber: data.phone,
+      email: data.email.trim(),
       deliveryMode: data.delivery,
       location: data.delivery === "delivery" ? (data.location || "") : "",
     });
@@ -154,6 +158,31 @@ const ConfirmReservationOverlay = ({
                     {errors.phone && (
                       <span className="text-red-500 text-xs font-inter mt-0.5">
                         {errors.phone.message}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor="cr-email"
+                      className="text-xs md:text-sm font-medium font-inter text-label"
+                    >
+                      Email address
+                    </label>
+                    <input
+                      id="cr-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="Enter your email address"
+                      {...register("email")}
+                      className={`w-full border rounded-md px-3 py-2.5 text-sm font-inter text-black outline-none bg-white placeholder:text-placeholder ${
+                        errors.email ? "border-red-500 focus:border-red-500" : "border-input-border focus:border-green"
+                      }`}
+                    />
+                    {errors.email && (
+                      <span className="text-red-500 text-xs font-inter mt-0.5">
+                        {errors.email.message}
                       </span>
                     )}
                   </div>
