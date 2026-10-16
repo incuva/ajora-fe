@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Bell, MessageCircleQuestionMark } from "lucide-react";
+import { Bell } from "lucide-react";
+import { SupportPill } from "@/components/shared/support-contact";
 import { getPools } from "@/lib/api/marketplace.service";
 import type { Pool } from "@/lib/types/marketplace.types";
 import PoolCard from "@/components/marketplace/pool-card";
@@ -52,10 +53,8 @@ export default function MarketplacePage() {
           onClick={() => router.push("/")}
         />
 
-        <section className="flex gap-3.5">
-          <div className="flex justify-center items-center w-8 h-8 rounded-full bg-soft-green">
-            <MessageCircleQuestionMark className="size-4" color="#114B3A" />
-          </div>
+        <section className="flex items-center gap-3.5">
+          <SupportPill />
           <div className="flex justify-center items-center w-8 h-8 rounded-full bg-soft-green">
             <Bell className="size-4" color="#114B3A" />
           </div>

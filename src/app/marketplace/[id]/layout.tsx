@@ -1,8 +1,9 @@
 "use client"
 
-import { Bell, MessageCircleQuestionMark } from "lucide-react";
+import { Bell } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { SupportPill } from "@/components/shared/support-contact";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
@@ -20,10 +21,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           onClick={() => router.push('/')}
         />
 
-        <section className="flex gap-3.5">
-          <div className="flex justify-center items-center w-8 h-8 rounded-full bg-soft-green">
-            <MessageCircleQuestionMark className="size-4" color="#114B3A" />
-          </div>
+        <section className="flex items-center gap-3.5">
+          <SupportPill />
           <div className="flex justify-center items-center w-8 h-8 rounded-full bg-soft-green">
             <Bell className="size-4" color="#114B3A" />
           </div>

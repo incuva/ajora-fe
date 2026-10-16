@@ -30,10 +30,10 @@ export const buildColumns = (
   handlers: OrderColumnHandlers,
 ): TableColumn<Order>[] => [
   {
-    key: "orderId",
-    header: "Order ID",
+    key: "customer",
+    header: "Customer",
     render: (row) => (
-      <span className="font-mono text-xs text-gray-600">{row.orderId}</span>
+      <span className="font-medium text-gray-800">{row.customer || "—"}</span>
     ),
   },
   {
@@ -46,18 +46,16 @@ export const buildColumns = (
     ),
   },
   {
-    key: "paymentMethod",
-    header: "Payment Method",
-    render: (row) => (
-      <span className="inline-flex rounded-full bg-soft-green px-2.5 py-0.5 text-xs font-medium text-green capitalize">
-        {row.paymentMethod || "—"}
-      </span>
-    ),
-  },
-  {
     key: "paymentStatus",
     header: "Payment Status",
     render: (row) => <StatusBadge status={statusVariant(row.paymentStatus)} />,
+  },
+  {
+    key: "subpool",
+    header: "Subpool",
+    render: (row) => (
+      <span className="text-gray-600">{row.subpool || "—"}</span>
+    ),
   },
   {
     key: "status",

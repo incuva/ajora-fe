@@ -17,6 +17,8 @@ import Button from "@/components/marketplace/common/button";
 import Spinner from "@/components/shared/spinner";
 import { useToastStore } from "@/stores/toast-store";
 import BackArrow from "@/components/shared/back-arrow";
+import { SupportBanner } from "@/components/shared/support-contact";
+import { SUPPORT_HINT } from "@/constants/support";
 
 export default function ReservePage() {
   const params = useParams();
@@ -93,9 +95,10 @@ export default function ReservePage() {
   };
 
   /**
-   * Every booking is paid online. We create the reservation, initiate payment
-   * and redirect to the gateway; the slot is confirmed once payment succeeds
-   * (verified on /payment-success).
+   * Every booking is paid online. We first create the reservation and wait for
+   * a SUCCESS response; only then do we initiate payment and redirect to the
+   * gateway. The slot is confirmed once payment succeeds (verified on
+   * /payment-success).
    */
   const handleProceed = async (formData: {
     fullName: string;
@@ -104,10 +107,11 @@ export default function ReservePage() {
     deliveryMode: DeliveryMode;
     location: string;
   }) => {
-    if (!pool || !isValidReservation) return;
+    if (!pool || !isValidReservation || overlayLoading) return;
     setOverlayLoading(true);
 
-    // Step 1: create the reservation
+    // Step 1: create the reservation. `confirmReservation` throws unless the
+    // backend returns a success response with the created reservation.
     try {
       const subpoolsPayload = subpoolsEnabled
         ? Object.entries(subpoolSelection)
@@ -118,7 +122,7 @@ export default function ReservePage() {
             }))
         : [];
 
-      const result = await confirmReservation({
+      await confirmReservation({
         pool_id: pool.id,
         no_of_reservation: slotCount,
         subpools: subpoolsPayload,
@@ -129,27 +133,19 @@ export default function ReservePage() {
         payment_option: "online",
         location: formData.location,
       });
-
-      if (!result.data) {
-        setOverlayLoading(false);
-        toastError(
-          "Reservation Failed",
-          result.message ??
-            "An error occurred while reserving a slot for the pool.",
-        );
-        return;
-      }
     } catch (error: unknown) {
       console.error("Reservation error:", error);
       setOverlayLoading(false);
       toastError(
         "Reservation Failed",
-        getErrorMessage(error, "An unexpected error occurred. Please try again."),
+        `${getErrorMessage(error, "An unexpected error occurred. Please try again.")} ${SUPPORT_HINT}`,
       );
+      // Do NOT attempt payment when the reservation did not succeed.
       return;
     }
 
-    // Step 2: initiate online payment and redirect to the gateway
+    // Step 2: reservation succeeded — initiate online payment.
+    toastSuccess("Reservation successful", "Redirecting you to payment…");
     try {
       const origin = window.location.origin;
       const payment = await makePayment({
@@ -161,7 +157,6 @@ export default function ReservePage() {
       });
 
       if (payment.data?.payment_link) {
-        toastSuccess("Redirecting to payment", "Complete payment to confirm your slot.");
         // Keep the overlay in its loading state while the browser navigates away.
         window.location.replace(payment.data.payment_link);
         return;
@@ -173,7 +168,7 @@ export default function ReservePage() {
       setOverlayOpen(false);
       toastError(
         "Payment not started",
-        `${getErrorMessage(error, "Could not start payment.")} Your slot is not confirmed yet — use "Make Payment" on the pool page to complete it.`,
+        `${getErrorMessage(error, "Could not start payment.")} Your slot is not confirmed yet — use "Make Payment" on the pool page to complete it. ${SUPPORT_HINT}`,
       );
       router.push(`/marketplace/${id}`);
     }
@@ -249,6 +244,8 @@ export default function ReservePage() {
             amountPerSlot={pool.slot_price}
             weightPerSlot={pool.weight_per_slot}
           />
+
+          <SupportBanner />
         </motion.div>
 
         {/* Sticky CTA */}

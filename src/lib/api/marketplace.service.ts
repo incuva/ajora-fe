@@ -45,15 +45,35 @@ export async function getPools(): Promise<Pool[]> {
 /**
  * Submit a reservation.
  *
+ * Resolves ONLY when the backend confirms the reservation was created
+ * (2xx status, no explicit failure flag, and a reservation record in `data`).
+ * Any other outcome throws, so callers must not proceed to payment unless
+ * this resolves.
  */
 export async function confirmReservation(
   payload: ReservationPayload,
 ): Promise<ApiResponse<PoolReservation>> {
-  const { data } = await apiClient.post<ApiResponse<PoolReservation>>(
+  const response = await apiClient.post<ApiResponse<PoolReservation>>(
     "/user/reservations/reserve",
     payload,
   );
-  return data;
+  const body = response.data;
+
+  const isHttpSuccess = response.status >= 200 && response.status < 300;
+  const explicitlyFailed =
+    body?.success === false ||
+    (typeof body?.status === "string" &&
+      ["error", "failed", "fail"].includes(body.status.toLowerCase())) ||
+    body?.status === false;
+  const hasReservation = Boolean(body?.data && (body.data.id || body.data.order_id));
+
+  if (!isHttpSuccess || explicitlyFailed || !hasReservation) {
+    throw new Error(
+      body?.message || "We couldn't confirm your reservation. Please try again.",
+    );
+  }
+
+  return body;
 }
 
 /**

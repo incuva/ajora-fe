@@ -166,6 +166,14 @@ export interface AdminOrder {
   payment_status: OrderPaymentStatus;
   payment_method: OrderPaymentMethod;
   no_of_slot: number;
+  /** Customer name — accepted under any of these keys. */
+  fullname?: string | null;
+  customer_name?: string | null;
+  customer?: string | { fullname?: string | null; name?: string | null } | null;
+  buyer?: { fullname?: string | null; name?: string | null } | null;
+  /** Subpools booked on this order. */
+  subpools?: { name?: string | null; quantity?: number | null }[] | null;
+  no_of_subpools?: number | null;
 }
 
 /**

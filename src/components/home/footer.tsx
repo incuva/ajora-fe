@@ -1,6 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import {
+  SUPPORT_PHONE_DISPLAY,
+  SUPPORT_TEL_LINK,
+  SUPPORT_WHATSAPP_LINK,
+} from "@/constants/support";
 
 const Footer = () => (
   <motion.footer
@@ -14,12 +19,21 @@ const Footer = () => (
       Investment and Credit Society Limited
     </span>
     <span className="text-xs font-medium text-text-sec">
-      Questions?{" "}
+      Need help? Call{" "}
       <a
-        href="https://wa.me/+2349130750399"
-        className="text-gold no-underline hover:underline"
+        href={SUPPORT_TEL_LINK}
+        className="text-gold font-semibold no-underline hover:underline"
       >
-        09130750399
+        {SUPPORT_PHONE_DISPLAY}
+      </a>{" "}
+      or{" "}
+      <a
+        href={SUPPORT_WHATSAPP_LINK}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-gold font-semibold no-underline hover:underline"
+      >
+        WhatsApp us
       </a>
     </span>
   </motion.footer>

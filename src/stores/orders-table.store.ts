@@ -21,6 +21,8 @@ export interface Order {
   paymentStatus: string; // paid | initialized | failed | cancelled
   paymentMethod: string; // online | onsite
   slot: number;
+  customer?: string; // buyer full name
+  subpool?: string; // e.g. "Offal ×2, Head ×1" or "3 subpools"
 
   // Detail-only (filled from getOrderById) —
   detailLoaded?: boolean;
@@ -67,6 +69,32 @@ const fmtTime = (iso?: string): string => {
     : d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 };
 
+const customerName = (o: AdminOrder): string | undefined => {
+  const c = o.customer;
+  const fromCustomer =
+    typeof c === "string" ? c : (c?.fullname ?? c?.name ?? undefined);
+  return (
+    o.fullname ??
+    o.customer_name ??
+    fromCustomer ??
+    o.buyer?.fullname ??
+    o.buyer?.name ??
+    undefined
+  ) || undefined;
+};
+
+const subpoolSummary = (o: AdminOrder): string | undefined => {
+  const list = (o.subpools ?? []).filter((s) => s && num(s.quantity) > 0);
+  if (list.length > 0) {
+    return list
+      .map((s) => `${s.name ?? "Subpool"} ×${num(s.quantity)}`)
+      .join(", ");
+  }
+  const count = num(o.no_of_subpools);
+  if (count > 0) return `${count} subpool${count !== 1 ? "s" : ""}`;
+  return undefined;
+};
+
 /** List row → table view-model. */
 export const mapAdminOrder = (o: AdminOrder): Order => ({
   id: o.id,
@@ -75,6 +103,8 @@ export const mapAdminOrder = (o: AdminOrder): Order => ({
   paymentStatus: o.payment_status,
   paymentMethod: o.payment_method,
   slot: num(o.no_of_slot),
+  customer: customerName(o),
+  subpool: subpoolSummary(o),
 });
 
 /** Merge a detail payload into an existing row for the details overlay. */
@@ -98,6 +128,7 @@ export const applyOrderDetail = (base: Order, d: AdminOrderDetail): Order => ({
   slot: num(d.order?.no_of_slot) || base.slot,
   buyerName: d.buyer?.fullname,
   buyerId: d.buyer?.id,
+  customer: base.customer ?? d.buyer?.fullname,
 });
 
 // Store

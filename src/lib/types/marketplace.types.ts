@@ -1,6 +1,9 @@
 export interface ApiResponse<T> {
   message: string;
   data: T;
+  /** Optional envelope flags — present on some endpoints. */
+  success?: boolean;
+  status?: string | boolean;
 }
 
 export interface Subpool {
